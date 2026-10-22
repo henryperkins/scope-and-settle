@@ -1,7 +1,8 @@
 import { api, esc, money, label, notice, busy, itemRows, safeInvoice } from './common.js';
+import { proposalDefaults } from './proposal.js';
 const $ = id => document.getElementById(id);
 const inPlugin = window.parent !== window;
-let session, project, comments = [], selected, assessment, editing, imageDataUrl, designContext = '', preservedItems = [];
+let session, project, comments = [], selected, assessment, editing, imageDataUrl, designContext = '', selectionContext = '', preservedItems = [];
 const post = message => { if (inPlugin) parent.postMessage({ pluginMessage: message }, '*'); };
 function saveSession(value) {
   session = value;
@@ -38,17 +39,18 @@ function pricing() {
   const amount = rate ? rate.unitAmountMinor : Math.round(Number($('amount').value) * 100);
   const quantity = Number($('quantity').value);
   $('custom-price').hidden = !!rate;
-  $('proposal-total').textContent = `${money(amount*quantity + preservedItems.reduce((s,x)=>s+x.unitAmountMinor*x.quantity,0))} · ${rate?'Rate-card price':'Designer-set price'}${preservedItems.length?' · Additional existing line items preserved':''}`;
+  const valid = Number.isSafeInteger(amount) && amount > 0 && Number.isSafeInteger(quantity) && quantity > 0 && quantity <= 100;
+  $('submit-proposal').disabled = !valid;
+  $('proposal-total').textContent = !valid ? 'Enter a valid designer-set price and quantity before sending this proposal.' : `${money(amount*quantity + preservedItems.reduce((s,x)=>s+x.unitAmountMinor*x.quantity,0))} · ${rate?'Rate-card price':'Designer-set price'}${preservedItems.length?' · Additional existing line items preserved':''}`;
   return [{ rateCardId: rate?.id ?? null, priceSource: rate ? 'rate_card' : 'designer', description: rate?.description ?? $('title').value, quantity, unitAmountMinor: amount }, ...preservedItems];
 }
 function showProposal(order) {
   editing = order?.id ?? null;
-  $('title').value = order?.title ?? 'Mobile checkout';
-  $('deliverables').value = (order?.deliverables ?? assessment?.result.deliverables ?? ['Mobile layouts for the existing checkout flow']).join('\n');
-  const item = order?.lineItems[0] ?? assessment?.result.lineItems[0];
-  preservedItems = (order?.lineItems ?? assessment?.result.lineItems ?? []).slice(1);
-  $('price-mode').value = item?.rateCardId ?? (item ? 'custom' : project.rateCard[0].id);
-  $('quantity').value = item?.quantity ?? 1; $('amount').value = ((item?.unitAmountMinor ?? 25000)/100).toFixed(2);
+  const draft = proposalDefaults(order, assessment, project);
+  $('title').value = draft.title; $('deliverables').value = draft.deliverables.join('\n');
+  preservedItems = draft.preservedItems;
+  $('price-mode').value = draft.priceMode;
+  $('quantity').value = draft.quantity; $('amount').value = draft.amount;
   $('proposal').hidden = false; pricing(); $('proposal').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 async function loadOrders() {
@@ -90,11 +92,11 @@ $('reset').onclick = e => busy(e.currentTarget, async()=> {
   assessment = null; selected = null; editing = null; $('share').hidden = true; $('proposal').hidden = true; $('assessment').innerHTML = ''; await load(); notice('Fresh demo ready.');
 });
 $('attach-frame').onclick = () => post({ type:'export-frame' });
-$('remove-frame').onclick = () => { imageDataUrl = undefined; $('frame').hidden = true; $('remove-frame').hidden = true; };
+$('remove-frame').onclick = () => { imageDataUrl = undefined; designContext = selectionContext; $('frame').hidden = true; $('remove-frame').hidden = true; };
 window.addEventListener('message', async event => {
   const m = event.data?.pluginMessage; if (!m) return;
   if (m.type === 'session' && m.session) { session=m.session; await load(); }
-  if (m.type === 'context' || m.type === 'selection') { designContext=JSON.stringify(m.selection); $('figma-context').textContent=(m.selection?.length ?? 0)+' selected in Figma'; }
+  if (m.type === 'context' || m.type === 'selection') { selectionContext=JSON.stringify(m.selection); if(!imageDataUrl) designContext=selectionContext; $('figma-context').textContent=(m.selection?.length ?? 0)+' selected in Figma'; }
   if (m.type === 'frame') { imageDataUrl=m.dataUrl; designContext=JSON.stringify(m.context); $('frame').src=imageDataUrl; $('frame').hidden=false; $('remove-frame').hidden=false; notice('Selected frame attached as supporting design evidence.'); }
   if (m.type === 'error') notice(m.message,true);
 });

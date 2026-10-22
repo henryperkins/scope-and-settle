@@ -6,7 +6,7 @@ This continuation implements the adopted product decisions and the approved next
 
 - Server-enforced project, run and role authorization. Client sessions bind to one proposal revision. Invitation links are single-use, expiring and revocable.
 - Immutable approved terms; baseline changes reject stale approval, and re-review produces a new approval context.
-- Server-resolved rate-card pricing and clearly distinguished designer-set prices.
+- Server-resolved rate-card pricing and clearly distinguished designer-set prices. An AI assessment without a matched rate requires explicit custom pricing, with no automatically filled amount.
 - Invoice operation persistence, coalesced concurrent actions, reconciliation after uncertain creation, and resumption of the same invoice after failed publication.
 - Invoice merchant, ID, currency and total validation before publishing a recovered draft and before accepting payment status.
 - Verified-webhook handling, event deduplication, authoritative invoice retrieval, and tombstones for late events after a run reset.
@@ -19,8 +19,9 @@ This continuation implements the adopted product decisions and the approved next
 | Layer | Observed result | Limit |
 | --- | --- | --- |
 | TypeScript + plugin bundle | Backend and plugin type checks and bundle passed | Native plugin execution is not established by compilation |
-| Automated behavior tests | **22 passed, 0 failed, 0 skipped**, on Windows and Linux | Fresh temporary databases and simulated provider boundaries |
+| Automated behavior tests | **24 passed, 0 failed, 0 skipped**, on Windows and Linux | Fresh temporary databases and simulated provider boundaries |
 | Browser flow | Manual custom-price proposal ($370) → separate client session → approval → payment-due view; reload retained the revision | Explicitly labeled synthetic Figma/PayPal responses; no AI or real checkout |
+| Latest browser price guard | Empty designer-set amount keeps submission disabled, with a visible request for a price | Same disposable provider-fixture mode; no live AI result |
 | Docker persistence | Replacing a container on the same volume retained a session, order and AI-budget ledger; anonymous access denied; runtime UID 1000 | Local Docker, not a Render deployment; this smoke check preceded the final PayPal-response parser fix |
 | Render Blueprint | Passed the current official JSON Schema validation | Dashboard/service creation has not occurred |
 | Fresh Figma comment read | HTTP request succeeded; **zero comments**, October 22 around 20:25 UTC | The requested real demo comment is still missing |
@@ -42,6 +43,7 @@ These paths are ignored runtime artifacts, not public credentials or judging fix
 - `output/evaluations/ai-2026-10-22T20-04-40.032Z.json`: first rate/credit failure.
 - `output/evaluations/ai-2026-10-22T20-05-07.059Z.json`: explicit exhausted-credit failure.
 - `output/browser/client-payment-due.jpg`: client review with visible fixture labeling.
+- `output/browser/unpriced-proposal.jpg`: required-price guard in the updated browser build.
 - `output/container/verification.json`: Docker persistence checks.
 - `output/provider-checks/draft-merchant-verification.json`: the actual new draft's redacted result.
 

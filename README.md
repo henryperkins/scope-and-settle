@@ -8,7 +8,7 @@ This is a hackathon prototype with synthetic project content, one configured Fig
 
 ## Current evidence
 
-- 22 automated tests pass on Windows and in the Linux container. They cover authorization, approval revisions, invoice recovery, concurrent actions, payment reconciliation, webhook handling, reset isolation, and budget persistence using simulated provider responses.
+- 24 automated tests pass on Windows and in the Linux container. They cover authorization, approval revisions, invoice recovery, concurrent actions, payment reconciliation, webhook handling, reset isolation, and budget persistence using simulated provider responses.
 - The browser workflow has been exercised through client approval and payment-due display with explicitly labeled provider fixtures.
 - Authenticated Figma comment access and real PayPal sandbox invoice creation/retrieval have been checked separately.
 - Live AI evaluation is pending account credits. Native Figma plugin use, actual sandbox buyer payment, live webhook delivery, and hosted deployment are not yet verified.
