@@ -8,10 +8,11 @@ This is a hackathon prototype with synthetic project content, one configured Fig
 
 ## Current evidence
 
-- 24 automated tests pass on Windows and in the Linux container. They cover authorization, approval revisions, invoice recovery, concurrent actions, payment reconciliation, webhook handling, reset isolation, and budget persistence using simulated provider responses.
+- 26 automated tests pass on Windows and in the Linux container. They cover authorization, approval revisions, invoice recovery, concurrent actions, payment reconciliation, webhook handling, reset isolation, and budget persistence using simulated provider responses.
 - The browser workflow has been exercised through client approval and payment-due display with explicitly labeled provider fixtures.
 - Authenticated Figma comment access and real PayPal sandbox invoice creation/retrieval have been checked separately.
-- Live AI evaluation is pending account credits. Native Figma plugin use, actual sandbox buyer payment, live webhook delivery, and hosted deployment are not yet verified.
+- The Google Cloud deployment passes HTTPS, authorization and restart-persistence checks. A manual synthetic approval created one real sandbox invoice; repeated approval reused it.
+- Live AI evaluation is pending account credits. Native Figma plugin use, actual sandbox buyer payment and live webhook delivery are not yet verified.
 
 See [the implementation verification record](docs/IMPLEMENTATION-2026-10-22.md). Automated/provider-fixture checks are not evidence of a completed real payment or successful AI judgment.
 
@@ -66,12 +67,12 @@ The AI ledger persists across server restarts and demo resets. Unknown-cost fail
 
 ## Hosting and judging
 
-[Render deployment instructions](docs/RENDER-DEPLOYMENT.md) describe the Docker service, 1 GB persistent disk, secret configuration, sandbox webhook registration and acceptance checks. A complete local build is the fallback for judges. Do not publish provider keys, sandbox buyer passwords or role links in this repository.
+[Google Cloud deployment instructions](docs/GOOGLE-CLOUD-DEPLOYMENT.md) describe the selected tiny VM, persistent data disk, HTTPS tunnel, sandbox webhook registration and acceptance checks. A complete local build is the fallback for judges. Do not publish provider keys, sandbox buyer passwords or role links in this repository.
 
 The plugin's backend URL is fixed at build time. For a hosted build, set `PUBLIC_BASE_URL` in the shell before `npm run build` and import the generated manifest again. In PowerShell:
 
 ```powershell
-$env:PUBLIC_BASE_URL = 'https://YOUR-SERVICE.onrender.com'
+$env:PUBLIC_BASE_URL = 'https://scope-and-settle.hperkins.com'
 npm run build
 Remove-Item Env:PUBLIC_BASE_URL
 ```

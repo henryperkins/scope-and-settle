@@ -1,6 +1,6 @@
 # Render deployment
 
-Selected by the entrant on October 22, 2026. The configuration is prepared and locally tested; a Render service has not yet been created.
+Archived alternative. The entrant switched to [Google Cloud](GOOGLE-CLOUD-DEPLOYMENT.md) on October 22, 2026. No Render service was created or funded. The configuration below remains available as a reference.
 
 ## Concrete configuration
 

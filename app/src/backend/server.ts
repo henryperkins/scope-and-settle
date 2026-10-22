@@ -59,8 +59,17 @@ export const server = createServer(async (req, res) => {
       return json(res, 200, { ok: missing.length === 0, missing, paypalEnv: config.paypalEnv });
     }
     if (path === "/webhooks/paypal" && req.method === "POST") {
-      const result = await receiveWebhook(req.headers, await readBody(req));
-      return result ? json(res, 200, result) : json(res, 401, { error: "Webhook verification failed" });
+      const event = await readBody(req);
+      const eventId = typeof event?.id === "string" ? event.id.slice(0, 100) : null;
+      try {
+        const result = await receiveWebhook(req.headers, event);
+        console.info(JSON.stringify({ component: "paypal_webhook", eventId, state: result?.state ?? "rejected" }));
+        return result ? json(res, 200, result) : json(res, 401, { error: "Webhook verification failed" });
+      } catch (error) {
+        // No payload, authorization header, certificate URL, or signature in logs.
+        console.warn(JSON.stringify({ component: "paypal_webhook", eventId, state: "error" }));
+        throw error;
+      }
     }
     if (path === "/api/session/redeem" && req.method === "POST") {
       const b = await readBody(req);

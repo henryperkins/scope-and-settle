@@ -1,0 +1,18 @@
+[Unit]
+Description=Scope and Settle HTTPS tunnel
+After=docker.service network-online.target scope-and-settle.service
+Requires=docker.service
+Wants=network-online.target scope-and-settle.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm scope-and-settle-tunnel
+ExecStart=/usr/bin/docker run --rm --name scope-and-settle-tunnel --network host --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 128m --memory-swap 256m --log-opt max-size=10m --log-opt max-file=3 --env-file /etc/scope-and-settle/tunnel.env cloudflare/cloudflared@sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39 tunnel --no-autoupdate --protocol http2 run
+ExecStop=/usr/bin/docker stop --time 20 scope-and-settle-tunnel
+Restart=always
+RestartSec=5
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

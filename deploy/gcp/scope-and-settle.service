@@ -1,0 +1,21 @@
+[Unit]
+Description=Scope and Settle sandbox application
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+RequiresMountsFor=/srv/scope-and-settle
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/scope-and-settle/image.env
+ExecStartPre=/usr/bin/mountpoint -q /srv/scope-and-settle
+ExecStartPre=-/usr/bin/docker rm scope-and-settle
+ExecStart=/usr/bin/docker run --rm --name scope-and-settle --read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 768m --log-opt max-size=10m --log-opt max-file=3 --publish 127.0.0.1:8787:8787 --env-file /etc/scope-and-settle/runtime.env --mount type=bind,source=/srv/scope-and-settle/data,target=/var/data ${IMAGE_ID}
+ExecStop=/usr/bin/docker stop --time 30 scope-and-settle
+Restart=always
+RestartSec=5
+TimeoutStartSec=60
+TimeoutStopSec=45
+
+[Install]
+WantedBy=multi-user.target
