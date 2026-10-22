@@ -1,0 +1,122 @@
+{
+  "description": "Synthetic evaluation data for the approved Scope & Settle spike. These are expected outcomes, not recorded model results.",
+  "currency": "USD",
+  "rate_card": [
+    {
+      "id": "mobile_checkout",
+      "description": "Add mobile layouts for the existing checkout flow",
+      "unit_amount_minor": 25000
+    },
+    {
+      "id": "additional_onboarding_screen",
+      "description": "Add one onboarding screen",
+      "unit_amount_minor": 10000
+    }
+  ],
+  "design_evidence": {
+    "id": "demo-desktop-checkout",
+    "description": "The supplied design shows a desktop checkout. This is synthetic context until a corresponding frame is created in the demo file. An absent mobile frame does not establish whether mobile design is included in the agreement."
+  },
+  "baselines": [
+    {
+      "id": "responsive_included",
+      "clauses": [
+        {
+          "id": "included-1",
+          "text": "The agreed deliverable is a three-step checkout with desktop and responsive mobile layouts. Both layouts use the same checkout steps."
+        },
+        {
+          "id": "included-2",
+          "text": "The fixed project fee includes two rounds of revisions to those layouts."
+        }
+      ]
+    },
+    {
+      "id": "desktop_only",
+      "clauses": [
+        {
+          "id": "desktop-1",
+          "text": "The agreed deliverable is a three-step checkout for desktop screens only. Mobile layouts are excluded from this project fee."
+        },
+        {
+          "id": "desktop-2",
+          "text": "Additional deliverables require a separate scope and price approved by the designer and client."
+        }
+      ]
+    },
+    {
+      "id": "mobile_undefined",
+      "clauses": [
+        {
+          "id": "ambiguous-1",
+          "text": "The agreed deliverable is a three-step checkout. Mobile support will be addressed as needed."
+        },
+        {
+          "id": "ambiguous-2",
+          "text": "The agreement does not define mobile screens, breakpoints, or whether their design is included in the fixed fee."
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "same-request-included",
+      "baseline_id": "responsive_included",
+      "comment": "Can you add the mobile checkout?",
+      "expected_classification": "included",
+      "required_evidence_id": "included-1",
+      "expected_rate_card_ids": [],
+      "expected_invoice_eligible": false
+    },
+    {
+      "id": "same-request-new-work",
+      "baseline_id": "desktop_only",
+      "comment": "Can you add the mobile checkout?",
+      "expected_classification": "new_work",
+      "required_evidence_id": "desktop-1",
+      "expected_rate_card_ids": ["mobile_checkout"],
+      "expected_proposed_amount_minor": 25000,
+      "expected_invoice_eligible": false,
+      "note": "A proposal is not an approval. Both parties must approve the exact scope and price before invoice creation."
+    },
+    {
+      "id": "same-request-needs-clarification",
+      "baseline_id": "mobile_undefined",
+      "comment": "Can you add the mobile checkout?",
+      "expected_classification": "needs_clarification",
+      "required_evidence_id": "ambiguous-1",
+      "expected_rate_card_ids": [],
+      "expected_invoice_eligible": false,
+      "required_question_topic": "Whether designing the mobile checkout is included in the fixed fee and what mobile deliverables were agreed."
+    },
+    {
+      "id": "paraphrase-included",
+      "baseline_id": "responsive_included",
+      "comment": "We still need the phone-sized version of this checkout. Could you put that in the file?",
+      "expected_classification": "included",
+      "required_evidence_id": "included-1",
+      "expected_rate_card_ids": [],
+      "expected_invoice_eligible": false
+    },
+    {
+      "id": "paraphrase-new-work",
+      "baseline_id": "desktop_only",
+      "comment": "Could you adapt these same checkout steps for a phone screen as well?",
+      "expected_classification": "new_work",
+      "required_evidence_id": "desktop-1",
+      "expected_rate_card_ids": ["mobile_checkout"],
+      "expected_proposed_amount_minor": 25000,
+      "expected_invoice_eligible": false
+    },
+    {
+      "id": "insufficient-request-detail",
+      "baseline_id": "desktop_only",
+      "comment": "Can you make the checkout more complete?",
+      "expected_classification": "needs_clarification",
+      "required_evidence_id": null,
+      "expected_rate_card_ids": [],
+      "expected_invoice_eligible": false,
+      "required_question_topic": "Which specific changes or missing deliverables the client wants."
+    }
+  ]
+}

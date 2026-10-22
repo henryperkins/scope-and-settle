@@ -1,0 +1,12 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { createInvitation } from '../dist/backend/sessions.js';
+import { config, DATA_DIR } from '../dist/backend/env.js';
+import { db } from '../dist/backend/db.js';
+const invite = createInvitation({ projectId: 'demo', role: 'designer' });
+const url = config.publicUrl + '/designer#' + invite.token;
+await mkdir(DATA_DIR, { recursive: true });
+const path = resolve(DATA_DIR, 'designer-link.txt');
+await writeFile(path, url + '\nExpires: ' + invite.expiresAt + '\n');
+console.log('Designer invitation saved locally: ' + path + ' (expires in one hour).');
+db.close();

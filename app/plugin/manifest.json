@@ -1,0 +1,12 @@
+{
+  "name": "Scope & Settle",
+  "id": "scope-and-settle-dev",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["http://localhost:8787"],
+    "reasoning": "The plugin UI talks to the local Scope & Settle backend, which owns Figma REST, AI, and PayPal calls."
+  }
+}

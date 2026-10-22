@@ -1,0 +1,45 @@
+# Review the paid service + disk estimate in Render before creating the service.
+services:
+  - type: web
+    name: scope-and-settle
+    runtime: docker
+    plan: 0.5c-512mb
+    region: oregon
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    disk:
+      name: scope-settle-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: SCOPE_SETTLE_DATA_DIR
+        value: /var/data
+      - key: PAYPAL_ENVIRONMENT
+        value: sandbox
+      - key: AI_MODEL
+        value: gpt-6-luna
+      - key: AI_BUDGET_USD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_SANDBOX_MERCHANT_EMAIL
+        sync: false
+      - key: PAYPAL_SANDBOX_BUYER_EMAIL
+        sync: false
+      - key: FIGMA_PERSONAL_ACCESS_TOKEN
+        sync: false
+      - key: FIGMA_FILE_KEY
+        sync: false
+# PUBLIC_BASE_URL defaults to Render's RENDER_EXTERNAL_URL at runtime.
+# Add PAYPAL_WEBHOOK_ID after registering this deployment's sandbox webhook.

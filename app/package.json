@@ -1,0 +1,27 @@
+{
+  "name": "scope-and-settle",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scope & Settle — Figma plugin + backend. Turn a client comment into an assessed, approved, PayPal-invoiced change order.",
+  "type": "module",
+  "packageManager": "pnpm@10.34.5",
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "eval:ai": "npm run build && node scripts/evaluate-ai.mjs",
+    "backup": "node scripts/backup-data.mjs",
+    "demo:link": "node scripts/create-demo-link.mjs",
+    "build": "tsc -p tsconfig.json && tsc -p plugin/tsconfig.json && node build-plugin.mjs",
+    "start": "node dist/backend/server.js",
+    "dev": "tsc -p tsconfig.json && node dist/backend/server.js"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.114.0",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
+  }
+}
