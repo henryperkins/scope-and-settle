@@ -1,6 +1,6 @@
 # Judging access verification — October 23, 2026 UTC
 
-Implementation is in `codex/judging-access`. This record distinguishes source/fixture checks from hosted provider and native-account acceptance. It does not claim a real webhook was received or another Figma account was tested.
+Judging implementation is in `codex/judging-access`; the subsequent delivery fix is in `codex/paypal-webhook-delivery`. This record distinguishes source/fixture checks from hosted provider and native-account acceptance. The real signed PAID webhook is now verified separately; another Figma account remains untested.
 
 ## Source and isolated local checks
 
@@ -51,7 +51,7 @@ A consistent pre-release backup was downloaded off the VM and passed SQLite inte
 
 The post-release backup also passed integrity checking at `2026-10-23T02:46:14.412Z`, SHA-256 `a5ce86b87c87372f07c5029e29cd499b77fbb22da92e0f10092fe96bd9075341`. It includes the active durable entry (hashed credential verified against the private delivery file), original Paid order, $0.042347 AI ledger and reset invoice tombstone. The Windows private files inherit access only for SYSTEM and the user. All 70 fingerprinted pre-existing primary-checkout files remained byte-for-byte unchanged; implementation stays in the attached worktree.
 
-At `2026-10-23T02:42:10.989Z`, PayPal still reported PAID/$0 due for the original invoice and the webhook receipt table was empty. See [the separate webhook investigation](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md). Actual callbacks remain unresolved.
+At the earlier `2026-10-23T02:42:10.989Z` check, PayPal reported PAID/$0 due while the webhook receipt table was empty. The subsequent ingress fix received and verified the real PAID event at `03:01:38.791Z`; the receipt and unchanged original Paid order survived an application restart at `03:06:59.839Z`. See [the completed webhook verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md).
 
 ## Remaining native acceptance
 

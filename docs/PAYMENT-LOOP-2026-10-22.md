@@ -1,6 +1,6 @@
 # Completed sandbox payment and Figma Paid verification
 
-Verified October 22, 2026, Chicago time (October 23 UTC). The existing $250 invoice was paid through actual PayPal sandbox buyer checkout. Authoritative invoice retrieval, the client page, and the native Figma plugin all show Paid. Signed webhook delivery remains unverified.
+Verified October 22, 2026, Chicago time (October 23 UTC). The existing $250 invoice was paid through actual PayPal sandbox buyer checkout. Authoritative invoice retrieval, the client page, and the native Figma plugin all show Paid. Its real signed PAID webhook was subsequently verified and reconciled at `2026-10-23T03:01:38.791Z`; see [the completed delivery verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md).
 
 ## Identity and provider result
 
@@ -37,15 +37,15 @@ The earlier **Manual hosting check: mobile checkout** invoice remains a separate
 
 These checks establish persistence across client-page reload and plugin reopening during valid sessions. Durable judging access, expired-session renewal, another-account installation, and a post-payment hosted restart are separate acceptance checks.
 
-## Separate webhook evidence
+## Historical webhook attempts before the delivery fix
 
 PayPal generated real event `WH-55T41444RY3781407-8MT97325HA677920B`, type `INVOICING.INVOICE.PAID`, for this invoice at `2026-10-23T01:12:46.579Z`.
 
-The existing webhook `27Y20713WH091884G` points to `https://scope-and-settle.hperkins.com/webhooks/paypal` and includes the PAID event subscription. A redelivery of the real PAID event was requested at `2026-10-23T01:17:02.877Z`; PayPal returned HTTP 202. An earlier redelivery of this invoice's real UNPAID event also returned 202. These are accepted delivery requests, not verified callback receipts. [PayPal redelivery API](https://developer.paypal.com/api/webhooks/v1/webhooks-events-resend).
+At this earlier check, webhook `27Y20713WH091884G` pointed to `https://scope-and-settle.hperkins.com/webhooks/paypal` and included the PAID event subscription. A redelivery of the real PAID event was requested at `2026-10-23T01:17:02.877Z`; PayPal returned HTTP 202. An earlier redelivery of this invoice's real UNPAID event also returned 202. These were accepted delivery requests, not verified callback receipts. [PayPal redelivery API](https://developer.paypal.com/api/webhooks/v1/webhooks-events-resend).
 
 The final read at `2026-10-23T01:19:23.321Z` (8:19 p.m. Chicago) confirmed the persisted Paid order, PayPal PAID with zero due, and **zero webhook receipts**. A deliberately unsigned diagnostic POST reached the public callback and returned HTTP 401 with `Webhook verification failed`. It did not create a receipt or change payment state. A narrowly filtered Cloudflare firewall-event query returned no matching events; this sampled result does not prove that PayPal attempted delivery or establish the cause of missing callbacks.
 
-Do not describe the successful UI refresh as proof of webhook delivery. Real callback arrival and signature verification remain outstanding.
+The later workers.dev ingress fix received the real PAID callback and passed signature verification. The successful UI refresh remains a separate observation; [the delivery record](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) contains the exact event, stored receipt and forwarding log.
 
 ## Preserved local artifacts
 

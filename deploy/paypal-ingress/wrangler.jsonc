@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scope-settle-paypal-ingress",
+  "main": "worker.mjs",
+  "account_id": "a77e479f6736120eadd99973dbeb705e",
+  "compatibility_date": "2026-10-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": {"enabled": true, "logs": {"enabled": true, "invocation_logs": false}}
+}
