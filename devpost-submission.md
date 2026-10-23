@@ -51,9 +51,11 @@ No designer walkthrough findings, adoption numbers or time savings are claimed y
 
 An AI recommendation is useful only when its evidence and authority are clear. Human review, explicit revision-bound consent, invoice recovery and provider-backed payment truth make the recommendation actionable. Small synthetic evaluations helped identify missing rate and evidence fields, but cannot replace observation of real designers.
 
-Next steps are designer walkthroughs and fixes based on observed friction, public YouTube publication of the completed demonstration, and the remaining submission details. Broader project support and production commerce would require separate validation beyond this hackathon's scope.
+Next steps are designer walkthroughs and fixes based on observed friction, confirmed private delivery of judge access, and the remaining submission details. Broader project support and production commerce would require separate validation beyond this hackathon's scope.
 
 ## Try it
+
+Watch the [public 2:49 demonstration](https://www.youtube.com/watch?v=m29YNTdVUF4), with English captions, actual product footage and labeled time compression.
 
 Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [JUDGING.md](https://github.com/henryperkins/scope-and-settle/blob/main/JUDGING.md). Hosted testing needs Figma desktop, your own Figma account, the judging code and the dedicated sandbox buyer supplied through the judge-access channel. No provider API keys or local backend are needed for that path. The [public MIT-licensed repository](https://github.com/henryperkins/scope-and-settle) includes source, synthetic assets and a local setup fallback.
 <!-- devpost-description:end -->
@@ -63,11 +65,11 @@ Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [
 - Existing Devpost project ID: `1500728`. The name, writeup, technologies and links were saved on October 23, 2026. Devpost changed its state to **published** at `2026-10-23T18:40:20.996Z`, with public URL https://devpost.com/software/scope-settle. The hackathon's `submitted_at` remains empty: **published project, not submitted entry**. Continue this project; do not create another.
 - Public demo: https://scope-and-settle.hperkins.com/judge
 - Public source: https://github.com/henryperkins/scope-and-settle
-- Public YouTube URL: **pending channel access and upload**. The reviewed 2:49 video and English captions are available as [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1); that download does not replace the hackathon's public YouTube requirement.
+- Public YouTube URL: https://www.youtube.com/watch?v=m29YNTdVUF4 — published October 23, 2026, with the reviewed thumbnail, chapter timestamps and uploaded English captions. The original MP4 and captions also remain [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1).
 - Built with: Figma, TypeScript, JavaScript, Node.js, SQLite, PayPal, Baseten, DeepSeek, Google Cloud, Cloudflare, Docker, OpenAI Codex.
 - Technical field answers: [DEVPOST-CUSTOM-ANSWERS.md](docs/DEVPOST-CUSTOM-ANSWERS.md).
 - Completed video, provenance and upload copy: [DEMO-VIDEO.md](docs/DEMO-VIDEO.md). Participant observation guide: [DEMO-AND-WALKTHROUGH.md](docs/DEMO-AND-WALKTHROUGH.md).
 - Four reviewed actual screenshots and a native Paid thumbnail were uploaded to the existing project. Captures and provenance are in [docs/media](docs/media/README.md). The final video contains actual buyer checkout and the same revision's payment return; its client approval transition is explicitly condensed between observed before/after views.
-- Final readiness: **not ready** until designer observations, public YouTube video, private access delivery and entrant answers are complete. Native final-ZIP acceptance passed under the separate account. Re-read the live form/rules before final submission. Updating the public project does not submit the entry.
+- Final readiness: **not ready** until designer observations, private access delivery and entrant answers are complete. Native final-ZIP acceptance and public YouTube publication are complete. Re-read the live form/rules before final submission. Updating the public project does not submit the entry.
 
 The official dates and five judging criteria were checked through the Devpost connector on October 23, 2026. Submission closes November 12 at 2 p.m. America/Chicago; the internal target is November 10. Judging ends December 15 at 10 a.m. America/Chicago. The current entry expiry is December 16 at 16:00 UTC. Runtime/provider availability through that date remains an operating commitment, not a guarantee inferred from the expiry setting.

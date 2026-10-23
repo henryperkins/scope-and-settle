@@ -6,6 +6,8 @@ A freelance designer selects a client request. AI compares it with an agreed bri
 
 This is a hackathon prototype with synthetic project content, one configured Figma file, one sandbox merchant/buyer pair, and USD pricing. It does not control Figma editing access. Demo links grant roles rather than verified personal identities.
 
+Watch the [2:49 working demonstration on YouTube](https://www.youtube.com/watch?v=m29YNTdVUF4), then follow the [judging walkthrough](JUDGING.md).
+
 ## Current evidence
 
 - Release 0.2.1 passed **52 tests, 0 failed, 0 skipped** on Windows and in the clean-source Linux image build. A fresh source export repeated all 52 passes on October 23. These checks use isolated SQLite and simulated providers; they cover authorization, revisions, invoice recovery, reconciliation, webhook verification, reset/budget persistence, durable judging access, native bridge messages and plugin packaging.
@@ -14,7 +16,7 @@ This is a hackathon prototype with synthetic project content, one configured Fig
 - The Google Cloud deployment passes HTTPS, authorization and persistent-state checks. The live assessment, approval and invoice association survived redeployment. Judging access implementation and hosted acceptance are tracked separately in the judging verification record.
 - An actual $250 PayPal sandbox buyer payment completed in an isolated browser. PayPal reports PAID with $0 due; the client page and native Figma plugin show Paid on the same approved revision, including after reload/reopening. [Real signed webhook delivery is verified](docs/PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md). A separate judge run also completed live AI, explicit client approval and sandbox checkout, with automatic signed PAID delivery.
 - The exact released 0.2.1 ZIP was installed under a separate Figma test account. It exported the actual selected frame, refreshed the existing judge run's payment from PayPal, and restored the same Paid revision after closing/reopening without reconnecting. This operator acceptance is separate from the still-pending designer walkthroughs.
-- A subsequent native recording run completed live AI with the actual frame, designer review, separate client consent and a third real $250 sandbox payment. The [reviewed 2:49 demonstration](docs/DEMO-VIDEO.md) follows that same revision through payment return and plugin reopening. The MP4 and English captions are public release assets; the required YouTube upload is pending channel access.
+- A subsequent native recording run completed live AI with the actual frame, designer review, separate client consent and a third real $250 sandbox payment. The [reviewed 2:49 demonstration](docs/DEMO-VIDEO.md) follows that same revision through payment return and plugin reopening. It is public on YouTube with English captions; the original MP4 and captions also remain public release assets.
 
 See [the completed payment and Figma verification](docs/PAYMENT-LOOP-2026-10-22.md), [the Baseten and working-flow record](docs/BASETEN-VERIFICATION-2026-10-23.md), and [earlier implementation checks](docs/IMPLEMENTATION-2026-10-22.md). Automated/provider-fixture checks are separate from actual AI and payment evidence.
 

@@ -4,7 +4,7 @@
 
 Checked October 22, 2026. These are historical provider-access checks for the approved feasibility spike, not the current release status. Current product decisions and acceptance status are consolidated in the [product specification](PRODUCT-SPEC.md). The separate-account native release check is now complete; outside-designer walkthroughs remain pending.
 
-**October 23 publication update:** three actual $250 sandbox payments and their signed PAID receipts are now documented. A [reviewed 2:49 native demonstration](DEMO-VIDEO.md), captions and the exact plugin kit are public release assets. The public source is synchronized and MIT-licensed. The Devpost project is published but has not been submitted to the hackathon. YouTube upload, outside-designer observations, confirmed private judge credential delivery and deferred entrant answers remain outstanding.
+**October 23 publication update:** three actual $250 sandbox payments and their signed PAID receipts are now documented. A [reviewed 2:49 native demonstration](DEMO-VIDEO.md) is public on YouTube with English captions; the original MP4, captions and exact plugin kit are also public release assets. The public source is synchronized and MIT-licensed. The Devpost project is published but has not been submitted to the hackathon. Outside-designer observations, confirmed private judge credential delivery and deferred entrant answers remain outstanding.
 
 | Check | Observed result |
 | --- | --- |

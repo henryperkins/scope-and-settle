@@ -1,6 +1,6 @@
 # Scope & Settle demonstration — October 23, 2026
 
-The reviewed demonstration is **2:49.021** (169.021354 seconds), with actual product captures, English narration and English captions. It is available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo.mp4). The required public YouTube upload is **pending channel access**; a release download does not satisfy that separate requirement.
+The reviewed demonstration is **2:49.021** (169.021354 seconds), with actual product captures, English narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=m29YNTdVUF4) on October 23, 2026, on the Henry Perkins channel. The original file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo.mp4).
 
 ## Artifact
 
@@ -14,6 +14,9 @@ The reviewed demonstration is **2:49.021** (169.021354 seconds), with actual pro
 | Captions | [English SRT](media/demo.en.srt), also a [release asset](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo.en.srt) |
 | Transcript | [Narration text](media/demo-transcript.txt) |
 | Product | Exact released plugin 0.2.1, source `99de2812193425b3c49c46b2faed91a4a40d8b57` |
+| YouTube | https://www.youtube.com/watch?v=m29YNTdVUF4 |
+
+YouTube Studio confirmed **Video published**, **Public** visibility and **English (United States) subtitles published** from the supplied SRT. Its initial copyright and Community Guidelines checks reported no issues. At `2026-10-23T20:44:23Z`, a separate browser with a **Sign in** link played the public video at **1920 × 1080**, 140 seconds into its 169.041-second duration, with no media error and the uploaded English caption visible. This is separate from the owner-channel publication confirmation. The same YouTube URL was saved to the existing Devpost project's video field; the hackathon entry remains unsubmitted.
 
 ## Actual sequence
 
@@ -44,11 +47,11 @@ Narration was generated locally with the installed Microsoft Zira Desktop voice.
 
 This is an operator demonstration using synthetic project content and sandbox test funds. It does not establish outside-designer validation, production readiness or measured time savings.
 
-## Prepared YouTube upload copy
+## Published YouTube upload copy
 
 **Title:** Scope & Settle — Figma to Paid | PayPal AI Hackathon Demo
 
-**Visibility:** Public, once the intended channel is authenticated.
+**Visibility:** Public.
 
 **Description:**
 
@@ -61,13 +64,11 @@ Public MIT source and local setup: https://github.com/henryperkins/scope-and-set
 Testing guide: https://github.com/henryperkins/scope-and-settle/blob/main/JUDGING.md
 Project: https://devpost.com/software/scope-settle
 
-0:00 Audience and workflow
-0:09 Figma request and design context
+0:00 Audience, Figma request and workflow
 0:21 Agreement evidence
 0:35 Live AI assessment result
 0:59 Separate client review
-1:19 Approved, awaiting payment
-1:27 PayPal sandbox invoice
+1:19 Approval and PayPal sandbox invoice
 1:37 Actual sandbox checkout
 1:53 Authoritative Paid status
 2:03 Paid in Figma
