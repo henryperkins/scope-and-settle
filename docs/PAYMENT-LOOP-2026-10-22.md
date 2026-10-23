@@ -71,8 +71,10 @@ Screenshots are under ignored `output/playwright/`:
 
 Session credentials and the isolated browser connection are private artifacts, not release assets. The private client-session restoration was diagnostic setup; it is not evidence that the planned self-service judge entry already exists.
 
-## Remaining ordered work
+## Work remaining when this payment record was first captured
 
 1. Observe and successfully verify a real PayPal callback; retain event identity and server receipt evidence.
 2. Implement and test [durable judging access](JUDGING-ACCESS-PLAN.md), independent runs, renewal, reset, and a versioned prebuilt plugin tested from another Figma account.
 3. Conduct the actual designer walkthroughs and finish the under-three-minute recording and public submission materials described in [the demonstration guide](DEMO-AND-WALKTHROUGH.md).
+
+**October 23 update:** real signed callback verification and the deployed judging implementation are complete. See [current judging verification](JUDGING-VERIFICATION-2026-10-23.md). Exact release-ZIP installation under the separate Figma account, designer walkthroughs and final submission materials remain pending.

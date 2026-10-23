@@ -1,6 +1,6 @@
 # Baseten and working-flow verification
 
-**Later continuation:** actual sandbox payment and Paid persistence on the client page and in native Figma are now verified. See [the completed payment record](PAYMENT-LOOP-2026-10-22.md). The checkout and unpaid observations below describe the earlier run; signed webhook receipt remains unverified.
+**Current status, October 23:** actual sandbox payment, Paid persistence and real signed PAID webhook delivery are verified. Durable judging access is deployed; a separate judge run completed live AI, explicit approval, checkout and automatic signed delivery. See [current judging verification](JUDGING-VERIFICATION-2026-10-23.md) and [webhook evidence](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md). The evaluations and earlier unpaid observations below are preserved historical evidence.
 
 Recorded October 22, 2026, Chicago time (October 23 UTC). This supersedes earlier statements that live AI was blocked on OpenAI credits. It does not establish a completed sandbox payment or verified webhook delivery.
 
@@ -71,9 +71,11 @@ The authenticated catalog quoted $0.60 per million input tokens and $2.40 per mi
 
 After 22 Baseten calls, the hosted ledger recorded **$0.039855**, no active reservations, and **$24.120145** remaining from its $24.16 allocation. Prior local conservative usage/reservations remain **$0.837288**. Combined recorded consumption is **$0.877143**. This is application accounting, not a provider billing statement. Do not make new live calls against the old local database or reset either ledger to regain allowance.
 
-## Remaining acceptance
+## Acceptance still remaining at the time of this earlier run
 
 - Complete actual sandbox buyer checkout, then verify PayPal's authoritative `PAID` state and zero amount due in both client page and native Figma plugin, including reopening the plugin.
 - Observe a real signed callback and verify its processing independently of manual refresh.
 - Implement and test the [judging-access plan](JUDGING-ACCESS-PLAN.md). Durable judge credentials, isolated judging runs and the final plugin download remain planned work.
 - Finish the public submission materials and observed designer walkthroughs without inventing impact measurements.
+
+The payment, webhook and judging implementation items above were subsequently completed; their dated evidence is linked at the top. Exact final-ZIP installation under the separate Figma account and the final submission materials remain open.

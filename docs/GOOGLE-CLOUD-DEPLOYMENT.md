@@ -55,7 +55,7 @@ Import `app/plugin/dist/manifest.json` in Figma desktop. A native plugin run, re
 
 ## Operations
 
-The judging release uses reviewed source `5a620f461bd7da89fc07377ef17709155b15ef1b` and runtime image `sha256:488466daad1b504a73498b4c336edb552a4aa0292a085c6be93cdab8610c72c8`. Its clean-source Linux build passed 49 tests. Hosted entry, expiry/renewal, independent reset, preserved Paid state and restart checks passed. [Judging verification](JUDGING-VERIFICATION-2026-10-23.md) records the ZIP checksum and exact provider results. The [subsequent webhook fix](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) received and verified the original real PAID event through the separate ingress; its durable receipt survived restart. Later sections preserve historical deployment observations.
+The current **0.2.1** release uses reviewed source `99de2812193425b3c49c46b2faed91a4a40d8b57` and runtime image `sha256:07f7cf5e62ee9f597e3fea750d99d5d069657cf4ab44805203b964be7dcb94cf`. Windows and clean-source Linux builds passed **52 tests, 0 failed, 0 skipped**. Hosted entry, expiry/renewal, independent reset, preserved Paid state and restart checks passed. Both actual Paid orders retain their approvals and verified signed receipts. [Judging verification](JUDGING-VERIFICATION-2026-10-23.md) records the exact ZIP checksum and evidence; [webhook verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) describes the separate ingress. Later sections preserve historical deployment observations.
 
 Connect using:
 
@@ -77,9 +77,9 @@ Consistent backups are written under the same data disk. Download and integrity-
 
 For shutdown after judging, remove only this deployment's VM, NAT/router, reserved address, tunnel/DNS record, and dedicated network. Preserve or explicitly back up the retained disks before deleting them. Stopping the VM alone does not stop all disk and reserved-IP charges.
 
-## Verification record
+## Historical verification record — October 22, before the later releases
 
-**Latest continuation, October 22 evening Chicago / October 23 UTC:** actual sandbox buyer checkout completed for the approved $250 invoice. PayPal reports PAID with $0 due; the client page and native Figma show Paid on revision 1, including after reload/reopening. Real signed webhook delivery remains unverified. See [the completed payment evidence](PAYMENT-LOOP-2026-10-22.md) and [Baseten verification](BASETEN-VERIFICATION-2026-10-23.md). The deployed image remains `sha256:7297d12148612f62f96740815ae41d33ed18239f514ca458ba2349308c9a9f65`; no application redeployment was needed for payment. The dated observations below remain historical.
+**At this earlier observation, October 22 evening Chicago / October 23 UTC:** actual sandbox buyer checkout completed for the approved $250 invoice. PayPal reported PAID with $0 due; the client page and native Figma showed Paid on revision 1, including after reload/reopening. Signed delivery had not yet been observed. The image at that time was `sha256:7297d12148612f62f96740815ae41d33ed18239f514ca458ba2349308c9a9f65`. The current release and completed webhook evidence are described above.
 
 Verified on October 22, 2026:
 
@@ -91,4 +91,4 @@ Verified on October 22, 2026:
 - Both services are active and enabled. The current app image is `sha256:501c50611f22b0b9eee474894be8648cbd1e78db610fef5f218ecdec22d418e7`; the changed backend modules have the same SHA-256 hashes locally and in the running container. All 26 automated tests passed on Windows and in the Linux image build.
 - The nine invoice webhook events are subscribed. PayPal's API lists the actual CREATED and UNPAID events for the hosted invoice, and accepted both resend requests with HTTP 202 at 21:49 UTC. At the 21:52 UTC server check, no signed callback receipt had been recorded. Event existence and resend acceptance are not delivery/signature-verification proof. Sampled Cloudflare analytics showed only the expected unsigned test requests, with no matching security events; that does not establish where provider delivery is delayed.
 
-The local Figma build targets the hosted origin. Native Figma execution, a real comment/frame, live AI evaluation and actual sandbox buyer payment remain outstanding. The hosted comment read succeeded but returned zero comments. Browser interaction verification is waiting for an Edge extension popup to be dismissed.
+At the initial October 22 check, native Figma execution, a real comment/frame, live AI evaluation and sandbox checkout had not yet been exercised; the first comment read returned zero comments. These historical gaps were subsequently resolved as documented in the current verification record.

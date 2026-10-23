@@ -24,7 +24,7 @@ One configured synthetic Figma project, one designer role, one client role, one 
 | Access | Expiring, revocable role links redeemed into project/run-scoped server sessions; client access binds to one revision. Links grant demo authority, not verified identity. |
 | Persistence | One Node 24 process and SQLite database. The selected Google Cloud VM hosts the HTTPS service with a persistent data disk; local setup is the fallback. |
 | Reset | Clear only the active run's local evidence and orders. Keep invoice tombstones and the AI budget ledger; PayPal invoices remain at PayPal. |
-| Budget | Reserve before calls, limit output and concurrency, record usage, and refuse calls above the configured remaining allowance. Maximum $25 per database; moving deployments requires allocating the remaining total development budget. |
+| Budget | Reserve before calls, limit output and concurrency, record usage, and refuse calls above the configured remaining allowance. Overall development cap $25 across instances; hosted allocation $24.16 after earlier local usage. Moving deployments requires allocating only the remaining total budget. |
 | Content | Synthetic data only. Project roles control access to records. Do not expose provider credentials through a public repo or demo. |
 | License | MIT. Repository identity is the authenticated entrant account; final Devpost team attribution must match the actual entrant(s). |
 | Impact | Observe 2–3 designers using the workflow. Report measured task times separately from self-reported estimates and avoid unsupported market claims. |
@@ -41,8 +41,9 @@ The positive payment acceptance test requires an actual personal sandbox buyer c
 
 1. Verified: actual comment → frame export → live assessment inside Figma desktop. Image attachment is proven; visual reasoning quality is not independently established.
 2. Verified for the bounded synthetic cases: final six fixtures and three fresh paraphrases have correct classifications, meaningful clause evidence and rates. Latencies and earlier failures are recorded.
-3. Verified through designer review → separate client approval → real sandbox invoice. Actual buyer checkout and paid status after reopening the plugin remain outstanding.
-4. Persistent state survives restart/redeploy. A real signed HTTPS webhook callback remains outstanding.
-5. Durable judging access and final submission materials remain outstanding; follow the documented judging-access plan.
+3. Verified: designer review → exact-revision client approval → actual $250 sandbox buyer checkout → authoritative PAID/$0 due. Client reload and owner-account native plugin reopening retain the same approved revision. A separate judge run completed a second actual payment.
+4. Verified: real signed PAID callbacks for both payments, including automatic delivery for the independent judge run. Approvals, invoice identities, reconciled receipts and the AI ledger survive restart/redeployment.
+5. Verified: deployed judge entry, naturally expired session renewal, independent runs, reset isolation and a checksummed 0.2.1 plugin ZIP. The exact ZIP was installed under a separate Figma account; actual frame export, PayPal refresh and reopening on the same Paid revision passed.
+6. Pending: observations from 2–3 designers, the reviewed public YouTube demonstration and the completed Devpost entry. Do not claim designer validation or broad model reliability from synthetic checks.
 
-See [current verification](BASETEN-VERIFICATION-2026-10-23.md), [Google Cloud deployment](GOOGLE-CLOUD-DEPLOYMENT.md), [judging-access plan](JUDGING-ACCESS-PLAN.md), and [demo/walkthrough outline](DEMO-AND-WALKTHROUGH.md). Requirements describe intended behavior; verification records describe what has actually been observed.
+Status updated October 23, 2026. See [current judging/release verification](JUDGING-VERIFICATION-2026-10-23.md), [bounded AI evaluation](BASETEN-VERIFICATION-2026-10-23.md), [Google Cloud deployment](GOOGLE-CLOUD-DEPLOYMENT.md), and [demo/walkthrough outline](DEMO-AND-WALKTHROUGH.md). Requirements describe intended behavior; dated verification records describe actual observations.

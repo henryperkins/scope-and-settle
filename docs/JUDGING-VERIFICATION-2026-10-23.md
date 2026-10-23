@@ -1,6 +1,6 @@
 # Judging access verification — October 23, 2026 UTC
 
-Judging implementation is deployed, with webhook and native bridge fixes in `codex/paypal-webhook-delivery`. A fresh isolated judge run completed live assessment, client approval, sandbox payment, and automatic signed PAID delivery. A separately verified Figma account can edit the designated file. Installation of the final ZIP in Figma Desktop under that second account remains the outstanding acceptance step; the owner-account candidate test does not substitute for it.
+Judging implementation is deployed, with webhook and native bridge fixes in `codex/paypal-webhook-delivery`. A fresh isolated judge run completed live assessment, client approval, sandbox payment, and automatic signed PAID delivery. The exact final 0.2.1 ZIP was then installed in Figma Desktop under a separate test account: actual frame attachment, authoritative payment refresh and restoration of the same Paid revision after reopening passed. The separate native acceptance below reuses the completed judge payment; it does not claim a second fresh native AI-to-checkout sequence or a walkthrough by an outside designer.
 
 ## Source and isolated local checks
 
@@ -97,6 +97,24 @@ A consistent backup before this deployment passed integrity checking and was cop
 
 At `11:00:38.382Z`, a post-deployment check read both invoices directly from PayPal and asserted **PAID, $250 total, $0 due**. Both stored orders retained revision 1 / `scope-rev-1`, their original explicit client approvals and their reconciled real webhook receipts. SQLite integrity was `ok`, the AI ledger remained exactly 44,203 micro-USD, the reset run remained closed and its replacement remained open with zero orders. Sanitized evidence is recorded in `post-release-persistence.json`.
 
-## Remaining native acceptance
+## Final ZIP acceptance under the separate Figma account
 
-The second account's browser edit access is verified, but its **Figma Desktop sign-in and final ZIP installation are pending**. Desktop sign-in opens the system browser, and the applicable computer-use guidance prohibits automating native authentication dialogs. A sign-in handoff was requested so the test can continue without opening the owner's personal browser. After that handoff, import the extracted 0.2.1 manifest, connect the existing judge run, attach its designated frame, check Paid, and reopen the plugin to verify persistence under that account. No second-account native installation or complete independent native walkthrough is claimed yet.
+On October 23, the existing **Scope Settle Judge Test** account completed the Desktop sign-in flow using an isolated browser. The editor's **Multiplayer tools** identified that account as **You**, with frame `5:2` selected in the designated file. Switching the Home account alone was insufficient: an already-open file retained the owner's account. Opening the same file with the test account selected corrected that before installation.
+
+The exact extracted `scope-and-settle-0.2.1-99de28121934.zip` manifest was imported through **Plugins → Development → Import plugin from manifest**. Its SHA-256 remained `df4d05e4729d666291cf731acb7ec095b244bbe1429904ca924ce14f5512a55d`. The import UI showed the `plugin-0.2.1/manifest.json` path. The conflicting older `plugin/manifest.json` development registration was removed through its menu; its files were preserved. The separate diagnostic registration was not used for this test.
+
+Using the existing judge run's privately saved resume access, the release loaded the real comment and **Paid / revision 1 / scope-rev-1** order. **Attach selected frame** exported the actual selected checkout frame and displayed its PNG with the confirmation “Selected frame attached as supporting design evidence.” No assessment was rerun and no new invoice or payment was created.
+
+**Check payment** retrieved PayPal status at approximately `2026-10-23T18:37:15Z`, retaining **Paid, $250.00 total, $0.00 due**, and the original approved revision. Closing the plugin and reopening it with Figma's **Run last plugin** shortcut restored access, the real comment and the same Paid revision without another connection step. The unsubmitted frame attachment was not retained after reopening; the verified persistence is the session and approved paid order.
+
+Seven numbered screenshot/text evidence stages are retained in the local `submission-check/native-acceptance` artifact directory: secondary account, exact import, final registration, frame attachment, refreshed payment, reopening, and the restored paid revision. Credentials and role links are excluded from the retained captures.
+
+## Fresh source and provider recheck
+
+A clean Git export of `ba4423f` installed with `pnpm install --frozen-lockfile` under Node 24.15.0 and passed **52 tests, 0 failed, 0 skipped**. The standalone ingress/subscription helpers passed another **9 tests, 0 failed, 0 skipped**. These remain local checks with provider fixtures, separate from the live observations.
+
+At `18:42:11.927Z`, that exported build started on a separate loopback port with provider credentials deliberately blank. The designer page returned 200, anonymous order access returned 401, the documented invitation command generated usable designer access, and authenticated `/api/change-orders` returned 200 with an empty list. Health correctly listed missing provider configuration. This verifies local startup and access, not live provider setup. An initial diagnostic used the nonexistent `/api/orders` route and returned 404; its failed record was preserved before correcting the diagnostic route.
+
+At `2026-10-23T18:28:12.574Z`, read-only hosted/provider checks confirmed SQLite integrity `ok`, both invoices **PAID / $250 total / $0 due**, unchanged approvals/revisions and reconciled signed receipts. The durable entry remained active through `2026-12-16T16:00:00Z`; its 24 recorded AI calls still totaled **44,203 micro-USD**, within the $24.16 hosted share of the overall $25 cap. PayPal returned the configured webhook subscription, Figma returned the designated comment, and Baseten's model catalog returned the configured model. No inference charge was incurred. The Figma response did not expose token expiry, so present access is not proof of future token validity.
+
+Outside-designer walkthroughs, the final public video, private judge-access delivery, entrant answers and final Devpost submission remain outstanding. Current provider responses and access expiry support readiness today; operating availability through the judging close still requires maintenance.

@@ -2,6 +2,8 @@
 
 Recorded October 22, 2026. This is the agreed delivery plan, not evidence that judging access has been implemented or tested. Complete and verify the live product flow before implementing this access milestone.
 
+**Status as of October 23:** the live payment loop, judging implementation and exact-ZIP native installation/reopening under the separate Figma account are verified; [the dated evidence](JUDGING-VERIFICATION-2026-10-23.md) is authoritative for current status. The plan below is preserved as the original requirements. The final submission/access package and outside-designer walkthroughs remain pending.
+
 ## Outcome
 
 A judge following only the submitted instructions can select the real Figma comment, obtain an AI assessment, review a proposal, approve it as the demo client, complete a PayPal sandbox payment, observe authoritative Paid status, and start again without contacting the entrant.
