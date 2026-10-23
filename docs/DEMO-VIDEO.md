@@ -2,7 +2,24 @@
 
 The reviewed demonstration is **2:49.021** (169.021354 seconds), with actual product captures, English narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=m29YNTdVUF4) on October 23, 2026, on the Henry Perkins channel. The original file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo.mp4).
 
-## Artifact
+## Narration revision — October 23, 2026
+
+The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [revised MP4](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4) and [matching English captions](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.en.srt) are available as additional release assets. YouTube replacement publication and the Devpost video-link update are pending renewed access to the isolated upload browser; the link above still points to the original narration.
+
+| Item | Value |
+| --- | --- |
+| File | `Scope-and-Settle-Demo-ElevenLabs.mp4` |
+| Runtime | 169.021354 seconds / 2:49.021 |
+| Size | 7,563,696 bytes |
+| SHA-256 | `9ab73a06108c3f7699c5afcedb36b2069a84c6e6ccbe34bcf91d9b76d1d64db7` |
+| Audio | User-supplied voice replacement, encoded as AAC at 48 kHz |
+| Input MP3 SHA-256 | `f8bc65aea26ac811abdb86240b8a89d00dbd5db2439f79778b3ee73b560ac9da` |
+
+At `2026-10-23T21:05:15Z`, the revised export fully decoded without errors. Its copied H.264 video stream has the same SHA-256 as the original (`4484fcc7a60c605778c96feb0f445d8e18b87b1e6dffc9ac35236aa124785614`), preserving the actual footage, redactions and edit. Audio-envelope comparison across all 12 scenes found the best alignment within 0.01 seconds of the original, supporting reuse of the existing captions. Only trailing silence was trimmed from the 169.366-second MP3 to fit the original video duration.
+
+A local speech-recognition check recovered the workflow in sequence, with recognition uncertainty around individual words and names. Automated transcription and alignment are not a human listening test. No additional paid model call was made for this replacement. The supplied voice ID, generation settings and any entrant-side ElevenLabs cost were not included with the file and are not inferred. ElevenLabs is used for presentation audio, separately from the product's Baseten runtime inference.
+
+## Original published artifact
 
 | Item | Value |
 | --- | --- |
@@ -43,7 +60,7 @@ Manual invoice retrieval produced the first visible Paid state at approximately 
 
 The edit uses actual captures from that workflow. Navigation and waiting are condensed, as labeled. The client approval transition is condensed between actual before/after views; the final edit does not show the consent click continuously. The real assessment result is shown after inference, without repeating the model call for filming. Actual buyer checkout is moving footage. Authentication is omitted, private account details are covered with opaque redactions, and private URLs/access controls are excluded from the crop. No fixture, simulated callback or injected payment state substitutes for live evidence.
 
-Narration was generated locally with the installed Microsoft Zira Desktop voice. No voice was cloned, no outside music was used and no paid speech API was called. The captions follow that narration. Public claims were checked against the transcript, live observations and saved provider evidence. The export fully decodes, contains both video and audio, and sampled frames cover every scene; layout and sensitive-information checks were performed on the rendered export. Automated decoding and visual checks are not a human listening test.
+The original narration was generated locally with the installed Microsoft Zira Desktop voice. That original render used no voice cloning, outside music or paid speech API. The captions follow the narration. Public claims were checked against the transcript, live observations and saved provider evidence. The original export fully decodes, contains both video and audio, and sampled frames cover every scene; layout and sensitive-information checks were performed on the rendered export. Automated decoding and visual checks are not a human listening test. The subsequent user-supplied narration replacement is documented above.
 
 This is an operator demonstration using synthetic project content and sandbox test funds. It does not establish outside-designer validation, production readiness or measured time savings.
 
