@@ -1,5 +1,6 @@
 import { api, sessionApi, esc, money, label, notice, busy, itemRows, safeInvoice } from './common.js';
 import { proposalDefaults } from './proposal.js';
+import { isFigmaPluginMessage } from './figma-bridge.js';
 const $ = id => document.getElementById(id);
 const inPlugin = window.parent !== window;
 let session, project, comments = [], selected, assessment, editing, imageDataUrl, fileKey, designContext = '', selectionContext = '', preservedItems = [];
@@ -120,7 +121,7 @@ $('reset').onclick = e => busy(e.currentTarget, async()=> {
 $('attach-frame').onclick = () => post({ type:'export-frame', expectedFileKey: project?.figmaFileKey });
 $('remove-frame').onclick = () => { imageDataUrl = undefined; designContext = selectionContext; $('frame').hidden = true; $('remove-frame').hidden = true; };
 window.addEventListener('message', async event => {
-  if (!inPlugin || event.source !== window.parent) return;
+  if (!isFigmaPluginMessage(event)) return;
   const m = event.data?.pluginMessage; if (!m) return;
   if (m.type === 'session' && m.session) { session=m.session; await load(); }
   if (m.type === 'context' || m.type === 'selection') { fileKey=m.fileKey; selectionContext=JSON.stringify(m.selection); if(!imageDataUrl) designContext=selectionContext; checkFile(); }

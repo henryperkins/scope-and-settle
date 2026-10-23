@@ -24,6 +24,8 @@ A new file has a different key and comment ID. Update `FIGMA_FILE_KEY` and the c
 
 ## Permission acceptance
 
+On October 23, 2026 UTC, the existing file was moved from owner Drafts into **Scope & Settle Judging → Team folder** on the free Starter plan, and its link setting was saved as **Anyone can edit**. The file key, frame ID and real comment were preserved. No paid plan, trial or paid seat was purchased. A separately created, verified Figma test account opened the editor and changed the selected frame's X position from 0 to 1 and back to 0. That proves independent edit access; its native development-plugin installation is a separate acceptance check.
+
 The native plugin requires a judge's own Figma account to open this exact file with edit access and Figma desktop to import the development plugin. A view-only link is insufficient. Opening the file as its owner does not prove another account can edit it. Record the second-account result separately in the judging verification notes; never infer it from the server's token or the export assets.
 
 The development manifest enables `enablePrivatePluginApi` so Figma exposes `figma.fileKey` for the file identity check. See [Figma manifest documentation](https://developers.figma.com/docs/plugins/manifest/) and [`figma.fileKey`](https://developers.figma.com/docs/plugins/api/figma/).

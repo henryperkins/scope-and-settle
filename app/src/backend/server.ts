@@ -47,7 +47,7 @@ export const server = createServer(async (req, res) => {
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
     const publicFiles: Record<string, string> = { "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html",
-      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
+      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
       res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : file.endsWith(".css") ? "text/css" : "text/javascript",

@@ -19,6 +19,14 @@ async function request(path, method = 'GET', token, body) {
   return fetch(base + path, { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
 }
 
+test('the browser designer can load its Figma bridge module without a session', async () => {
+  const response = await request('/assets/figma-bridge.js');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /javascript/);
+  const module = await import('data:text/javascript;base64,' + Buffer.from(await response.text()).toString('base64'));
+  assert.equal(typeof module.isFigmaPluginMessage, 'function');
+});
+
 test('anonymous callers cannot read private data or perform designer actions', async () => {
   for (const [path, method, body] of [
     ['/api/project', 'GET'], ['/api/comments', 'GET'], ['/api/change-orders', 'GET'], ['/api/ai-budget', 'GET'],
