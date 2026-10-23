@@ -49,6 +49,8 @@ At `2026-10-23T02:41:21.726Z`, an additional hosted restart preserved the origin
 
 A consistent pre-release backup was downloaded off the VM and passed SQLite integrity checking. Its SHA-256 is `24f6e5c44b0a434b101e202615df9db73440412b9007f983e605efee841e6900`. It contains the original Paid record and pre-release ledger; private state stays outside public artifacts.
 
+The post-release backup also passed integrity checking at `2026-10-23T02:46:14.412Z`, SHA-256 `a5ce86b87c87372f07c5029e29cd499b77fbb22da92e0f10092fe96bd9075341`. It includes the active durable entry (hashed credential verified against the private delivery file), original Paid order, $0.042347 AI ledger and reset invoice tombstone. The Windows private files inherit access only for SYSTEM and the user. All 70 fingerprinted pre-existing primary-checkout files remained byte-for-byte unchanged; implementation stays in the attached worktree.
+
 At `2026-10-23T02:42:10.989Z`, PayPal still reported PAID/$0 due for the original invoice and the webhook receipt table was empty. See [the separate webhook investigation](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md). Actual callbacks remain unresolved.
 
 ## Remaining native acceptance
