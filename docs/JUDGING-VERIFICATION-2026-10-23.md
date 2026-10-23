@@ -1,11 +1,11 @@
 # Judging access verification — October 23, 2026 UTC
 
-Judging implementation is in `codex/judging-access`; the subsequent delivery fix is in `codex/paypal-webhook-delivery`. This record distinguishes source/fixture checks from hosted provider and native-account acceptance. The real signed PAID webhook is now verified separately; another Figma account remains untested.
+Judging implementation is deployed, with webhook and native bridge fixes in `codex/paypal-webhook-delivery`. A fresh isolated judge run completed live assessment, client approval, sandbox payment, and automatic signed PAID delivery. A separately verified Figma account can edit the designated file. Installation of the final ZIP in Figma Desktop under that second account remains the outstanding acceptance step; the owner-account candidate test does not substitute for it.
 
 ## Source and isolated local checks
 
 - The baseline was 34 passing tests. The new entry/renewal/run tests failed before implementation because the new judging module did not exist. Browser renewal and plugin/provisioning tests likewise failed before their implementations existed.
-- The current Windows suite passes **49 tests, 0 failed, 0 skipped**. It exercises parent expiry/revocation, hashed entry/resume secrets, independent runs, frozen project snapshots, role/revision preservation, edited client links, per-run invoice/reset races, late assessment completion without evidence resurrection, preserved AI charges, client renewal without duplicate invoices, and deterministic plugin packaging/checksums.
+- The initial judging release passed **49 tests, 0 failed, 0 skipped**. It exercises parent expiry/revocation, hashed entry/resume secrets, independent runs, frozen project snapshots, role/revision preservation, edited client links, per-run invoice/reset races, late assessment completion without evidence resurrection, preserved AI charges, client renewal without duplicate invoices, and deterministic plugin packaging/checksums. The native bridge release below adds three regressions, for **52 passing tests** on Windows and Linux.
 - A fresh Chromium process with two separate browser contexts completed entry → assessment display → proposal → explicit client approval → Paid display → session expiry/renewal → reset at `2026-10-23T02:24:51.063Z`. The second context resumed its own unchanged run; the reset client's access failed and its private content cleared. No page errors occurred. **All providers in this UI check were fixtures.** It is not a second actual payment or live AI result.
 - The isolated UI run exercised desktop and 440-pixel viewports. Screenshots and its sanitized result are in ignored `output/playwright` in the implementation worktree.
 - Native frame messages include the real file key. Attachment checks it in the plugin and again at the assessment endpoint. Development manifest private APIs expose the file key; another file cannot be silently combined with the supplied comments.
@@ -23,7 +23,7 @@ The browser keeps its own resume access in local/session storage; Figma uses `cl
 
 The existing real payment remains documented in [the payment record](PAYMENT-LOOP-2026-10-22.md): invoice `INV2-MR5K-GT4U-9TF7-Q36T`, $250, PAID/$0 due, same approved revision, client and native Figma persistence.
 
-The release was built from a clean Git archive of reviewed commit `5a620f461bd7da89fc07377ef17709155b15ef1b` and deployed to the existing persistent service. The Linux image build also passed **49 tests, 0 failed, 0 skipped**. It used the frozen dependency lockfile and no local credentials/database.
+The initial 0.2.0 release was built from a clean Git archive of reviewed commit `5a620f461bd7da89fc07377ef17709155b15ef1b` and deployed to the existing persistent service. The Linux image build also passed **49 tests, 0 failed, 0 skipped**. It used the frozen dependency lockfile and no local credentials/database. The 0.2.1 release below supersedes these artifact identities.
 
 | Release artifact | Verified identity |
 | --- | --- |
@@ -53,6 +53,50 @@ The post-release backup also passed integrity checking at `2026-10-23T02:46:14.4
 
 At the earlier `2026-10-23T02:42:10.989Z` check, PayPal reported PAID/$0 due while the webhook receipt table was empty. The subsequent ingress fix received and verified the real PAID event at `03:01:38.791Z`; the receipt and unchanged original Paid order survived an application restart at `03:06:59.839Z`. See [the completed webhook verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md).
 
+## Independent live judge run
+
+On October 23, a fresh isolated browser started run `judge-ce218f54-4d5f-4bd5-8caf-2845e342227b` through the actual judge entry UI. It selected real comment `1978367271`, obtained live assessment `96124582-bd32-429e-80c0-7460a2059ddf`, reviewed the $250 mobile-checkout proposal, and explicitly approved revision 1 / `scope-rev-1` on the separate client page at `03:47:57.041Z`.
+
+PayPal checkout completed as the verified personal sandbox buyer. Invoice `INV2-6857-LMSK-HM4W-KUTT` reports **PAID / $0 due**, transaction `5FE84858PP3136926`. The associated change order is `52fd392f-8dc7-43c7-ab39-721d5eb43d58`. Both client and designer pages displayed Paid, and the client retained it after reloading. This was a new actual payment, distinct from the original demonstration invoice.
+
+The real event `WH-2YL446797G5722536-59H99790AU2522846` arrived automatically and was reconciled at `03:56:27.120Z`. An independent PayPal event read returned HTTP 200 and `INVOICING.INVOICE.PAID` for that invoice. Receipt persistence follows the unchanged signature-verification gate; no event simulator, manually inserted receipt or payment-state override was used. At `10:12:25.543Z`, provider retrieval and the stored approval, invoice identity, Paid state and receipt were unchanged.
+
+After more than six hours, the original short session returned 401. **Resume my demo on this browser** renewed the same designer role and run through the normal UI, then the browser workspace again showed the same Paid revision. This expiry occurred naturally; the prepared forced-expiry diagnostic was not executed.
+
+A second isolated browser run, `judge-2c50fc24-aa66-466c-9e63-af25d045ac6e`, could not read the first run's order (403). Its **Reset my demo** control issued clean run `judge-cda78107-d2f3-4ceb-86ba-ad338de88463`; its previous resume credential returned 401, the shared budget response was unchanged, and the first run remained Paid/$0 due after a fresh provider check. This UI reset supplements the earlier hosted API checks of invoice tombstones, client revocation and restart persistence.
+
+The initial downloaded prebuilt ZIP matched SHA-256 `9c8260c49b7966b013c17e2ec62fb6be21b4a311813b6be04b9a77baec89cb2c`. All four embedded file checksums matched `SOURCE.json`, which identifies source `5a620f461bd7da89fc07377ef17709155b15ef1b` and the hosted origin. Screenshots and sanitized JSON evidence are retained in the local `judging-acceptance` artifact directory; credentials remain in protected operator storage.
+
+## Second-account file access
+
+A dedicated Figma test account was created and email-verified in an isolated browser. The original Starter Drafts location gave that account view-only access, even with the intended link settings. Moving the existing file into a free Starter team folder and setting **Anyone can edit** resolved it. The file key, frame `5:2` and comment `1978367271` were preserved; no paid plan, trial or seat was purchased.
+
+The second account opened the same file and changed the selected frame's X position from 0 to 1 and back to 0. This proves edit access without leaving the synthetic design changed. Account credentials and isolated browser state remain only in protected operator storage. See [the file setup and recovery record](FIGMA-JUDGING-FILE.md).
+
+## Native bridge fix and 0.2.1 release
+
+An actual owner-account desktop run exposed two separate issues. Figma could launch an older development registration with the same plugin ID; removing only the old registration allowed the downloaded kit to run. Then frame attachment remained disabled and saved access failed to restore on reopening. Metadata-only instrumentation showed that Figma Beta 126.11.5 delivers `context` and `session` messages from `https://www.figma.com` with `event.source === window.top`, while `event.source !== window.parent`. The old parent-only guard discarded those legitimate messages.
+
+The bridge now accepts messages from the trusted Figma origin when the source is the containing editor or parent, while rejecting other origins and unrelated windows. A regression running the actual designer module failed with the original guard and passed with the fix. Additional cases cover stored-session restoration, designated-file attachment and clearing attachment after a file mismatch. A fresh reviewer identified that the browser also needed anonymous access to the new module; an HTTP regression reproduced the 401 and passed after adding its explicit public route. The plugin bundle remains self-contained.
+
+At `10:44:55.073Z`, the fixed candidate in native Figma connected to the designated file, exported the selected frame as actual PNG evidence and displayed Paid on revision 1. Closing and reopening it restored the same session and Paid revision at `10:46:25.913Z`. The temporary diagnostic logger had been removed for this run. This was an **owner-account candidate under a temporary diagnostic manifest ID**, not installation of the final release ZIP from the second account.
+
+The final release was built from a clean archive of committed source `99de2812193425b3c49c46b2faed91a4a40d8b57`, with no local secrets or database. Both the Windows suite and Linux image build passed **52 tests, 0 failed, 0 skipped**. The guarded activation verified source identity and health and retained the previous image configuration for rollback.
+
+| Current release artifact | Verified identity |
+| --- | --- |
+| Version | `0.2.1` |
+| Runtime image configuration ID | `sha256:07f7cf5e62ee9f597e3fea750d99d5d069657cf4ab44805203b964be7dcb94cf` |
+| Uploaded image archive SHA-256 | `996092a76df7a8f890e052522a30ec718a85f84f5acb49a55597cf053f5f6272` |
+| Prebuilt kit | `scope-and-settle-0.2.1-99de28121934.zip` |
+| ZIP SHA-256 | `df4d05e4729d666291cf731acb7ec095b244bbe1429904ca924ce14f5512a55d` |
+
+At `10:54:49.160Z`, the public ZIP was downloaded independently. Its archive hash and all four embedded file checksums matched the release metadata. The final kit is extracted locally and ready for native import. Health reported sandbox mode with no missing configuration. At `10:55:35.767Z`, isolated designer/client page reloads showed Paid, the separate reset run remained empty, all five requested browser assets returned 200, and no page errors occurred. The confirmed client reopening screenshot is `11-client-paid-reopened-confirmed.png`; an earlier capture made during loading is not treated as Paid evidence.
+
+A consistent backup before this deployment passed integrity checking and was copied off the VM, SHA-256 `445aa70700e1457e04b0d7eba619a1d1193da35aa8fdb4654c9eb41eeb584ab2`. It contains both Paid orders and verified webhook receipts, the active durable entry, and the unchanged **44,203 micro-USD ($0.044203)** hosted AI ledger. The hosted cap remains $24.16. All 70 preserved primary-checkout file fingerprints matched; source changes remain in the attached worktree.
+
+At `11:00:38.382Z`, a post-deployment check read both invoices directly from PayPal and asserted **PAID, $250 total, $0 due**. Both stored orders retained revision 1 / `scope-rev-1`, their original explicit client approvals and their reconciled real webhook receipts. SQLite integrity was `ok`, the AI ledger remained exactly 44,203 micro-USD, the reset run remained closed and its replacement remained open with zero orders. Sanitized evidence is recorded in `post-release-persistence.json`.
+
 ## Remaining native acceptance
 
-Computer control of native Figma was stopped during the permission/installation check, and no further native interactions were made. The new ZIP has not been installed in a second Figma account; that account's edit access remains unverified. Owner-account success, an exported SVG or fixture tests cannot establish those results. The new hosted backend path is verified through direct API acceptance; its new UI was exercised separately in isolated local browser contexts with provider fixtures. No new live browser payment or second-account native walkthrough is claimed.
+The second account's browser edit access is verified, but its **Figma Desktop sign-in and final ZIP installation are pending**. Desktop sign-in opens the system browser, and the applicable computer-use guidance prohibits automating native authentication dialogs. A sign-in handoff was requested so the test can continue without opening the owner's personal browser. After that handoff, import the extracted 0.2.1 manifest, connect the existing judge run, attach its designated frame, check Paid, and reopen the plugin to verify persistence under that account. No second-account native installation or complete independent native walkthrough is claimed yet.
