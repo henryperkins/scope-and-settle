@@ -37,7 +37,7 @@ Native Figma testing also exposed a bridge assumption: legitimate editor message
 
 Three actual $250 sandbox buyer payments are recorded with authoritative PAID / $0 due and reconciled real signed PAID receipts. The first two orders' approvals, invoice identities and payment evidence survived deployment. The exact released plugin was then installed under a separate Figma test account, attached the actual frame, refreshed payment from PayPal and restored the same Paid revision after reopening without reconnecting.
 
-The final demonstration uses a fresh proposal assessed through that released native plugin, with the actual frame attached, followed by designer review, separate client consent and real sandbox checkout. The recording follows the same approved revision back to Paid in Figma and through reopening. Manual invoice retrieval established the recording run's first visible Paid state; its automatic signed PAID callback was independently verified afterward. The 2:49 edit labels condensed navigation and approval, omitted authentication and sandbox use.
+The final demonstration uses a fresh proposal assessed through that released native plugin, with the actual frame attached, followed by designer review, separate client consent and real sandbox checkout. The recording follows the same approved revision back to Paid in Figma and through reopening. Manual invoice retrieval established the recording run's first visible Paid state; its automatic signed PAID callback was independently verified afterward. The 2:49 edit labels condensed navigation and approval, omitted authentication and sandbox use. The published demonstration now uses entrant-supplied ElevenLabs narration over the same actual footage; ElevenLabs is used for presentation audio, separately from the product's Baseten inference.
 
 Release 0.2.1 passed **52 automated tests with no failures or skips on Windows and Linux**. Those tests use simulated providers. Separate live model evaluation passed six known synthetic cases and three fresh paraphrases after two earlier 5/6 attempts; these small checks do not establish broad model reliability. Detailed dated evidence is in the public repository.
 
@@ -55,7 +55,7 @@ Next steps are designer walkthroughs and fixes based on observed friction, confi
 
 ## Try it
 
-Watch the [public 2:49 demonstration](https://www.youtube.com/watch?v=m29YNTdVUF4), with English captions, actual product footage and labeled time compression.
+Watch the [public 2:49 demonstration](https://www.youtube.com/watch?v=RUJ26fRetd8), with English captions, actual product footage and labeled time compression.
 
 Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [JUDGING.md](https://github.com/henryperkins/scope-and-settle/blob/main/JUDGING.md). Hosted testing needs Figma desktop, your own Figma account, the judging code and the dedicated sandbox buyer supplied through the judge-access channel. No provider API keys or local backend are needed for that path. The [public MIT-licensed repository](https://github.com/henryperkins/scope-and-settle) includes source, synthetic assets and a local setup fallback.
 <!-- devpost-description:end -->
@@ -65,7 +65,7 @@ Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [
 - Existing Devpost project ID: `1500728`. The name, writeup, technologies and links were saved on October 23, 2026. Devpost changed its state to **published** at `2026-10-23T18:40:20.996Z`, with public URL https://devpost.com/software/scope-settle. The hackathon's `submitted_at` remains empty: **published project, not submitted entry**. Continue this project; do not create another.
 - Public demo: https://scope-and-settle.hperkins.com/judge
 - Public source: https://github.com/henryperkins/scope-and-settle
-- Public YouTube URL: https://www.youtube.com/watch?v=m29YNTdVUF4 — published October 23, 2026, with the reviewed thumbnail, chapter timestamps and uploaded English captions. The original MP4 and captions also remain [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1).
+- Public YouTube URL: https://www.youtube.com/watch?v=RUJ26fRetd8 — the ElevenLabs narration revision was published October 23, 2026, with the reviewed thumbnail, chapter timestamps and uploaded English captions. The original and revised MP4s and captions remain [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1). Devpost project version 5 uses the revised YouTube URL; the hackathon entry remains unsubmitted.
 - Built with: Figma, TypeScript, JavaScript, Node.js, SQLite, PayPal, Baseten, DeepSeek, Google Cloud, Cloudflare, Docker, OpenAI Codex.
 - Technical field answers: [DEVPOST-CUSTOM-ANSWERS.md](docs/DEVPOST-CUSTOM-ANSWERS.md).
 - Completed video, provenance and upload copy: [DEMO-VIDEO.md](docs/DEMO-VIDEO.md). Participant observation guide: [DEMO-AND-WALKTHROUGH.md](docs/DEMO-AND-WALKTHROUGH.md).

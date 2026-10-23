@@ -30,7 +30,7 @@ Use https://scope-and-settle.hperkins.com/judge and the separately supplied judg
 
 OpenAI Codex assisted with implementation, regression tests, debugging, release checks and documentation. Baseten Model APIs provided live runtime inference using DeepSeek-V4.1-Flash-1017-Fast at maximum reasoning. The bounded AI evaluation used six synthetic cases and three fresh paraphrases, retained earlier failures, and kept actual provider evidence separate from automated fixtures. Runtime inference, human design decisions and automated development assistance are distinguished in the project description.
 
-ElevenLabs was used by the entrant to replace the demonstration narration; the supplied MP3 was synchronized with the unchanged product footage. This is presentation work, separate from the application's runtime AI. Voice/model details and entrant-side generation cost were not supplied. The [audio revision record](DEMO-VIDEO.md#narration-revision--october-23-2026) distinguishes the prepared release asset from its pending YouTube publication.
+ElevenLabs was used by the entrant to replace the demonstration narration; the supplied MP3 was synchronized with the unchanged product footage. This is presentation work, separate from the application's runtime AI. Voice/model details and entrant-side generation cost were not supplied. The [audio revision record](DEMO-VIDEO.md#narration-revision--october-23-2026) documents the public release, YouTube publication, signed-out playback and Devpost project update.
 
 ## Entrant answers deferred by the user
 

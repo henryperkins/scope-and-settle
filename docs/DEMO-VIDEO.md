@@ -1,10 +1,10 @@
 # Scope & Settle demonstration — October 23, 2026
 
-The reviewed demonstration is **2:49.021** (169.021354 seconds), with actual product captures, English narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=m29YNTdVUF4) on October 23, 2026, on the Henry Perkins channel. The original file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo.mp4).
+The current demonstration is **2:49.021** (169.021354 seconds), with actual product captures, revised ElevenLabs narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=RUJ26fRetd8) on October 23, 2026, on the Henry Perkins channel. The current file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4).
 
 ## Narration revision — October 23, 2026
 
-The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [revised MP4](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4) and [matching English captions](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.en.srt) are available as additional release assets. YouTube replacement publication and the Devpost video-link update are pending renewed access to the isolated upload browser; the link above still points to the original narration.
+The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [revised MP4](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4) and [matching English captions](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.en.srt) are available as additional release assets. YouTube Studio confirmed **Video published**, with **Public** visibility, the supplied English captions, and no issues found by the initial copyright and Community Guidelines checks. Devpost project version 5 uses the revised YouTube URL; this is a project update, not a hackathon submission.
 
 | Item | Value |
 | --- | --- |
@@ -14,10 +14,13 @@ The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [re
 | SHA-256 | `9ab73a06108c3f7699c5afcedb36b2069a84c6e6ccbe34bcf91d9b76d1d64db7` |
 | Audio | User-supplied voice replacement, encoded as AAC at 48 kHz |
 | Input MP3 SHA-256 | `f8bc65aea26ac811abdb86240b8a89d00dbd5db2439f79778b3ee73b560ac9da` |
+| YouTube | https://www.youtube.com/watch?v=RUJ26fRetd8 |
 
 At `2026-10-23T21:05:15Z`, the revised export fully decoded without errors. Its copied H.264 video stream has the same SHA-256 as the original (`4484fcc7a60c605778c96feb0f445d8e18b87b1e6dffc9ac35236aa124785614`), preserving the actual footage, redactions and edit. Audio-envelope comparison across all 12 scenes found the best alignment within 0.01 seconds of the original, supporting reuse of the existing captions. Only trailing silence was trimmed from the 169.366-second MP3 to fit the original video duration.
 
 A local speech-recognition check recovered the workflow in sequence, with recognition uncertainty around individual words and names. Automated transcription and alignment are not a human listening test. No additional paid model call was made for this replacement. The supplied voice ID, generation settings and any entrant-side ElevenLabs cost were not included with the file and are not inferred. ElevenLabs is used for presentation audio, separately from the product's Baseten runtime inference.
+
+At `2026-10-23T21:13:41Z`, a separate browser with a **Sign in** link played the public revision at **1920 × 1080**, 71 seconds into its 169.041-second duration, with no media error. The uploaded English caption about explicit client consent was visible during playback. Anonymous downloads of both revised release assets returned HTTP 200 and matched the local SHA-256 hashes. The original publication below is retained as dated evidence.
 
 ## Original published artifact
 
@@ -92,4 +95,4 @@ Project: https://devpost.com/software/scope-settle
 2:15 Close and reopen
 2:29 Judge it yourself
 
-Synthetic project content and sandbox test funds. Navigation, waiting and the client approval transition are condensed and labeled. Authentication is omitted; account details are redacted. The AI recommends scope treatment and quotes agreement evidence; people approve the commercial terms. Signed webhook delivery was verified separately from the first manual payment refresh. “Work begins after payment” is a commercial term and does not restrict Figma editing. English narration is synthetic. Designer walkthroughs are pending; no adoption or time-saving claims are made.
+Synthetic project content and sandbox test funds. Navigation, waiting and the client approval transition are condensed and labeled. Authentication is omitted; account details are redacted. The AI recommends scope treatment and quotes agreement evidence; people approve the commercial terms. Signed webhook delivery was verified separately from the first manual payment refresh. “Work begins after payment” is a commercial term and does not restrict Figma editing. English narration is synthetic and was revoiced using ElevenLabs. The product footage and demonstrated workflow are unchanged. Designer walkthroughs are pending; no adoption or time-saving claims are made.

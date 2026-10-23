@@ -6,7 +6,7 @@ A freelance designer selects a client request. AI compares it with an agreed bri
 
 This is a hackathon prototype with synthetic project content, one configured Figma file, one sandbox merchant/buyer pair, and USD pricing. It does not control Figma editing access. Demo links grant roles rather than verified personal identities.
 
-Watch the [2:49 working demonstration on YouTube](https://www.youtube.com/watch?v=m29YNTdVUF4), then follow the [judging walkthrough](JUDGING.md).
+Watch the [2:49 working demonstration on YouTube](https://www.youtube.com/watch?v=RUJ26fRetd8), then follow the [judging walkthrough](JUDGING.md).
 
 ## Current evidence
 
