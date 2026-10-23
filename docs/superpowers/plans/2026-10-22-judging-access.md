@@ -69,11 +69,11 @@
 
 **Files:** `app/scripts/package-plugin.mjs`, `app/package.json`, lockfile, build/deployment inputs, `JUDGING.md`, synthetic design recreation instructions and verification notes.
 
-- [ ] Package built manifest, code and UI with source commit metadata and checksums; serve the generated ZIP from the hosted app.
-- [ ] Document exact installation, connection, renewal, approval, payment, reset and recovery steps. Keep credentials in private delivery artifacts.
+- [x] Package built manifest, code and UI with source commit metadata and checksums; serve the generated ZIP from the hosted app.
+- [x] Document exact installation, connection, renewal, approval, payment, reset and recovery steps. Keep credentials in private delivery artifacts.
 - [x] Run the full suite, review the whole change with a fresh reviewer, and fix confirmed issues.
-- [ ] Commit a reviewed allowlist in this worktree, build and deploy the exact image after a consistent off-host backup, and verify persistence/restart/isolation on the hosted service.
-- [ ] Verify actual provider access and the configured Figma comment; package the recoverable synthetic design.
+- [x] Commit a reviewed allowlist in this worktree, build and deploy the exact image after a consistent off-host backup, and verify persistence/restart/isolation on the hosted service.
+- [x] Verify actual provider access and the configured Figma comment; package the recoverable synthetic design.
 - [ ] Test installation from another Figma account when such an account is available; otherwise report that specific acceptance gap without claiming it passed.
 
 ## Execution ledger
@@ -87,3 +87,6 @@
 - Ruling: package an editable self-contained SVG plus the original synthetic frame REST snapshot for recovery; preserve the existing comment-bearing parent frame when restoring. Native second-account acceptance remains unverified.
 - Consistent off-host pre-release backup verified: SQLite integrity ok, Paid invoice identity retained, SHA-256 `24f6e5c44b0a434b101e202615df9db73440412b9007f983e605efee841e6900`. Private file remains in ignored primary operator storage.
 - Real webhook still absent after account lookup, fresh CREATED event, real redelivery, subscription refresh and a simulator network probe. No verification bypass was added; temporary callback/subscription experiments were restored/removed.
+- Release: committed source `5a620f461bd7da89fc07377ef17709155b15ef1b`; clean archive Linux build 49/49; deployed image `sha256:488466daad1b504a73498b4c336edb552a4aa0292a085c6be93cdab8610c72c8`. Versioned ZIP and checksum retrieved from the public host and matched the image.
+- Hosted acceptance: actual comment, one live assessment, real sandbox invoice, expired session renewal, independent reset/tombstone and preserved original Paid order passed. A diagnostic expectation (200 versus successful assessment 201) stopped the first check; resumed its saved assessment without another inference. Hosted restart then preserved roles, records and exact ledger. Temporary acceptance entry revoked; durable private entry issued through December 16.
+- Remaining: real signed callback arrival and second-account native edit/install walkthrough. Native computer control was stopped, so no further computer-use interactions were attempted.

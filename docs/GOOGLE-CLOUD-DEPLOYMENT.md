@@ -55,6 +55,8 @@ Import `app/plugin/dist/manifest.json` in Figma desktop. A native plugin run, re
 
 ## Operations
 
+The judging release uses reviewed source `5a620f461bd7da89fc07377ef17709155b15ef1b` and runtime image `sha256:488466daad1b504a73498b4c336edb552a4aa0292a085c6be93cdab8610c72c8`. Its clean-source Linux build passed 49 tests. Hosted entry, expiry/renewal, independent reset, preserved Paid state and restart checks passed. [Judging verification](JUDGING-VERIFICATION-2026-10-23.md) records the ZIP checksum and exact provider results; [webhook delivery](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) remains separately unresolved. Later sections preserve historical deployment observations.
+
 Connect using:
 
 ```powershell
