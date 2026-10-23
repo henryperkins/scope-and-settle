@@ -2,6 +2,8 @@
 
 This is a recording outline and observation guide. It is not evidence that the recorded steps or user interviews have already happened.
 
+**October 23 recording update:** the actual product demonstration is now edited and reviewed at **2:49**, with English narration and captions. See [the completed video and its evidence](DEMO-VIDEO.md). The earlier outline below is planning material; the final edit's actual sequence, compression and limitations are documented separately. No outside-designer walkthrough has been completed.
+
 ## Under-three-minute video
 
 | Time | Show | Explain |

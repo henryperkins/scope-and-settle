@@ -1,0 +1,146 @@
+1
+00:00:00,250 --> 00:00:07,373
+Scope and Settle helps freelance designers turn a client request into
+a clear agreement and a paid change.
+
+2
+00:00:09,250 --> 00:00:15,172
+Here is the actual Figma comment, alongside the selected desktop
+checkout frame.
+
+3
+00:00:15,172 --> 00:00:17,146
+The design supplies context.
+
+4
+00:00:17,146 --> 00:00:20,600
+The agreed brief determines what is included.
+
+5
+00:00:21,250 --> 00:00:26,058
+This synthetic brief explicitly excludes mobile layouts from the
+original fee.
+
+6
+00:00:26,058 --> 00:00:33,052
+It also requires a separate scope and price, approved by both the
+designer and the client.
+
+7
+00:00:35,250 --> 00:00:41,304
+This is the real DeepSeek assessment returned through Baseten, with
+the selected frame attached.
+
+8
+00:00:41,304 --> 00:00:48,655
+It classifies the request as new work, cites the two agreement
+clauses, and describes the desktop design.
+
+9
+00:00:48,655 --> 00:00:52,546
+The model can also return included or needs clarification.
+
+10
+00:00:52,546 --> 00:00:58,600
+It suggests a rate-card item; the designer remains responsible for the
+deliverables and price.
+
+11
+00:00:59,250 --> 00:01:06,450
+The designer reviews the mobile deliverable and confirms the two
+hundred and fifty dollar rate-card price.
+
+12
+00:01:06,450 --> 00:01:10,950
+The client gets a separate page for that exact revision.
+
+13
+00:01:10,950 --> 00:01:15,900
+Approval requires explicit consent to the deliverables, total, and
+payment-before-work term.
+
+14
+00:01:15,900 --> 00:01:18,600
+The approval transition is condensed here.
+
+15
+00:01:19,250 --> 00:01:24,303
+Only after approval does the backend create the PayPal sandbox
+invoice.
+
+16
+00:01:24,303 --> 00:01:26,600
+Approval itself is not payment.
+
+17
+00:01:27,250 --> 00:01:31,702
+This is the actual PayPal invoice for the same change.
+
+18
+00:01:31,702 --> 00:01:36,600
+If preparation is interrupted, recovery reconciles and reuses the
+existing invoice.
+
+19
+00:01:37,250 --> 00:01:41,706
+The dedicated sandbox buyer completes the purchase in PayPal.
+
+20
+00:01:41,706 --> 00:01:44,677
+Authentication is omitted from this recording.
+
+21
+00:01:44,677 --> 00:01:49,134
+This is a real sandbox transaction using test funds.
+
+22
+00:01:49,134 --> 00:01:52,600
+Payment is reconciled against PayPal’s own invoice.
+
+23
+00:01:53,250 --> 00:01:58,067
+PayPal invoice retrieval confirms Paid on the same revision.
+
+24
+00:01:58,067 --> 00:02:01,278
+Its signed callback was separately verified.
+
+25
+00:02:03,250 --> 00:02:08,730
+Back in the released Figma plugin, Check payment confirms Paid and
+zero due.
+
+26
+00:02:08,730 --> 00:02:13,788
+The approval and payment remain attached to revision one of this
+change.
+
+27
+00:02:15,250 --> 00:02:20,522
+Close and reopen the plugin, and the same paid revision returns.
+
+28
+00:02:20,522 --> 00:02:26,273
+Work begins after payment is a commercial term; Figma editing remains
+available.
+
+29
+00:02:29,250 --> 00:02:35,407
+Try the hosted judge entry, released plugin, or public MIT source with
+local setup.
+
+30
+00:02:35,407 --> 00:02:38,925
+This prototype supports one synthetic Figma project, U.S.
+
+31
+00:02:38,925 --> 00:02:40,684
+dollars, and sandbox accounts.
+
+32
+00:02:40,684 --> 00:02:42,443
+Designer walkthroughs are pending.
+
+33
+00:02:42,443 --> 00:02:48,600
+The goal is a traceable path from a request to an agreed, paid change.

@@ -1,0 +1,23 @@
+Scope and Settle helps freelance designers turn a client request into a clear agreement and a paid change.
+
+Here is the actual Figma comment, alongside the selected desktop checkout frame. The design supplies context. The agreed brief determines what is included.
+
+This synthetic brief explicitly excludes mobile layouts from the original fee. It also requires a separate scope and price, approved by both the designer and the client.
+
+This is the real DeepSeek assessment returned through Baseten, with the selected frame attached. It classifies the request as new work, cites the two agreement clauses, and describes the desktop design. The model can also return included or needs clarification. It suggests a rate-card item; the designer remains responsible for the deliverables and price.
+
+The designer reviews the mobile deliverable and confirms the two hundred and fifty dollar rate-card price. The client gets a separate page for that exact revision. Approval requires explicit consent to the deliverables, total, and payment-before-work term. The approval transition is condensed here.
+
+Only after approval does the backend create the PayPal sandbox invoice. Approval itself is not payment.
+
+This is the actual PayPal invoice for the same change. If preparation is interrupted, recovery reconciles and reuses the existing invoice.
+
+The dedicated sandbox buyer completes the purchase in PayPal. Authentication is omitted from this recording. This is a real sandbox transaction using test funds. Payment is reconciled against PayPal’s own invoice.
+
+PayPal invoice retrieval confirms Paid on the same revision. Its signed callback was separately verified.
+
+Back in the released Figma plugin, Check payment confirms Paid and zero due. The approval and payment remain attached to revision one of this change.
+
+Close and reopen the plugin, and the same paid revision returns. Work begins after payment is a commercial term; Figma editing remains available.
+
+Try the hosted judge entry, released plugin, or public MIT source with local setup. This prototype supports one synthetic Figma project, U.S. dollars, and sandbox accounts. Designer walkthroughs are pending. The goal is a traceable path from a request to an agreed, paid change.

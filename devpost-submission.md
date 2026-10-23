@@ -35,7 +35,9 @@ Native Figma testing also exposed a bridge assumption: legitimate editor message
 
 ## Accomplishments and evidence
 
-Two actual $250 sandbox buyer payments are recorded with authoritative PAID / $0 due and reconciled real signed PAID receipts. The isolated judge run included live AI, explicit client approval and automatic signed delivery. Approvals, invoice identities and payment evidence survived deployment. The exact released plugin was installed under a separate Figma test account, attached the actual frame, refreshed payment from PayPal and restored the same Paid revision after reopening without reconnecting.
+Three actual $250 sandbox buyer payments are recorded with authoritative PAID / $0 due and reconciled real signed PAID receipts. The first two orders' approvals, invoice identities and payment evidence survived deployment. The exact released plugin was then installed under a separate Figma test account, attached the actual frame, refreshed payment from PayPal and restored the same Paid revision after reopening without reconnecting.
+
+The final demonstration uses a fresh proposal assessed through that released native plugin, with the actual frame attached, followed by designer review, separate client consent and real sandbox checkout. The recording follows the same approved revision back to Paid in Figma and through reopening. Manual invoice retrieval established the recording run's first visible Paid state; its automatic signed PAID callback was independently verified afterward. The 2:49 edit labels condensed navigation and approval, omitted authentication and sandbox use.
 
 Release 0.2.1 passed **52 automated tests with no failures or skips on Windows and Linux**. Those tests use simulated providers. Separate live model evaluation passed six known synthetic cases and three fresh paraphrases after two earlier 5/6 attempts; these small checks do not establish broad model reliability. Detailed dated evidence is in the public repository.
 
@@ -43,13 +45,13 @@ Release 0.2.1 passed **52 automated tests with no failures or skips on Windows a
 
 The demonstrated value is a traceable path from an ambiguous design request to a mutually approved and paid change. This is a prototype for one configured synthetic Figma project, USD invoices and one sandbox merchant/buyer pair. Role links grant demo access, not verified identity. It is not legal advice, automatic arbitration or a production payment service.
 
-No designer walkthrough findings, adoption numbers or time savings are claimed yet. The planned 2–3 designer sessions will measure completion, hesitation and interventions separately from self-reported estimates. The separate-account native acceptance reused the existing paid judge run; the live AI-to-checkout sequence was observed in an isolated browser. These are operator checks, not validation by outside designers.
+No designer walkthrough findings, adoption numbers or time savings are claimed yet. The planned 2–3 designer sessions will measure completion, hesitation and interventions separately from self-reported estimates. The initial separate-account native acceptance reused an existing paid order; a subsequent recording run completed a fresh native assessment and actual checkout. These are operator checks, not validation by outside designers.
 
 ## What we learned and what is next
 
 An AI recommendation is useful only when its evidence and authority are clear. Human review, explicit revision-bound consent, invoice recovery and provider-backed payment truth make the recommendation actionable. Small synthetic evaluations helped identify missing rate and evidence fields, but cannot replace observation of real designers.
 
-Next steps are designer walkthroughs and fixes based on observed friction, and the final public demonstration. Broader project support and production commerce would require separate validation beyond this hackathon's scope.
+Next steps are designer walkthroughs and fixes based on observed friction, public YouTube publication of the completed demonstration, and the remaining submission details. Broader project support and production commerce would require separate validation beyond this hackathon's scope.
 
 ## Try it
 
@@ -61,11 +63,11 @@ Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [
 - Existing Devpost project ID: `1500728`. The name, writeup, technologies and links were saved on October 23, 2026. Devpost changed its state to **published** at `2026-10-23T18:40:20.996Z`, with public URL https://devpost.com/software/scope-settle. The hackathon's `submitted_at` remains empty: **published project, not submitted entry**. Continue this project; do not create another.
 - Public demo: https://scope-and-settle.hperkins.com/judge
 - Public source: https://github.com/henryperkins/scope-and-settle
-- Public YouTube URL: **pending recording, review and upload**.
+- Public YouTube URL: **pending channel access and upload**. The reviewed 2:49 video and English captions are available as [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1); that download does not replace the hackathon's public YouTube requirement.
 - Built with: Figma, TypeScript, JavaScript, Node.js, SQLite, PayPal, Baseten, DeepSeek, Google Cloud, Cloudflare, Docker, OpenAI Codex.
 - Technical field answers: [DEVPOST-CUSTOM-ANSWERS.md](docs/DEVPOST-CUSTOM-ANSWERS.md).
-- Recording script and capture requirements: [DEMO-AND-WALKTHROUGH.md](docs/DEMO-AND-WALKTHROUGH.md).
-- Four reviewed actual screenshots and a native Paid thumbnail were uploaded to the existing project. Captures and provenance are in [docs/media](docs/media/README.md). Separate client consent and actual checkout still need moving footage for the final demonstration.
-- Final readiness: **not ready** until designer observations, public video, private access delivery and entrant answers are complete. Native final-ZIP acceptance passed under the separate account. Re-read the live form/rules before final submission. Saving this draft does not submit the entry.
+- Completed video, provenance and upload copy: [DEMO-VIDEO.md](docs/DEMO-VIDEO.md). Participant observation guide: [DEMO-AND-WALKTHROUGH.md](docs/DEMO-AND-WALKTHROUGH.md).
+- Four reviewed actual screenshots and a native Paid thumbnail were uploaded to the existing project. Captures and provenance are in [docs/media](docs/media/README.md). The final video contains actual buyer checkout and the same revision's payment return; its client approval transition is explicitly condensed between observed before/after views.
+- Final readiness: **not ready** until designer observations, public YouTube video, private access delivery and entrant answers are complete. Native final-ZIP acceptance passed under the separate account. Re-read the live form/rules before final submission. Updating the public project does not submit the entry.
 
 The official dates and five judging criteria were checked through the Devpost connector on October 23, 2026. Submission closes November 12 at 2 p.m. America/Chicago; the internal target is November 10. Judging ends December 15 at 10 a.m. America/Chicago. The current entry expiry is December 16 at 16:00 UTC. Runtime/provider availability through that date remains an operating commitment, not a guarantee inferred from the expiry setting.

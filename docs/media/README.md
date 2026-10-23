@@ -10,3 +10,5 @@ These are unmodified screenshots of the working product with synthetic content. 
 | [04-native-paid.png](04-native-paid.png) | Same approved Paid revision, $0 due, restored after closing/reopening the exact release under the separate account. |
 
 The native acceptance reused the existing paid judge run. These images do not represent a fresh native AI-to-checkout sequence or feedback from an outside designer. See [dated verification](../JUDGING-VERIFICATION-2026-10-23.md) for provenance and limitations. Screenshots preserve the Figma and PayPal-related UI as observed; third-party marks retain their respective ownership.
+
+The subsequent [2:49 demonstration](../DEMO-VIDEO.md) records a fresh native assessment and actual sandbox checkout. Its [English captions](demo.en.srt) and [narration transcript](demo-transcript.txt) are included here. The MP4 is distributed as a GitHub release asset. Its edited captures, redactions and synthetic narration are documented separately from the unmodified still images above.
