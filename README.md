@@ -8,20 +8,20 @@ This is a hackathon prototype with synthetic project content, one configured Fig
 
 ## Current evidence
 
-- 26 automated tests pass on Windows and in the Linux container. They cover authorization, approval revisions, invoice recovery, concurrent actions, payment reconciliation, webhook handling, reset isolation, and budget persistence using simulated provider responses.
-- The browser workflow has been exercised through client approval and payment-due display with explicitly labeled provider fixtures.
-- Authenticated Figma comment access and real PayPal sandbox invoice creation/retrieval have been checked separately.
-- The Google Cloud deployment passes HTTPS, authorization and restart-persistence checks. A manual synthetic approval created one real sandbox invoice; repeated approval reused it.
-- Live AI evaluation is pending account credits. Native Figma plugin use, actual sandbox buyer payment and live webhook delivery are not yet verified.
+- The current Windows suite has 49 passing tests with isolated SQLite and simulated providers. It covers authorization, revisions, invoice recovery, reconciliation, webhook verification, reset/budget persistence, durable judging access and plugin packaging. Linux image results are recorded with each deployment.
+- Baseten's selected DeepSeek model runs with maximum reasoning. The final six fixtures and three fresh paraphrases passed, with 524–1,436 ms latency. Two earlier 5/6 runs and their failures remain documented.
+- The actual Figma desktop comment and exported frame produced a live assessment, a designer-reviewed $250 proposal, separate client approval, and a real PayPal sandbox invoice.
+- The Google Cloud deployment passes HTTPS, authorization and persistent-state checks. The live assessment, approval and invoice association survived redeployment. Judging access implementation and hosted acceptance are tracked separately in the judging verification record.
+- An actual $250 PayPal sandbox buyer payment completed in an isolated browser. PayPal reports PAID with $0 due; the client page and native Figma plugin show Paid on the same approved revision, including after reload/reopening. Real signed webhook delivery remains unverified.
 
-See [the implementation verification record](docs/IMPLEMENTATION-2026-10-22.md). Automated/provider-fixture checks are not evidence of a completed real payment or successful AI judgment.
+See [the completed payment and Figma verification](docs/PAYMENT-LOOP-2026-10-22.md), [the Baseten and working-flow record](docs/BASETEN-VERIFICATION-2026-10-23.md), and [earlier implementation checks](docs/IMPLEMENTATION-2026-10-22.md). Automated/provider-fixture checks are separate from actual AI and payment evidence.
 
 ## Local setup
 
-Requirements: **Node.js 24**, **pnpm 10.34.5**, Figma desktop, a Figma personal access token with `file_comments:read`, a PayPal sandbox REST app with business and personal sandbox accounts, and an OpenAI key with access to `gpt-6-luna`.
+Requirements: **Node.js 24**, **pnpm 10.34.5**, Figma desktop, a Figma personal access token with `file_comments:read`, a PayPal sandbox REST app with business and personal sandbox accounts, and a Baseten key with access to `deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast`.
 
 1. Copy `.env.example` to `.env.local` in the repository root. Fill the Figma and PayPal sandbox values. Use synthetic content only.
-2. Add `OPENAI_API_KEY` locally or use an existing shell environment variable. Keys stay server-side. The optional `AI_API_KEY` environment variable takes precedence if already configured.
+2. Add `BASETEN_API_KEY` locally or use that shell environment variable. Keys stay server-side. This build pins Baseten, the exact DeepSeek model above, and `AI_REASONING_EFFORT=max`; OpenAI and generic key variables are never used.
 3. Install and build:
 
    ```sh
@@ -57,15 +57,19 @@ The **Demo controls → Prepare a manual proposal** action tests approval/paymen
 ```sh
 cd app
 npm test          # isolated SQLite + simulated providers; no real credentials or charges
-npm run eval:ai   # real OpenAI calls against all six synthetic cases; consumes the budget
+npm run eval:ai   # real Baseten calls against all six synthetic cases; consumes the budget
 npm run backup   # consistent SQLite backup under the configured data directory
 ```
 
-Evaluation preserves actual outputs, latency, failures and usage under the ignored `output/evaluations` directory. Check the meaning of cited evidence manually as well as the automated results. Fixture expectations alone do not establish model quality. The target is about 15 seconds; the request timeout is 30 seconds.
+Evaluation preserves final outputs, latency, failures and token counts under `SCOPE_SETTLE_DATA_DIR/evaluations` (locally, ignored `app/data/evaluations`). Raw model reasoning is not stored. Check the meaning of cited evidence manually as well as the automated results. Fixture expectations alone do not establish model quality. The target is about 15 seconds; the maximum-reasoning request timeout is 90 seconds, with a 16,384-token limit shared by reasoning and the final answer.
+
+Baseten catalog pricing verified on October 23, 2026 UTC is $0.60 per million input tokens and $2.40 per million output tokens. Accounting conservatively ignores cache discounts and charges output reasoning tokens once. `node scripts/check-ai-access.mjs` checks model availability and the configured prices without making an inference call.
 
 The AI ledger persists across server restarts and demo resets. Unknown-cost failures keep their conservative reservation. This is conservative application accounting, not a provider billing statement. The $25 maximum applies **per persistent database**: when moving to hosting, allocate only the remaining development budget to the new database and stop live calls against the old instance. Do not run independent $25 budgets with the same key.
 
 ## Hosting and judging
+
+[Judge entry](https://scope-and-settle.hperkins.com/judge) provides independent demo runs, renewable designer/client access, and the prebuilt plugin download. Follow [JUDGING.md](JUDGING.md); the private judging code and sandbox buyer are delivered separately. The current native installation and provider acceptance status is recorded in [judging verification](docs/JUDGING-VERIFICATION-2026-10-23.md).
 
 [Google Cloud deployment instructions](docs/GOOGLE-CLOUD-DEPLOYMENT.md) describe the selected tiny VM, persistent data disk, HTTPS tunnel, sandbox webhook registration and acceptance checks. A complete local build is the fallback for judges. Do not publish provider keys, sandbox buyer passwords or role links in this repository.
 
@@ -77,7 +81,9 @@ npm run build
 Remove-Item Env:PUBLIC_BASE_URL
 ```
 
-Hosted judging access and test-account instructions must be supplied privately and verified before submission. Maintain access through December 15, 2026; do not submit an expired one-hour invitation as the sole judging-access mechanism.
+Provision durable access with `npm run judge:access` in `app` after building. It writes a private JSON file under the configured data directory and prints only its path, ID and expiry. Default access ends **December 16, 2026 at 16:00 UTC**, covering the planned judging window with a buffer. Each entry creates a fresh run; separate resume credentials renew one-hour sessions within their original run/role and exact client revision. Revoke an entry and all its grants with `npm run judge:revoke -- ENTRY_ID`. Keep the private files outside public releases and recordings.
+
+For a reviewed plugin ZIP, commit the release inputs, set `PUBLIC_BASE_URL`, build, then run `npm run package:plugin`. The package includes built manifest/code/UI, the walkthrough, source identity and per-file checksums; `app/downloads` holds the versioned ZIP and SHA-256. The Docker build requires `--build-arg SOURCE_COMMIT=<full-reviewed-commit>` and uses the chosen hosted origin. The kit contains no provider keys or judging credentials. See [the plan](docs/JUDGING-ACCESS-PLAN.md) for acceptance requirements and [synthetic design recovery](docs/FIGMA-JUDGING-FILE.md) for the included editable SVG and node snapshot.
 
 ## Implementation
 
@@ -87,6 +93,6 @@ Hosted judging access and test-account instructions must be supplied privately a
 - `fixtures`: six synthetic scope-judgment cases.
 - `docs/PRODUCT-SPEC.md`: adopted product decisions and acceptance criteria for this build.
 
-Run a single backend process per database. Scope revisions are shared within the one demo project; orders, approvals and resets are isolated by demo run. Approved revisions are immutable. Reset deletes local evidence/orders in that run and keeps invoice tombstones; it does not cancel invoices at PayPal or reset the AI budget.
+Run a single backend process per database. Judge entries freeze the supplied brief/rate card/file; developer scope changes do not invalidate other judging runs. Orders, approvals and resets are isolated by run. Approved revisions are immutable. Reset deletes local evidence/orders in that run and keeps invoice tombstones; it does not cancel PayPal invoices or reset the shared AI budget.
 
 [MIT license](LICENSE). Third-party APIs, SDKs and tools retain their own terms and licenses.

@@ -1,6 +1,12 @@
 # Explicit build context: local credentials, databases and evidence never enter it.
 **
 !Dockerfile
+!JUDGING.md
+!deploy/
+deploy/**
+!deploy/gcp/
+deploy/gcp/**
+!deploy/gcp/webhook-lookup.mjs
 !app/
 app/**
 !app/package.json

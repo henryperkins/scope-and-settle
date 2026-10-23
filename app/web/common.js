@@ -6,8 +6,28 @@ export async function api(path, token, method = 'GET', body) {
   const response = await fetch(base + path, { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
   const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(result.error || 'Request failed (' + response.status + ')');
+  if (!response.ok) { const error = new Error(result.error || 'Request failed (' + response.status + ')'); error.status = response.status; throw error; }
   return result;
+}
+// One renewal for concurrent expired requests; never repeat a non-401 action.
+export function sessionApi(getSession, persist, onInvalid = () => {}) {
+  let renewing;
+  return async (path, method = 'GET', body) => {
+    const initial = getSession();
+    try {
+      try { return await api(path, initial?.token, method, body); }
+      catch (error) {
+        if (error.status !== 401 || !initial?.renewalCredential) throw error;
+        if (getSession()?.token === initial.token) {
+          if (!renewing) renewing = api('/api/session/renew', null, 'POST', { credential: initial.renewalCredential })
+            .then(value => persist({ ...value, renewalCredential: initial.renewalCredential }))
+            .finally(() => { renewing = null; });
+          await renewing;
+        }
+        return await api(path, getSession()?.token, method, body);
+      }
+    } catch (error) { if (error.status === 401) onInvalid(); throw error; }
+  };
 }
 export function notice(text, error = false) {
   const el = document.querySelector('#notice'); el.textContent = text; el.className = 'notice' + (error ? ' error' : '');

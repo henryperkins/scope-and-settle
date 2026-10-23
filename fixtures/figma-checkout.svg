@@ -1,0 +1,277 @@
+<svg width="1200" height="982" viewBox="0 0 1200 982" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Desktop checkout &#226;&#128;&#148; synthetic demo" clip-path="url(#clip0_5_2)">
+<rect width="1200" height="982" fill="#FCFBF8"/>
+<g id="Margin / Header">
+<g id="Brand">
+<text id="Wordmark" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Instrument Serif" font-size="36" letter-spacing="0em"><tspan x="64" y="56.24">margin.</tspan></text>
+<text id="Brand promise" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="10" letter-spacing="1.5px"><tspan x="186" y="47.6364">GOOD THINGS START ON PAPER</tspan></text>
+</g>
+<g id="Secure checkout">
+<g id="Lock">
+<path id="Vector" d="M989.25 42.5V40.25C989.25 39.2554 989.645 38.3016 990.348 37.5983C991.052 36.8951 992.005 36.5 993 36.5C993.995 36.5 994.948 36.8951 995.652 37.5983C996.355 38.3016 996.75 39.2554 996.75 40.25V42.5M989.25 42.5H988.5C988.301 42.5 988.11 42.579 987.97 42.7197C987.829 42.8603 987.75 43.0511 987.75 43.25V50H998.25V43.25C998.25 43.0511 998.171 42.8603 998.03 42.7197C997.89 42.579 997.699 42.5 997.5 42.5H996.75M989.25 42.5H996.75" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="#203D32"/>
+</g>
+<text id="Security label" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="1010" y="48.3636">Secure checkout</tspan></text>
+</g>
+</g>
+<rect id="Divider" y="88" width="1200" height="1" fill="#D7DDD3"/>
+<g id="Margin / Checkout content">
+<g id="Customer details" clip-path="url(#clip1_5_2)">
+<g id="Checkout introduction">
+<text id="Page title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Instrument Serif" font-size="48" letter-spacing="0em"><tspan x="64" y="165.32">Checkout</tspan></text>
+<text id="Page description" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="64" y="200.091">A little space for your next big idea.</tspan></text>
+</g>
+<g id="Checkout progress">
+<g id="Step 1 / Details">
+<g id="Step number">
+<rect x="64" y="229" width="28" height="28" rx="14" fill="#203D32"/>
+<text id="Number" fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="75" y="247.364">1</tspan></text>
+</g>
+<text id="Step label" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="100" y="248.091">Details</tspan></text>
+</g>
+<rect id="Divider_2" x="188" y="242.5" width="48" height="1" fill="#D7DDD3"/>
+<g id="Step 2 / Payment">
+<g id="Step number_2">
+<rect x="252" y="229" width="28" height="28" rx="14" fill="#F1F2EB"/>
+<text id="Number_2" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="262" y="247.364">2</tspan></text>
+</g>
+<text id="Step label_2" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="288" y="248.091">Payment</tspan></text>
+</g>
+<rect id="Divider_3" x="382" y="242.5" width="48" height="1" fill="#D7DDD3"/>
+<g id="Step 3 / Review">
+<g id="Step number_3">
+<rect x="446" y="229" width="28" height="28" rx="14" fill="#F1F2EB"/>
+<text id="Number_3" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="456" y="247.364">3</tspan></text>
+</g>
+<text id="Step label_3" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="482" y="248.091">Review</tspan></text>
+</g>
+</g>
+<g id="Contact information" clip-path="url(#clip2_5_2)">
+<g id="Contact heading" clip-path="url(#clip3_5_2)">
+<text id="Contact title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="18" letter-spacing="0em"><tspan x="64" y="299.545">Contact</tspan></text>
+<text id="Sign in link" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="444" y="297.364">Already have an account? Sign in</tspan></text>
+</g>
+<g id="Field / Email address">
+<text id="Label" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="64" y="330.727">Email address</tspan></text>
+<g id="Input">
+<path d="M64 351C64 346.582 67.5817 343 72 343H624C628.418 343 632 346.582 632 351V379C632 383.418 628.418 387 624 387H72C67.5817 387 64 383.418 64 379V351Z" fill="white"/>
+<path d="M64 351C64 346.582 67.5817 343 72 343H624C628.418 343 632 346.582 632 351V379C632 383.418 628.418 387 624 387H72C67.5817 387 64 383.418 64 379V351Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="80" y="370.091">alex@example.test</tspan></text>
+</g>
+</g>
+</g>
+<g id="Shipping address" clip-path="url(#clip4_5_2)">
+<text id="Address title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="18" letter-spacing="0em"><tspan x="64" y="429.545">Shipping address</tspan></text>
+<g id="Name fields" clip-path="url(#clip5_5_2)">
+<g id="Field / First name">
+<text id="Label_2" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="64" y="460.727">First name</tspan></text>
+<g id="Input_2">
+<path d="M64 481C64 476.582 67.5817 473 72 473H332C336.418 473 340 476.582 340 481V509C340 513.418 336.418 517 332 517H72C67.5817 517 64 513.418 64 509V481Z" fill="white"/>
+<path d="M64 481C64 476.582 67.5817 473 72 473H332C336.418 473 340 476.582 340 481V509C340 513.418 336.418 517 332 517H72C67.5817 517 64 513.418 64 509V481Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_2" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="80" y="500.091">Alex</tspan></text>
+</g>
+</g>
+<g id="Field / Last name">
+<text id="Label_3" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="356" y="460.727">Last name</tspan></text>
+<g id="Input_3">
+<path d="M356 481C356 476.582 359.582 473 364 473H624C628.418 473 632 476.582 632 481V509C632 513.418 628.418 517 624 517H364C359.582 517 356 513.418 356 509V481Z" fill="white"/>
+<path d="M356 481C356 476.582 359.582 473 364 473H624C628.418 473 632 476.582 632 481V509C632 513.418 628.418 517 624 517H364C359.582 517 356 513.418 356 509V481Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_3" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="372" y="500.091">Morgan</tspan></text>
+</g>
+</g>
+</g>
+<g id="Field / Street address">
+<text id="Label_4" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="64" y="542.727">Street address</tspan></text>
+<g id="Input_4">
+<path d="M64 563C64 558.582 67.5817 555 72 555H624C628.418 555 632 558.582 632 563V591C632 595.418 628.418 599 624 599H72C67.5817 599 64 595.418 64 591V563Z" fill="white"/>
+<path d="M64 563C64 558.582 67.5817 555 72 555H624C628.418 555 632 558.582 632 563V591C632 595.418 628.418 599 624 599H72C67.5817 599 64 595.418 64 591V563Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_4" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="80" y="582.091">123 Example Lane</tspan></text>
+</g>
+</g>
+<g id="City and postal code" clip-path="url(#clip6_5_2)">
+<g id="Field / City">
+<text id="Label_5" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="64" y="624.727">City</tspan></text>
+<g id="Input_5">
+<path d="M64 645C64 640.582 67.5817 637 72 637H332C336.418 637 340 640.582 340 645V673C340 677.418 336.418 681 332 681H72C67.5817 681 64 677.418 64 673V645Z" fill="white"/>
+<path d="M64 645C64 640.582 67.5817 637 72 637H332C336.418 637 340 640.582 340 645V673C340 677.418 336.418 681 332 681H72C67.5817 681 64 677.418 64 673V645Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_5" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="80" y="664.091">Portland</tspan></text>
+</g>
+</g>
+<g id="Field / State / ZIP code">
+<text id="Label_6" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="13" letter-spacing="0em"><tspan x="356" y="624.727">State / ZIP code</tspan></text>
+<g id="Input_6">
+<path d="M356 645C356 640.582 359.582 637 364 637H624C628.418 637 632 640.582 632 645V673C632 677.418 628.418 681 624 681H364C359.582 681 356 677.418 356 673V645Z" fill="white"/>
+<path d="M356 645C356 640.582 359.582 637 364 637H624C628.418 637 632 640.582 632 645V673C632 677.418 628.418 681 624 681H364C359.582 681 356 677.418 356 673V645Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_6" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="372" y="664.091">OR 97205</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g id="Selected delivery option">
+<path d="M64 713C64 708.582 67.5817 705 72 705H624C628.418 705 632 708.582 632 713V769C632 773.418 628.418 777 624 777H72C67.5817 777 64 773.418 64 769V713Z" fill="#F1F2EB"/>
+<g id="Selected radio" clip-path="url(#clip7_5_2)">
+<path id="Vector_2" d="M98.5 741C98.5 745.694 94.6944 749.5 90 749.5C85.3056 749.5 81.5 745.694 81.5 741C81.5 736.306 85.3056 732.5 90 732.5C94.6944 732.5 98.5 736.306 98.5 741Z" stroke-width="1.5" stroke="#203D32"/>
+<path id="Vector_3" d="M90 745C92.2091 745 94 743.209 94 741C94 738.791 92.2091 737 90 737C87.7909 737 86 738.791 86 741C86 743.209 87.7909 745 90 745Z" fill="#203D32"/>
+</g>
+<g id="Delivery details">
+<text id="Delivery name" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="116" y="736.091">Standard shipping</tspan></text>
+<text id="Delivery timing" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="116" y="756.364">Arrives in 3&#x2013;5 business days</tspan></text>
+</g>
+<text id="Delivery price" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="552" y="746.091">$6.00</tspan></text>
+</g>
+<g id="Checkout actions" clip-path="url(#clip8_5_2)">
+<g id="Button / Continue to payment  &#226;&#134;&#146;">
+<path d="M64 809C64 804.582 67.5817 801 72 801H624C628.418 801 632 804.582 632 809V845C632 849.418 628.418 853 624 853H72C67.5817 853 64 849.418 64 845V809Z" fill="#203D32"/>
+<text id="Button" fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="267.5" y="832.091">Continue to payment  &#x2192;</tspan></text>
+</g>
+<g id="Back to bag">
+<g id="Back arrow">
+<path id="Vector_4" d="M309.667 874H300.333M304.333 878L300.333 874L304.333 870" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round" stroke="#647067"/>
+</g>
+<text id="Return link" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="321" y="878.364">Return to bag</tspan></text>
+</g>
+</g>
+</g>
+<g id="Order sidebar" clip-path="url(#clip9_5_2)">
+<g id="Order summary">
+<path d="M712 137C712 128.163 719.163 121 728 121H1120C1128.84 121 1136 128.163 1136 137V765C1136 773.837 1128.84 781 1120 781H728C719.163 781 712 773.837 712 765V137Z" fill="#F1F2EB"/>
+<g id="Summary heading" clip-path="url(#clip10_5_2)">
+<text id="Summary title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Instrument Serif" font-size="28" letter-spacing="0em"><tspan x="744" y="175.52">Your bag</tspan></text>
+<text id="Item count" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="10" letter-spacing="1.5px"><tspan x="1064" y="169.636">1 ITEM</tspan></text>
+</g>
+<g id="Product illustration / Forest notebook">
+<g clip-path="url(#clip11_5_2)">
+<path d="M744 215C744 210.582 747.582 207 752 207H1096C1100.42 207 1104 210.582 1104 215V395C1104 399.418 1100.42 403 1096 403H752C747.582 403 744 399.418 744 395V215Z" fill="#E4EBDD"/>
+<circle id="Soft backdrop" opacity="0.45" cx="924" cy="305" r="115" fill="#FCFBF8"/>
+<rect id="Book shadow" opacity="0.12" x="872" y="232" width="116" height="154" rx="6" fill="#203D32"/>
+<rect id="Paper block" x="864" y="225" width="116" height="154" rx="5" fill="white"/>
+<rect id="Page edge 1" x="869" y="369" width="104" height="1" fill="#D7DDD3"/>
+<rect id="Page edge 2" x="869" y="371" width="104" height="1" fill="#D7DDD3"/>
+<rect id="Page edge 3" x="869" y="373" width="104" height="1" fill="#D7DDD3"/>
+<rect id="Page edge 4" x="869" y="375" width="104" height="1" fill="#D7DDD3"/>
+<rect id="Forest cloth cover" x="860" y="221" width="116" height="150" rx="5" fill="#365A46"/>
+<rect id="Binding" x="866" y="221" width="4" height="150" rx="1" fill="#203D32"/>
+<text id="Notebook foil title" fill="#C5B787" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="10" letter-spacing="1.5px"><tspan x="900.29" y="260.636">STUDIO&#10;</tspan><tspan x="903.091" y="276.636">NOTES</tspan></text>
+<rect id="Foil rule" x="892" y="295" width="50" height="1" fill="#C5B787"/>
+<text id="Notebook maker" fill="#C5B787" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="894" y="348.364">margin.</tspan></text>
+</g>
+</g>
+<g id="Product details" clip-path="url(#clip12_5_2)">
+<g id="Product name and options">
+<text id="Product name" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="744" y="442.091">The Studio Notebook</tspan></text>
+<text id="Product variant" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="744" y="464.364">Forest &#xb7; A5 &#xb7; Dotted pages</tspan></text>
+<text id="Quantity" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="744" y="486.364">Quantity 1</tspan></text>
+</g>
+<text id="Product price" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="1056" y="442.091">$24.00</tspan></text>
+</g>
+<rect id="Divider_4" x="744" y="515" width="360" height="1" fill="#D7DDD3"/>
+<g id="Discount code" clip-path="url(#clip13_5_2)">
+<g id="Field / Discount code">
+<g id="Input_7">
+<path d="M744 548C744 543.582 747.582 540 752 540H1000C1004.42 540 1008 543.582 1008 548V576C1008 580.418 1004.42 584 1000 584H752C747.582 584 744 580.418 744 576V548Z" fill="white"/>
+<path d="M744 548C744 543.582 747.582 540 752 540H1000C1004.42 540 1008 543.582 1008 548V576C1008 580.418 1004.42 584 1000 584H752C747.582 584 744 580.418 744 576V548Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Value_7" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="760" y="567.091">Discount code</tspan></text>
+</g>
+</g>
+<g id="Button / Apply">
+<path d="M1024 540.5H1096C1100.14 540.5 1103.5 543.858 1103.5 548V576C1103.5 580.142 1100.14 583.5 1096 583.5H1024C1019.86 583.5 1016.5 580.142 1016.5 576V548C1016.5 543.858 1019.86 540.5 1024 540.5Z" fill="white"/>
+<path d="M1024 540.5H1096C1100.14 540.5 1103.5 543.858 1103.5 548V576C1103.5 580.142 1100.14 583.5 1096 583.5H1024C1019.86 583.5 1016.5 580.142 1016.5 576V548C1016.5 543.858 1019.86 540.5 1024 540.5Z" stroke="#D7DDD3" stroke-linecap="round"/>
+<text id="Button_2" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="1040.5" y="567.091">Apply</tspan></text>
+</g>
+</g>
+<g id="Cost breakdown" clip-path="url(#clip14_5_2)">
+<g id="Subtotal" clip-path="url(#clip15_5_2)">
+<text id="Label_7" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="744" y="623.091">Subtotal</tspan></text>
+<text id="Amount" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="1057" y="623.091">$24.00</tspan></text>
+</g>
+<g id="Shipping" clip-path="url(#clip16_5_2)">
+<text id="Label_8" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="744" y="655.091">Shipping</tspan></text>
+<text id="Amount_2" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="1065" y="655.091">$6.00</tspan></text>
+</g>
+</g>
+<rect id="Divider_5" x="744" y="684" width="360" height="1" fill="#D7DDD3"/>
+<g id="Total" clip-path="url(#clip17_5_2)">
+<g id="Total label">
+<text id="Total title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="18" letter-spacing="0em"><tspan x="744" y="727.545">Total</tspan></text>
+<text id="Currency" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="744" y="748.364">USD &#xb7; Taxes included</tspan></text>
+</g>
+<text id="Total amount" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="28" letter-spacing="0em"><tspan x="1007" y="741.182">$30.00</tspan></text>
+</g>
+</g>
+<g id="Order reassurance">
+<g id="Delivery box">
+<path id="Vector_5" d="M738 817.5H743L745.5 821.667V831.667H730.5V821.667L733 817.5H738ZM745.5 821.667H738M730.5 821.667H738M738 817.5V821.667M735.5 825H740.5" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#647067"/>
+</g>
+<g id="Care note">
+<text id="Care title" fill="#203D32" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="14" letter-spacing="0em"><tspan x="760" y="820.091">Packed with a little extra care.</tspan></text>
+<text id="Care body" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="760" y="840.364">Thoughtful paper goods, delivered to your door.</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<rect id="Divider_6" y="923" width="1200" height="1" fill="#D7DDD3"/>
+<g id="Margin / Footer">
+<text id="Copyright" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="64" y="957.364">&#xa9; 2026 Margin Studio</tspan></text>
+<g id="Footer links">
+<text id="Privacy" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="967" y="957.364">Privacy</tspan></text>
+<text id="Terms" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="1033" y="957.364">Terms</tspan></text>
+<text id="Returns" fill="#647067" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="12" letter-spacing="0em"><tspan x="1092" y="957.364">Returns</tspan></text>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_5_2">
+<rect width="1200" height="982" fill="white"/>
+</clipPath>
+<clipPath id="clip1_5_2">
+<rect width="568" height="762" fill="white" transform="translate(64 121)"/>
+</clipPath>
+<clipPath id="clip2_5_2">
+<rect width="568" height="106" fill="white" transform="translate(64 281)"/>
+</clipPath>
+<clipPath id="clip3_5_2">
+<rect width="568" height="24" fill="white" transform="translate(64 281)"/>
+</clipPath>
+<clipPath id="clip4_5_2">
+<rect width="568" height="270" fill="white" transform="translate(64 411)"/>
+</clipPath>
+<clipPath id="clip5_5_2">
+<rect width="568" height="70" fill="white" transform="translate(64 447)"/>
+</clipPath>
+<clipPath id="clip6_5_2">
+<rect width="568" height="70" fill="white" transform="translate(64 611)"/>
+</clipPath>
+<clipPath id="clip7_5_2">
+<rect width="20" height="20" fill="white" transform="translate(80 731)"/>
+</clipPath>
+<clipPath id="clip8_5_2">
+<rect width="568" height="82" fill="white" transform="translate(64 801)"/>
+</clipPath>
+<clipPath id="clip9_5_2">
+<rect width="424" height="724" fill="white" transform="translate(712 121)"/>
+</clipPath>
+<clipPath id="clip10_5_2">
+<rect width="360" height="34" fill="white" transform="translate(744 149)"/>
+</clipPath>
+<clipPath id="clip11_5_2">
+<path d="M744 215C744 210.582 747.582 207 752 207H1096C1100.42 207 1104 210.582 1104 215V395C1104 399.418 1100.42 403 1096 403H752C747.582 403 744 399.418 744 395V215Z" fill="white"/>
+</clipPath>
+<clipPath id="clip12_5_2">
+<rect width="360" height="64" fill="white" transform="translate(744 427)"/>
+</clipPath>
+<clipPath id="clip13_5_2">
+<rect width="360" height="44" fill="white" transform="translate(744 540)"/>
+</clipPath>
+<clipPath id="clip14_5_2">
+<rect width="360" height="52" fill="white" transform="translate(744 608)"/>
+</clipPath>
+<clipPath id="clip15_5_2">
+<rect width="360" height="20" fill="white" transform="translate(744 608)"/>
+</clipPath>
+<clipPath id="clip16_5_2">
+<rect width="360" height="20" fill="white" transform="translate(744 640)"/>
+</clipPath>
+<clipPath id="clip17_5_2">
+<rect width="360" height="44" fill="white" transform="translate(744 709)"/>
+</clipPath>
+</defs>
+</svg>

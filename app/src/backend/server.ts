@@ -1,8 +1,8 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { config, assertConfigured, APP_ROOT } from "./env.js";
-import { getProject, updateScopeBaseline } from "./db.js";
+import { getProjectForRun, updateScopeBaseline } from "./db.js";
 import { fetchComments } from "./figma.js";
 import {
   createChangeOrder, listChangeOrders, getChangeOrder, ensureInvoice, refreshPaymentStatus,
@@ -13,6 +13,7 @@ import { aiBudget } from "./aiBudget.js";
 import { assess, getAssessment } from "./assessment.js";
 import { db } from "./db.js";
 import { receiveWebhook } from "./webhooks.js";
+import { startJudgeRun, renewJudgeSession, createClientAccess, resetJudgeRun } from "./judging.js";
 
 function json(res: ServerResponse, status: number, body: unknown) {
   const text = JSON.stringify(body);
@@ -45,8 +46,8 @@ export const server = createServer(async (req, res) => {
   const path = url.pathname;
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
-    const publicFiles: Record<string, string> = { "/": "designer.html", "/designer": "designer.html", "/review": "review.html",
-      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/designer.js": "designer.js", "/assets/review.js": "review.js" };
+    const publicFiles: Record<string, string> = { "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html",
+      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
       res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : file.endsWith(".css") ? "text/css" : "text/javascript",
@@ -57,6 +58,20 @@ export const server = createServer(async (req, res) => {
     if (path === "/health") {
       const missing = assertConfigured();
       return json(res, 200, { ok: missing.length === 0, missing, paypalEnv: config.paypalEnv });
+    }
+    const metadataPath = resolve(APP_ROOT, "downloads/plugin.json");
+    const plugin = existsSync(metadataPath) ? JSON.parse(readFileSync(metadataPath, "utf8")) : null;
+    if (path === "/api/demo-info" && req.method === "GET") return json(res, 200, {
+      figmaUrl: `https://www.figma.com/design/${encodeURIComponent(config.figmaFileKey)}/Scope-and-Settle`, plugin,
+    });
+    if (req.method === "GET" && (path === "/JUDGING.md" || path === "/downloads/plugin.zip" || path === "/downloads/plugin.json" || path === "/downloads/SHA256SUMS" ||
+        (plugin && path === `/downloads/${plugin.filename}` && /^scope-and-settle-[a-zA-Z0-9.-]+\.zip$/.test(plugin.filename)))) {
+      const file = path === "/JUDGING.md" ? resolve(APP_ROOT, "JUDGING.md") : resolve(APP_ROOT, "downloads", path.split("/").pop()!);
+      if (!existsSync(file)) return json(res, 404, { error: "This release has no plugin package yet" });
+      res.writeHead(200, { "Content-Type": path.endsWith(".zip") ? "application/zip" : path.endsWith(".json") ? "application/json" : "text/plain; charset=utf-8",
+        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
+        ...(path.endsWith(".zip") ? { "Content-Disposition": `attachment; filename="${plugin.filename}"` } : {}) });
+      return res.end(readFileSync(file));
     }
     if (path === "/webhooks/paypal" && req.method === "POST") {
       const event = await readBody(req);
@@ -76,10 +91,16 @@ export const server = createServer(async (req, res) => {
       const redeemed = redeemInvitation(String(b.invitation ?? ""));
       return redeemed ? json(res, 200, redeemed) : json(res, 401, { error: "Invitation is expired, used, revoked or superseded. Ask the designer for a fresh link." });
     }
+    if ((path === "/api/judge/start" || path === "/api/session/renew") && req.method === "POST") {
+      const b = await readBody(req);
+      const issued = path === "/api/judge/start" ? startJudgeRun(b.credential) : renewJudgeSession(b.credential);
+      return issued ? json(res, path === "/api/judge/start" ? 201 : 200, issued) :
+        json(res, 401, { error: "Access is expired, revoked, reset or superseded. Return to judge entry for a fresh run." });
+    }
     const session = getSession(req.headers.authorization?.match(/^Bearer (.+)$/)?.[1]);
     if (!session) return json(res, 401, { error: "Missing, expired, or revoked session" });
     if (session.projectId !== "demo") return json(res, 403, { error: "Session does not grant access to this project" });
-    const scopedOrder = path.match(/^\/api\/change-orders\/([^/]+)(?:\/(submit|approve|invoice|payment-status))?$/);
+    const scopedOrder = path.match(/^\/api\/change-orders\/([^/]+)(?:\/(submit|approve|invoice|payment-status|client-access))?$/);
     if (scopedOrder) {
       const order = getChangeOrder(scopedOrder[1]);
       if (!order) return json(res, 404, { error: "Change order not found" });
@@ -93,16 +114,17 @@ export const server = createServer(async (req, res) => {
     if (session.role !== "designer" && !clientAction) return json(res, 403, { error: "Requires designer role" });
     if (path === "/api/session" && req.method === "GET") return json(res, 200, session);
     if (path === "/api/project" && req.method === "GET") {
-      return json(res, 200, getProject());
+      return json(res, 200, getProjectForRun(session.runId));
     }
     if (path === "/api/comments" && req.method === "GET") {
-      const project = getProject();
+      const project = getProjectForRun(session.runId);
       const comments = await fetchComments(project.figmaFileKey);
       return json(res, 200, { fileKey: project.figmaFileKey, fetchedAt: new Date().toISOString(), comments });
     }
     if (path === "/api/assessments" && req.method === "POST") {
       const b = await readBody(req);
-      const project = getProject();
+      const project = getProjectForRun(session.runId);
+      if (b.imageDataUrl && b.figmaFileKey !== project.figmaFileKey) return json(res, 400, { error: "Attach a frame from the designated Figma file" });
       const comments = await fetchComments(project.figmaFileKey);
       const comment = comments.find(c => c.id === b.commentId);
       if (!comment) return json(res, 400, { error: "Select an actual comment in the configured file" });
@@ -123,7 +145,7 @@ export const server = createServer(async (req, res) => {
       const b = await readBody(req);
       if (b.assessmentId) {
         const a = getAssessment(String(b.assessmentId), session.runId);
-        if (!a || a.result.classification !== "new_work" || a.scopeRevisionId !== getProject().scopeRevisionId) {
+        if (!a || a.result.classification !== "new_work" || a.scopeRevisionId !== getProjectForRun(session.runId).scopeRevisionId) {
           return json(res, 409, { error: "A current new-work assessment is required; reassess the request" });
         }
       }
@@ -138,6 +160,7 @@ export const server = createServer(async (req, res) => {
       return json(res, 201, getChangeOrder(order.id));
     }
     if (path === "/api/project/scope" && req.method === "POST") {
+      if (!session.canEditScope) return json(res, 403, { error: "The judging brief and rate card are fixed for this run" });
       const b = await readBody(req);
       if (!Array.isArray(b.clauses) || b.clauses.length === 0) return json(res, 400, { error: "clauses required" });
       return json(res, 200, updateScopeBaseline(b.clauses));
@@ -148,6 +171,7 @@ export const server = createServer(async (req, res) => {
       if (b.role !== "client" || !order || order.runId !== session.runId || order.status !== "awaiting_client_approval") {
         return json(res, 400, { error: "Only client access to a submitted proposal can be issued here" });
       }
+      if (session.grantId) return json(res, 201, createClientAccess(session, order));
       const issued = createSession({
         projectId: session.projectId, runId: session.runId, role: "client",
         changeOrderId: order.id, changeOrderRevision: order.revision,
@@ -156,12 +180,13 @@ export const server = createServer(async (req, res) => {
     }
     if (path === "/api/sessions/revoke" && req.method === "POST") {
       const b = await readBody(req);
-      const target = getSession(String(b.token ?? ""));
-      if (target && (target.projectId !== session.projectId || target.runId !== session.runId)) return json(res, 403, { error: "Session belongs to another project/run" });
+      const target = db.prepare("SELECT project_id, run_id FROM sessions WHERE token = ?").get(String(b.token ?? "")) as any;
+      if (target && (target.project_id !== session.projectId || target.run_id !== session.runId)) return json(res, 403, { error: "Session belongs to another project/run" });
       revokeSession(String(b.token ?? ""));
       return json(res, 200, { revoked: true });
     }
     if (path === "/api/demo/reset" && req.method === "POST") {
+      if (session.grantId) return json(res, 200, resetJudgeRun(session));
       const reset = resetDemoRun(session.runId);
       return json(res, 200, { ...reset, session: createSession({ projectId: session.projectId, role: "designer", runId: reset.runId }) });
     }
@@ -171,8 +196,14 @@ export const server = createServer(async (req, res) => {
     const submitMatch = path.match(/^\/api\/change-orders\/([^/]+)\/submit$/);
     if (submitMatch && req.method === "POST") {
       const order = submitForApproval(submitMatch[1]);
+      if (session.grantId) return json(res, 200, { order, ...createClientAccess(session, order) });
       const link = createInvitation({ projectId: "demo", role: "client", runId: session.runId, changeOrderId: order.id, changeOrderRevision: order.revision });
       return json(res, 200, { order, approvalUrl: `${config.publicUrl}/review#${link.token}`, approvalExpiresAt: link.expiresAt });
+    }
+    if (scopedOrder?.[2] === "client-access" && req.method === "POST") {
+      const order = getChangeOrder(scopedOrder[1])!;
+      if (!session.grantId) return json(res, 400, { error: "Use submit to issue a development invitation" });
+      return json(res, 200, createClientAccess(session, order));
     }
     const approveMatch = path.match(/^\/api\/change-orders\/([^/]+)\/approve$/);
     if (approveMatch && req.method === "POST") {

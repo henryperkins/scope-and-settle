@@ -1,9 +1,9 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { assess } from '../dist/backend/assessment.js';
+import { assess, assessmentPromptVersion } from '../dist/backend/assessment.js';
 import { aiBudget } from '../dist/backend/aiBudget.js';
 import { db } from '../dist/backend/db.js';
-import { config } from '../dist/backend/env.js';
+import { config, DATA_DIR } from '../dist/backend/env.js';
 const fixtures = JSON.parse(await readFile(resolve('../fixtures/scope-judgment-cases.json'), 'utf8'));
 const stamp = new Date().toISOString();
 const results = [];
@@ -24,16 +24,16 @@ for (const c of fixtures.cases) {
     results.push({ caseId: c.id, expected: c.expected_classification, checks, passed: Object.values(checks).every(Boolean), ...record });
     console.log(c.id + ': ' + r.classification + ' (' + record.latencyMs + ' ms), ' + (Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL'));
   } catch (error) {
-    results.push({ caseId: c.id, passed: false, error: error.message, latencyMs: Date.now() - started });
+    results.push({ caseId: c.id, passed: false, error: error.message, rejectedFinalOutput: error.finalOutput ?? null, latencyMs: Date.now() - started });
     console.log(c.id + ': ' + error.message);
-    if (/HTTP (401|403|429)|not configured/.test(error.message)) break;
+    if (/HTTP (401|402|403|429)|not configured|budget exhausted/.test(error.message)) break;
   }
 }
-const report = { at: stamp, model: config.aiModel, data: 'synthetic text fixtures; no real frame image',
+const report = { at: stamp, provider: config.aiProvider, model: config.aiModel, reasoningEffort: config.aiReasoningEffort, promptVersion: assessmentPromptVersion, data: 'synthetic text fixtures; no real frame image',
   semanticEvidenceReview: 'Required separately: a valid quotation and clause ID do not prove correct reasoning.',
   total: fixtures.cases.length, attempted: results.length, passed: results.filter(x => x.passed).length,
   budget: aiBudget.status(), results };
-const dir = resolve('../output/evaluations');
+const dir = resolve(DATA_DIR, 'evaluations');
 await mkdir(dir, { recursive: true });
 const path = resolve(dir, 'ai-' + stamp.replaceAll(':', '-') + '.json');
 await writeFile(path, JSON.stringify(report, null, 2));

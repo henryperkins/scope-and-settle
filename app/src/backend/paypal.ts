@@ -39,14 +39,14 @@ export async function createDraftInvoice(input: {
   reference: string;
 }): Promise<CreatedInvoice> {
   const value = (input.amountMinor / 100).toFixed(2);
-  const today = new Date().toISOString().slice(0, 10);
   const { status, body } = await api("/v2/invoicing/invoices", {
     method: "POST",
     body: JSON.stringify({
       detail: {
         invoice_number: input.reference.slice(0, 25),
         reference: input.reference,
-        invoice_date: today,
+        // Let PayPal choose the merchant's current date. UTC can be tomorrow in
+        // the merchant's time zone, which schedules rather than publishes it.
         currency_code: input.currency,
         payment_term: { term_type: "DUE_ON_RECEIPT" },
         terms_and_conditions: "Work begins after payment. Sandbox demonstration only.",
@@ -126,13 +126,17 @@ export async function getInvoice(invoiceId: string): Promise<InvoiceDetail> {
   const { status, body } = await api(`/v2/invoicing/invoices/${invoiceId}`);
   if (status !== 200) throw new Error(`Get invoice failed: HTTP ${status} ${JSON.stringify(body).slice(0, 300)}`);
   const payer = (body.links ?? []).find((l: any) => l.rel === "payer-view");
+  // Invoicing v2 publishes the actual recipient URL in detail.metadata.
+  // Preserve its opaque fragment; the resource ID is not a replacement for it.
+  const recipientUrl = body.detail?.metadata?.recipient_view_url;
   return {
     id: body.id,
     status: body.status,
     totalMinor: toMinor(body.detail?.amount_with_breakdown?.total_amount ?? body.amount),
     amountDueMinor: toMinor(body.due_amount),
     currency: body.detail?.currency_code ?? null,
-    payerViewUrl: payer?.href ?? (body.status !== "DRAFT" ? payerViewUrl(body.id) : null),
+    payerViewUrl: (typeof recipientUrl === "string" && recipientUrl ? recipientUrl : payer?.href) ??
+      (body.status !== "DRAFT" ? payerViewUrl(body.id) : null),
     raw: body,
   };
 }

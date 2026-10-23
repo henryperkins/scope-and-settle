@@ -17,7 +17,8 @@ const values = {
   PAYPAL_ENVIRONMENT: 'sandbox', PAYPAL_CLIENT_ID: config.paypalClientId, PAYPAL_CLIENT_SECRET: config.paypalClientSecret,
   PAYPAL_SANDBOX_MERCHANT_EMAIL: config.paypalMerchantEmail, PAYPAL_SANDBOX_BUYER_EMAIL: config.paypalBuyerEmail,
   FIGMA_PERSONAL_ACCESS_TOKEN: config.figmaToken, FIGMA_FILE_KEY: config.figmaFileKey,
-  OPENAI_API_KEY: config.aiApiKey, AI_MODEL: config.aiModel, AI_BUDGET_USD: String(remaining),
+  BASETEN_API_KEY: config.aiApiKey, AI_PROVIDER: config.aiProvider, AI_MODEL: config.aiModel,
+  AI_REASONING_EFFORT: config.aiReasoningEffort, AI_BUDGET_USD: String(remaining),
 };
 for (const [key, value] of Object.entries(values)) {
   if (!value || /[\r\n]/.test(value)) throw new Error(`Missing or unsafe configuration: ${key}`);

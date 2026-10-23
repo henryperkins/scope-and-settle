@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { basetenModel } from "./baseten.js";
 
 // Backend runs from app/dist/backend/. Project root (paypal-hackathon/) is 3 levels up.
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,8 +32,10 @@ export const config = {
   port: Number(get("PORT") || 8787),
   host: get("HOST") || "127.0.0.1",
   publicUrl: (get("PUBLIC_BASE_URL") || get("RENDER_EXTERNAL_URL") || "http://localhost:8787").replace(/\/$/, ""),
-  aiApiKey: get("AI_API_KEY") || get("OPENAI_API_KEY"),
-  aiModel: get("AI_MODEL") || "gpt-6-luna",
+  aiProvider: get("AI_PROVIDER") || basetenModel.provider,
+  aiApiKey: get("BASETEN_API_KEY"),
+  aiModel: get("AI_MODEL") || basetenModel.id,
+  aiReasoningEffort: get("AI_REASONING_EFFORT") || basetenModel.reasoningEffort,
   aiBudgetUsd: Math.min(Number(get("AI_BUDGET_USD") || 25), 25),
   paypalWebhookId: get("PAYPAL_WEBHOOK_ID"),
   paypalEnv: get("PAYPAL_ENVIRONMENT") || "sandbox",
@@ -45,6 +48,9 @@ export const config = {
 };
 
 if (config.paypalEnv !== "sandbox") throw new Error("This hackathon build supports PayPal sandbox only");
+if (config.aiProvider !== basetenModel.provider || config.aiModel !== basetenModel.id || config.aiReasoningEffort !== basetenModel.reasoningEffort) {
+  throw new Error("This build requires Baseten DeepSeek-V4.1-Flash-1017-Fast with max reasoning; evaluate and price any replacement before enabling it");
+}
 if (!Number.isFinite(config.aiBudgetUsd) || config.aiBudgetUsd <= 0) throw new Error("Invalid AI budget");
 export const paypalBase = "https://api-m.sandbox.paypal.com";
 

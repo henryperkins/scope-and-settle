@@ -16,3 +16,5 @@ output/
 *.db-shm
 *.db-wal
 app/data/
+app/downloads/
+app/JUDGING.md

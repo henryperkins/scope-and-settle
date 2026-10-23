@@ -8,6 +8,7 @@ const appRoot = dirname(fileURLToPath(import.meta.url));
 const pluginDir = resolve(appRoot, "plugin");
 const distDir = resolve(pluginDir, "dist");
 mkdirSync(distDir, { recursive: true });
+writeFileSync(resolve(appRoot, 'JUDGING.md'), readFileSync(resolve(appRoot, '../JUDGING.md')));
 
 await esbuild.build({
   entryPoints: [resolve(pluginDir, "code.ts")],

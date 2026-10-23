@@ -88,13 +88,26 @@ CREATE TABLE IF NOT EXISTS proposal_revisions (
   change_order_id TEXT NOT NULL, revision INTEGER NOT NULL, snapshot_json TEXT NOT NULL,
   created_at TEXT NOT NULL, PRIMARY KEY(change_order_id, revision)
 );
+CREATE TABLE IF NOT EXISTS judge_access (
+  id TEXT PRIMARY KEY, credential_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL,
+  revoked INTEGER NOT NULL DEFAULT 0, project_json TEXT NOT NULL, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS judge_runs (
+  run_id TEXT PRIMARY KEY, judge_access_id TEXT NOT NULL, project_json TEXT NOT NULL,
+  closed_at TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS renewal_grants (
+  id TEXT PRIMARY KEY, credential_hash TEXT NOT NULL UNIQUE, judge_access_id TEXT NOT NULL,
+  run_id TEXT NOT NULL, role TEXT NOT NULL, change_order_id TEXT, change_order_revision INTEGER,
+  expires_at TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
+);
 `);
 
 // Additive migrations for databases created by the first scaffold.
 for (const col of ["revision INTEGER NOT NULL DEFAULT 1", "scope_revision_id TEXT", "run_id TEXT NOT NULL DEFAULT 'run-1'"]) {
   try { db.exec(`ALTER TABLE change_orders ADD COLUMN ${col}`); } catch { /* already present */ }
 }
-for (const [table, column] of [["sessions", "run_id TEXT NOT NULL DEFAULT 'run-1'"], ["change_orders", "scope_snapshot_json TEXT"], ["change_orders", "assessment_id TEXT"]]) {
+for (const [table, column] of [["sessions", "run_id TEXT NOT NULL DEFAULT 'run-1'"], ["sessions", "grant_id TEXT"], ["change_orders", "scope_snapshot_json TEXT"], ["change_orders", "assessment_id TEXT"]]) {
   const name = column.split(" ")[0];
   if (!(db.prepare(`PRAGMA table_info(${table})`).all() as any[]).some(x => x.name === name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column}`);
 }
@@ -147,6 +160,17 @@ export function getProject(): ProjectView {
   ).run("demo", "Scope & Settle — Demo", config.figmaFileKey, "USD", "scope-rev-1",
     JSON.stringify(DEMO_CLAUSES), JSON.stringify(DEMO_RATE_CARD), now);
   return getProject();
+}
+
+export function assertRunActive(runId: string): void {
+  const run = db.prepare("SELECT closed_at FROM judge_runs WHERE run_id = ?").get(runId) as any;
+  if (run?.closed_at) throw new Error("This demo was reset; reconnect to your new run");
+}
+
+export function getProjectForRun(runId: string): ProjectView {
+  assertRunActive(runId);
+  const run = db.prepare("SELECT project_json FROM judge_runs WHERE run_id = ?").get(runId) as any;
+  return run ? JSON.parse(run.project_json) : getProject();
 }
 
 /** Q08: saving a new scope baseline creates a new revision; pending proposals go stale server-side. */

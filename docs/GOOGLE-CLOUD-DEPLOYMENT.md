@@ -28,7 +28,7 @@ The [Google free tier](https://docs.cloud.google.com/free/docs/free-cloud-featur
 
 `deploy/gcp/provision.ps1` documents the exact new-resource configuration. It intentionally fails on existing resource names; inspect and resume an incomplete provision instead of deleting resources or blindly rerunning it. All command defaults target the project/zone above.
 
-1. Build and test the Docker image locally using the root Dockerfile. Export it with `docker image save`, gzip it, and retain a SHA-256 checksum. Record the configuration digest in the archive's `manifest.json`, not just Docker Desktop's OCI descriptor ID: the VM's Docker reports the configuration digest as its image ID. Building locally avoids memory pressure on the tiny VM.
+1. Commit the reviewed release inputs and build/test the root Dockerfile with `--build-arg SOURCE_COMMIT=<full-commit> --build-arg PUBLIC_BASE_URL=https://scope-and-settle.hperkins.com`. The image serves a plugin kit pinned to that commit. Build from those exact committed files. Export it with `docker image save`, gzip it, and retain a SHA-256 checksum. Record the configuration digest in the archive's `manifest.json`, not just Docker Desktop's OCI descriptor ID: the VM's Docker reports the configuration digest as its image ID. Building locally avoids memory pressure on the tiny VM.
 2. Run the provision script for a new deployment. The startup script installs Docker, formats only an unsigned data disk, mounts it by UUID, and creates a UID-1000 private data directory. Both disks are retained when the VM is deleted. A missing mount prevents the app unit from starting.
 3. Configure a named, remotely managed Cloudflare Tunnel with the chosen hostname routed to `http://127.0.0.1:8787` and a final `http_status:404` catch-all. Create its proxied CNAME only after checking that the name is unused. Keep the token in an ignored, private `tunnel.env` as `TUNNEL_TOKEN=...`.
 4. Build the backend locally. Run `node deploy/gcp/prepare-runtime.mjs scope-and-settle.hperkins.com` to prepare `output/gcp/private/runtime.env`. Protect that directory before writing credentials on Windows. The script refuses to overwrite an existing file and reads only the development AI ledger; it does not copy sessions or invoices.
@@ -42,7 +42,7 @@ The app image excludes local credentials and state. The container root filesyste
 
 At migration, the local ledger held $0.837288 of conservative reservations/usage from failed attempts. The fresh hosted database is allocated **$24.16**, keeping the combined allocation below $25. No more live AI calls should run against the old local instance. Do not reset the hosted allowance by deploying a new empty data disk. These records are conservative application accounting, not actual provider billing.
 
-After hosted health succeeds, run `node deploy/gcp/register-paypal-webhook.mjs https://scope-and-settle.hperkins.com`. It registers the callback on the existing sandbox REST app for the available `INVOICING.INVOICE.*` events (nine returned by the live API at setup), preserves unrelated subscriptions, and saves `PAYPAL_WEBHOOK_ID` into the private local runtime environment. Transfer that updated environment to the VM and restart only the hosted app. Check [PayPal's webhook API](https://developer.paypal.com/api/webhooks/v1) and [event names](https://developer.paypal.com/api/rest/webhooks/event-names/).
+After hosted health succeeds, run `node deploy/gcp/register-paypal-webhook.mjs https://scope-and-settle.hperkins.com`. It registers the callback on the existing sandbox REST app for the available `INVOICING.INVOICE.*` events (nine returned by the live API at setup), preserves unrelated subscriptions, and saves `PAYPAL_WEBHOOK_ID` into the private local runtime environment. It also creates and reads back a missing account-to-app webhook lookup, and refuses to replace a mapping owned by another app. Transfer the updated environment to the VM and restart only the app. Registration and HTTP 202 redelivery acceptance do not prove signed callback receipt. Check [PayPal's webhook API](https://developer.paypal.com/api/webhooks/v1) and [event names](https://developer.paypal.com/api/rest/webhooks/event-names/).
 
 The generated Figma plugin must use this HTTPS origin. From `app` in PowerShell:
 
@@ -69,13 +69,15 @@ sudo docker exec scope-and-settle node scripts/backup-data.mjs
 sudo docker exec scope-and-settle node scripts/create-demo-link.mjs
 ```
 
-The link is written to `/srv/scope-and-settle/data/designer-link.txt`. Retrieve it privately; it grants a role and expires after one hour. A link redeemed in a browser cannot be reused by the plugin. Arrange durable private judging access before submission.
+The development link is written to `/srv/scope-and-settle/data/designer-link.txt`. Retrieve it privately; it grants a role and expires after one hour. For durable judging access, run `sudo docker exec scope-and-settle node scripts/create-judge-access.mjs`. It prints only the new entry ID, expiry and protected JSON path. Retrieve that private file securely; it contains the judging code and entry URL. Provisioning snapshots the current project. Revoke an entry and all its grants with `sudo docker exec scope-and-settle node scripts/revoke-judge-access.mjs ENTRY_ID`. See [JUDGING.md](../JUDGING.md).
 
-Consistent backups are written under the same data disk. Download a private copy for recovery from disk loss; a same-disk backup alone does not protect against disk deletion. Keep one backend process per database. Scope-baseline changes are shared within the demo project; resets revoke only the chosen run and retain invoice tombstones and the AI budget ledger.
+Consistent backups are written under the same data disk. Download and integrity-check a private copy before release; a same-disk backup alone does not protect against disk deletion. Keep one backend process per database. Judge runs retain their frozen project snapshots. Reset revokes only its run, retains invoice tombstones and the shared AI ledger, and cannot orphan that run's active invoice operation.
 
 For shutdown after judging, remove only this deployment's VM, NAT/router, reserved address, tunnel/DNS record, and dedicated network. Preserve or explicitly back up the retained disks before deleting them. Stopping the VM alone does not stop all disk and reserved-IP charges.
 
 ## Verification record
+
+**Latest continuation, October 22 evening Chicago / October 23 UTC:** actual sandbox buyer checkout completed for the approved $250 invoice. PayPal reports PAID with $0 due; the client page and native Figma show Paid on revision 1, including after reload/reopening. Real signed webhook delivery remains unverified. See [the completed payment evidence](PAYMENT-LOOP-2026-10-22.md) and [Baseten verification](BASETEN-VERIFICATION-2026-10-23.md). The deployed image remains `sha256:7297d12148612f62f96740815ae41d33ed18239f514ca458ba2349308c9a9f65`; no application redeployment was needed for payment. The dated observations below remain historical.
 
 Verified on October 22, 2026:
 

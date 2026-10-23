@@ -19,7 +19,7 @@ class AiBudget {
   }
 
   /** Conservative per-request estimate in micro-USD (1 USD = 1_000_000). */
-  estimate(inputTokens: number, maxOutputTokens: number, inputRatePerMTok = 125_000, outputRatePerMTok = 500_000): number {
+  estimate(inputTokens: number, maxOutputTokens: number, inputRatePerMTok: number, outputRatePerMTok: number): number {
     return Math.ceil((inputTokens / 1_000_000) * inputRatePerMTok + (maxOutputTokens / 1_000_000) * outputRatePerMTok);
   }
 

@@ -16,13 +16,15 @@ export async function isolatedApp() {
     PAYPAL_ENVIRONMENT: 'sandbox', PAYPAL_CLIENT_ID: 'test-id', PAYPAL_CLIENT_SECRET: 'test-secret',
     PAYPAL_SANDBOX_MERCHANT_EMAIL: 'merchant@example.com', PAYPAL_SANDBOX_BUYER_EMAIL: 'buyer@example.com',
     FIGMA_PERSONAL_ACCESS_TOKEN: 'test-token', FIGMA_FILE_KEY: 'test-file',
-    AI_API_KEY: 'test-only', OPENAI_API_KEY: 'test-only', PAYPAL_WEBHOOK_ID: 'test-webhook',
+    AI_API_KEY: 'wrong-provider', OPENAI_API_KEY: 'wrong-provider', BASETEN_API_KEY: 'baseten-test-only',
+    AI_PROVIDER: 'baseten', AI_MODEL: 'deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast', AI_REASONING_EFFORT: 'max', AI_BUDGET_USD: '25',
+    PAYPAL_WEBHOOK_ID: 'test-webhook',
     SCOPE_SETTLE_DATA_DIR: join(app, 'data'), PORT: '0',
   })) process.env[key] = value;
   return { root, app, load: name => import(pathToFileURL(join(app, 'dist/backend', name + '.js')).href) };
 }
 
-export function providerFixture({ topLevelCreateLink = false } = {}) {
+export function providerFixture({ topLevelCreateLink = false, merchantToday } = {}) {
   const invoices = new Map();
   let creates = 0, sends = 0, failSends = 0;
   const reply = (body, status = 200) => new Response(JSON.stringify(body), { status });
@@ -60,7 +62,7 @@ export function providerFixture({ topLevelCreateLink = false } = {}) {
         if (match[2]) {
           sends++;
           if (failSends) { failSends--; return reply({ error: 'temporary send failure' }, 503); }
-          invoice.status = 'UNPAID';
+          invoice.status = merchantToday && invoice.detail.invoice_date > merchantToday ? 'SCHEDULED' : 'UNPAID';
           return reply({}, 202);
         }
         return reply(invoice);

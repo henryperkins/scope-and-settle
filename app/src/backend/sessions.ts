@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { db, currentRunId, transaction } from "./db.js";
+import { activeGrant } from "./judgeAccess.js";
 
 export type Role = "designer" | "client";
 
@@ -11,6 +12,8 @@ export interface Session {
   changeOrderId: string | null;
   changeOrderRevision: number | null;
   expiresAt: string;
+  canEditScope: boolean;
+  grantId: string | null;
 }
 
 /** Q09: expiring, revocable, revision-bound demo sessions. A link grants a role, not an identity. */
@@ -21,20 +24,25 @@ export function createSession(input: {
   changeOrderRevision?: number | null;
   ttlMinutes?: number;
   runId?: string;
+  grantId?: string;
 }): Session {
   const token = randomUUID();
   if (input.ttlMinutes !== undefined && (!Number.isFinite(input.ttlMinutes) || input.ttlMinutes <= 0 || input.ttlMinutes > 1440)) throw new Error("Invalid session lifetime");
   const runId = input.runId ?? currentRunId();
-  const expiresAt = new Date(Date.now() + (input.ttlMinutes ?? 60) * 60_000).toISOString();
+  const grant = input.grantId ? activeGrant(input.grantId) : null;
+  if (input.grantId && (!grant || grant.run_id !== runId || grant.role !== input.role ||
+      grant.change_order_id !== (input.changeOrderId ?? null) || grant.change_order_revision !== (input.changeOrderRevision ?? null))) throw new Error("Invalid renewal grant scope");
+  if (!grant && db.prepare("SELECT run_id FROM judge_runs WHERE run_id = ?").get(runId)) throw new Error("Judging runs require renewable access");
+  const expiresAt = new Date(Math.min(Date.now() + (input.ttlMinutes ?? 60) * 60_000, grant ? Date.parse(grant.expires_at) : Infinity)).toISOString();
   db.prepare(
-    `INSERT INTO sessions (token, project_id, role, change_order_id, change_order_revision, expires_at, created_at, run_id)
-     VALUES (?,?,?,?,?,?,?,?)`
+    `INSERT INTO sessions (token, project_id, role, change_order_id, change_order_revision, expires_at, created_at, run_id, grant_id)
+     VALUES (?,?,?,?,?,?,?,?,?)`
   ).run(token, input.projectId, input.role, input.changeOrderId ?? null,
-    input.changeOrderRevision ?? null, expiresAt, new Date().toISOString(), runId);
+    input.changeOrderRevision ?? null, expiresAt, new Date().toISOString(), runId, input.grantId ?? null);
   return {
     token, projectId: input.projectId, role: input.role, runId,
     changeOrderId: input.changeOrderId ?? null,
-    changeOrderRevision: input.changeOrderRevision ?? null, expiresAt,
+    changeOrderRevision: input.changeOrderRevision ?? null, expiresAt, canEditScope: !grant && input.role === "designer", grantId: input.grantId ?? null,
   };
 }
 
@@ -43,10 +51,11 @@ export function getSession(token: string | undefined | null): Session | null {
   const r = db.prepare("SELECT * FROM sessions WHERE token = ?").get(token) as any;
   if (!r || r.revoked) return null;
   if (new Date(r.expires_at).getTime() <= Date.now()) return null;
+  if (r.grant_id && !activeGrant(r.grant_id)) return null;
   return {
     token: r.token, projectId: r.project_id, role: r.role, runId: r.run_id,
     changeOrderId: r.change_order_id, changeOrderRevision: r.change_order_revision,
-    expiresAt: r.expires_at,
+    expiresAt: r.expires_at, canEditScope: !r.grant_id && r.role === "designer", grantId: r.grant_id ?? null,
   };
 }
 
@@ -75,6 +84,7 @@ export function redeemInvitation(token: string): Session | null {
 }
 
 export function revokeSession(token: string): void {
+  db.prepare("UPDATE renewal_grants SET revoked = 1 WHERE id = (SELECT grant_id FROM sessions WHERE token = ?)").run(token);
   db.prepare("UPDATE sessions SET revoked = 1 WHERE token = ?").run(token);
 }
 

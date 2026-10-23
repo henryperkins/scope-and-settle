@@ -1,0 +1,22 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,mkdir,writeFile,readFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {unzipSync,strFromU8} from 'fflate';
+import {packagePlugin} from '../scripts/package-plugin.mjs';
+test('the plugin kit contains only reviewed public files, source identity and matching checksums',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'scope-kit-'));await mkdir(join(root,'plugin/dist'),{recursive:true});
+  const manifest={main:'code.js',ui:'ui.html',networkAccess:{allowedDomains:['https://fixture.example']}};
+  for(const[name,value]of Object.entries({'manifest.json':JSON.stringify(manifest),'code.js':'// code','ui.html':'<h1>UI</h1>','.env':'SECRET SENTINEL'}))await writeFile(join(root,'plugin/dist',name),value);
+  await writeFile(join(root,'package.json'),JSON.stringify({version:'0.2.0'}));await writeFile(join(root,'JUDGING.md'),'Install this synthetic demo.');
+  const sourceCommit='abcde'.repeat(8),meta=await packagePlugin({appRoot:root,sourceCommit,publicUrl:'https://fixture.example'});
+  const zip=await readFile(join(root,'downloads/plugin.zip')),files=unzipSync(zip);
+  assert.equal(meta.sha256,createHash('sha256').update(zip).digest('hex'));assert.equal(meta.sourceCommit,sourceCommit);
+  assert.deepEqual(Object.keys(files).sort(),['JUDGING.md','SOURCE.json','code.js','manifest.json','ui.html']);
+  assert.ok(!Buffer.from(zip).includes(Buffer.from('SECRET SENTINEL')));
+  assert.equal(JSON.parse(strFromU8(files['SOURCE.json'])).sourceCommit,sourceCommit);
+  assert.equal(JSON.parse(strFromU8(files['manifest.json'])).main,'code.js');
+  await assert.rejects(packagePlugin({appRoot:root,sourceCommit,publicUrl:'https://wrong.example'}),/origin/);
+});

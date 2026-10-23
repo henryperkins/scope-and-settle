@@ -2,6 +2,7 @@
   "name": "Scope & Settle",
   "id": "scope-and-settle-dev",
   "api": "1.0.0",
+  "enablePrivatePluginApi": true,
   "main": "dist/code.js",
   "ui": "dist/ui.html",
   "editorType": ["figma"],

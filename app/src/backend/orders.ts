@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { db, getProject, currentRunId, bumpRunId, transaction } from "./db.js";
+import { db, getProjectForRun, assertRunActive, currentRunId, bumpRunId, transaction } from "./db.js";
 import * as paypal from "./paypal.js";
 import { config } from "./env.js";
 import type { ChangeOrderView, LineItem } from "../shared/types.js";
@@ -14,7 +14,7 @@ function rowToView(r: any): ChangeOrderView {
     runId: r.run_id,
     scopeSnapshot: r.scope_snapshot_json ? JSON.parse(r.scope_snapshot_json) : null,
     assessmentId: r.assessment_id ?? null,
-    stale: !!r.scope_revision_id && r.scope_revision_id !== getProject().scopeRevisionId && ["draft", "awaiting_client_approval", "needs_re_review"].includes(r.status),
+    stale: !!r.scope_revision_id && r.scope_revision_id !== getProjectForRun(r.run_id).scopeRevisionId && ["draft", "awaiting_client_approval", "needs_re_review"].includes(r.status),
     title: r.title,
     commentId: r.comment_id,
     deliverables: JSON.parse(r.deliverables_json),
@@ -35,9 +35,9 @@ function rowToView(r: any): ChangeOrderView {
   };
 }
 
-function withProvenance(items: LineItem[]): LineItem[] {
+function withProvenance(items: LineItem[], runId: string): LineItem[] {
   if (!Array.isArray(items) || items.length < 1 || items.length > 20) throw new Error("Provide 1–20 priced line items");
-  const rates = getProject().rateCard;
+  const rates = getProjectForRun(runId).rateCard;
   return items.map((li) => {
     if (!Number.isSafeInteger(li.quantity) || li.quantity < 1 || li.quantity > 100) throw new Error("Invalid line-item quantity");
     const source = li.priceSource ?? (li.rateCardId ? "rate_card" : "designer");
@@ -75,7 +75,7 @@ export function createChangeOrder(input: {
   if (input.currency !== "USD") throw new Error("This demo supports USD only");
   validateTerms(input.title, input.deliverables);
   const id = randomUUID();
-  const items = withProvenance(input.lineItems);
+  const items = withProvenance(input.lineItems, runId);
   const total = items.reduce((s, li) => s + li.quantity * li.unitAmountMinor, 0);
   const now = new Date().toISOString();
   db.prepare(
@@ -96,7 +96,7 @@ export function editChangeOrder(id: string, input: {
   if (!order) throw new Error("Change order not found");
   requireEditable(order);
   validateTerms(input.title ?? order.title, input.deliverables ?? order.deliverables);
-  const items = withProvenance(input.lineItems ?? order.lineItems);
+  const items = withProvenance(input.lineItems ?? order.lineItems, order.runId);
   const total = items.reduce((s, li) => s + li.quantity * li.unitAmountMinor, 0);
   db.prepare(
     `UPDATE change_orders SET title = ?, deliverables_json = ?, line_items_json = ?, total_minor = ?,
@@ -111,13 +111,13 @@ export function submitForApproval(id: string): ChangeOrderView {
   const order = getChangeOrder(id);
   if (!order) throw new Error("Change order not found");
   requireEditable(order);
-  const scopeRevisionId = getProject().scopeRevisionId;
+  const scopeRevisionId = getProjectForRun(order.runId).scopeRevisionId;
   // A baseline change changes the proposal's approval context even when its price
   // did not change. An invitation issued before re-review must never become valid again.
   const revision = order.revision + (order.scopeRevisionId && order.scopeRevisionId !== scopeRevisionId ? 1 : 0);
   transaction(() => {
     db.prepare("UPDATE change_orders SET status = 'awaiting_client_approval', scope_revision_id = ?, revision = ?, scope_snapshot_json = ? WHERE id = ?")
-      .run(scopeRevisionId, revision, JSON.stringify(getProject()), id);
+      .run(scopeRevisionId, revision, JSON.stringify(getProjectForRun(order.runId)), id);
     db.prepare("INSERT OR IGNORE INTO proposal_revisions (change_order_id, revision, snapshot_json, created_at) VALUES (?,?,?,?)")
       .run(id, revision, JSON.stringify(getChangeOrder(id)), new Date().toISOString());
   });
@@ -139,7 +139,7 @@ export function approveChangeOrder(id: string, session: { changeOrderId: string 
   if (order.status !== "awaiting_client_approval") {
     throw new Error(`Cannot approve from status ${order.status}`);
   }
-  const activeScope = getProject().scopeRevisionId;
+  const activeScope = getProjectForRun(order.runId).scopeRevisionId;
   if (order.scopeRevisionId !== activeScope) {
     db.prepare("UPDATE change_orders SET status = 'needs_re_review' WHERE id = ?").run(id);
     throw new Error("Scope baseline changed after this proposal was sent. Designer re-review is required before approval.");
@@ -163,7 +163,7 @@ export function listChangeOrders(runId = currentRunId()): ChangeOrderView[] {
 
 /** Q11: reset starts a fresh demo run. PayPal invoices stay intact; their IDs are tombstoned. */
 export function resetDemoRun(runId = currentRunId()): { runId: string; tombstonedInvoices: number } {
-  if (inFlightInvoices.size) throw new Error("Wait for invoice operations to finish before resetting");
+  if ([...inFlightInvoices.keys()].some(id => getChangeOrder(id)?.runId === runId)) throw new Error("Wait for invoice operations to finish before resetting");
   return transaction(() => {
   const rows = db.prepare(
     `SELECT id, paypal_invoice_id FROM change_orders WHERE run_id = ? AND paypal_invoice_id IS NOT NULL
@@ -185,7 +185,9 @@ export function resetDemoRun(runId = currentRunId()): { runId: string; tombstone
   db.prepare("UPDATE sessions SET revoked = 1 WHERE run_id = ?").run(runId);
   db.prepare("UPDATE invitations SET revoked = 1 WHERE run_id = ?").run(runId);
   db.prepare("DELETE FROM change_orders WHERE run_id = ?").run(runId);
-  return { runId: bumpRunId(), tombstonedInvoices: rows.length };
+  db.prepare("UPDATE renewal_grants SET revoked = 1 WHERE run_id = ?").run(runId);
+  db.prepare("UPDATE judge_runs SET closed_at = ? WHERE run_id = ?").run(now, runId);
+  return { runId: runId === currentRunId() ? bumpRunId() : `run-${randomUUID()}`, tombstonedInvoices: rows.length };
   });
 }
 
