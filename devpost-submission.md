@@ -55,7 +55,7 @@ Next steps are designer walkthroughs and fixes based on observed friction, confi
 
 ## Try it
 
-Watch the [public 2:49 demonstration](https://www.youtube.com/watch?v=RUJ26fRetd8), with English captions, actual product footage and labeled time compression.
+Watch the [public 2:49 demonstration](https://www.youtube.com/watch?v=AF8HFogZvsY), with English captions, actual product footage and labeled time compression.
 
 Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [JUDGING.md](https://github.com/henryperkins/scope-and-settle/blob/main/JUDGING.md). Hosted testing needs Figma desktop, your own Figma account, the judging code and the dedicated sandbox buyer supplied through the judge-access channel. No provider API keys or local backend are needed for that path. The [public MIT-licensed repository](https://github.com/henryperkins/scope-and-settle) includes source, synthetic assets and a local setup fallback.
 <!-- devpost-description:end -->
@@ -65,7 +65,7 @@ Start at [judge entry](https://scope-and-settle.hperkins.com/judge) and follow [
 - Existing Devpost project ID: `1500728`. The name, writeup, technologies and links were saved on October 23, 2026. Devpost changed its state to **published** at `2026-10-23T18:40:20.996Z`, with public URL https://devpost.com/software/scope-settle. The hackathon's `submitted_at` remains empty: **published project, not submitted entry**. Continue this project; do not create another.
 - Public demo: https://scope-and-settle.hperkins.com/judge
 - Public source: https://github.com/henryperkins/scope-and-settle
-- Public YouTube URL: https://www.youtube.com/watch?v=RUJ26fRetd8 — the ElevenLabs narration revision was published October 23, 2026, with the reviewed thumbnail, chapter timestamps and uploaded English captions. The original and revised MP4s and captions remain [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1). Devpost project version 5 uses the revised YouTube URL; the hackathon entry remains unsubmitted.
+- Public YouTube URL: https://www.youtube.com/watch?v=AF8HFogZvsY — the twelve-clip ElevenLabs Studio narration revision was published October 23, 2026, with the reviewed thumbnail, chapter timestamps and 45 uploaded English captions. Signed-out 1080p playback reached the end without a media error. The final narration fits the unchanged 2:49 footage. The original and revised MP4s and captions remain [release assets](https://github.com/henryperkins/scope-and-settle/releases/tag/v0.2.1). Devpost project version 6 uses this YouTube URL; the hackathon entry remains unsubmitted.
 - Built with: Figma, TypeScript, JavaScript, Node.js, SQLite, PayPal, Baseten, DeepSeek, Google Cloud, Cloudflare, Docker, OpenAI Codex.
 - Technical field answers: [DEVPOST-CUSTOM-ANSWERS.md](docs/DEVPOST-CUSTOM-ANSWERS.md).
 - Completed video, provenance and upload copy: [DEMO-VIDEO.md](docs/DEMO-VIDEO.md). Participant observation guide: [DEMO-AND-WALKTHROUGH.md](docs/DEMO-AND-WALKTHROUGH.md).

@@ -1,10 +1,34 @@
 # Scope & Settle demonstration — October 23, 2026
 
-The current demonstration is **2:49.021** (169.021354 seconds), with actual product captures, revised ElevenLabs narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=RUJ26fRetd8) on October 23, 2026, on the Henry Perkins channel. The current file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4).
+The current demonstration is **2:49.021** (169.021354 seconds), with actual product captures, ElevenLabs Studio narration and English captions. It was [published publicly on YouTube](https://www.youtube.com/watch?v=AF8HFogZvsY) on October 23, 2026, on the Henry Perkins channel. The current file is also available as a [public MP4 release download](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-Studio.mp4).
 
-## Narration revision — October 23, 2026
+## Current Studio narration revision — October 23, 2026
 
-The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [revised MP4](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4) and [matching English captions](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.en.srt) are available as additional release assets. YouTube Studio confirmed **Video published**, with **Public** visibility, the supplied English captions, and no issues found by the initial copyright and Community Guidelines checks. Devpost project version 5 uses the revised YouTube URL; this is a project update, not a hackathon submission.
+The entrant supplied twelve separately generated MP3 clips and identified the ElevenLabs voice as Odom. Each clip starts at its original scene timestamp. The supplied ZIP contained audio, so the final MP4 was assembled locally with the original video stream. No music, sound effects or new wording were added.
+
+| Item | Value |
+| --- | --- |
+| File | `Scope-and-Settle-Demo-Studio.mp4` |
+| Video | 1920 × 1080, 30 fps, H.264; original stream copied without re-encoding |
+| Runtime | 169.021354 seconds / 2:49.021 |
+| Size | 7,603,496 bytes |
+| SHA-256 | `327200d71e6c34ac04986533f45fa651d7749ef40b59cdeb967ec0ec9597c99f` |
+| Audio | Mono AAC, 48 kHz; measured −16.95 LUFS integrated, −1.37 dBTP true peak |
+| Captions | [45 English cues](media/demo-studio.en.srt), also a [release asset](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-Studio.en.srt) |
+| Release caption SHA-256 | `557f62e3315210a9b07d84f81dbbe7942fd45cf3099680cf1735334f34517f8f` |
+| YouTube | https://www.youtube.com/watch?v=AF8HFogZvsY |
+
+The final clip initially ran 20.8 seconds in its 20-second window. Pitch-preserving playback at 1.05× fits the complete wording, with the last detected audio signal around 168.634 seconds, before the video ends. The invoice clip received a smaller 1.025× adjustment to fit its ten-second window. The other ten clips retain their supplied timing. Scene starts, footage, redactions and total runtime are unchanged. The exported H.264 stream retains SHA-256 `4484fcc7a60c605778c96feb0f445d8e18b87b1e6dffc9ac35236aa124785614`.
+
+Every source clip and the full exported MP4 decoded successfully. Local speech recognition recovered the script, including the closing sentence, and supplied word timings for new captions. Caption spelling uses Figma, DeepSeek, Baseten and MIT. Captions have at most two lines, no overlapping cues and finish before the video ends. Sampled AI, payment and ending frames remain readable. Automated transcription, timing and audio measurements are not a human listening test. No additional paid generation was performed; entrant-side ElevenLabs cost is not inferred.
+
+YouTube Studio confirmed **Video published**, **Public** visibility and creator-supplied **English (United States) subtitles published**. Initial copyright and Community Guidelines checks found no issues. In a separate signed-out browser, the uploaded video decoded at **1920 × 1080** with visible captions. Playback through the payment, Figma return and final section reached **169.041 seconds / ended** at `2026-10-23T22:54:20Z`, with no media error. The AI assessment and ending were also inspected visually on the public player. Both new release downloads returned HTTP 200 and matched their local SHA-256 hashes.
+
+Devpost project version **6** was read back with this video's URL after the update at `2026-10-23T22:53:03Z`. Its state is published; its hackathon submission timestamp remains empty. Earlier publications below are retained as dated evidence.
+
+## Earlier single-file narration revision — October 23, 2026
+
+The entrant supplied an MP3 after redoing the narration with ElevenLabs. The [earlier MP4](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.mp4) and [matching English captions](https://github.com/henryperkins/scope-and-settle/releases/download/v0.2.1/Scope-and-Settle-Demo-ElevenLabs.en.srt) remain available as release assets. YouTube Studio confirmed **Video published**, with **Public** visibility, the supplied English captions, and no issues found by the initial copyright and Community Guidelines checks. Devpost project version 5 used this earlier YouTube URL before the Studio revision above.
 
 | Item | Value |
 | --- | --- |
@@ -95,4 +119,4 @@ Project: https://devpost.com/software/scope-settle
 2:15 Close and reopen
 2:29 Judge it yourself
 
-Synthetic project content and sandbox test funds. Navigation, waiting and the client approval transition are condensed and labeled. Authentication is omitted; account details are redacted. The AI recommends scope treatment and quotes agreement evidence; people approve the commercial terms. Signed webhook delivery was verified separately from the first manual payment refresh. “Work begins after payment” is a commercial term and does not restrict Figma editing. English narration is synthetic and was revoiced using ElevenLabs. The product footage and demonstrated workflow are unchanged. Designer walkthroughs are pending; no adoption or time-saving claims are made.
+Synthetic project content and sandbox test funds. Navigation, waiting and the client approval transition are condensed and labeled. Authentication is omitted; account details are redacted. The AI recommends scope treatment and quotes agreement evidence; people approve the commercial terms. Signed webhook delivery was verified separately from the first manual payment refresh. “Work begins after payment” is a commercial term and does not restrict Figma editing. English narration is synthetic and was regenerated from the script using the ElevenLabs Odom voice. The product footage and demonstrated workflow are unchanged. Designer walkthroughs are pending; no adoption or time-saving claims are made.
