@@ -279,7 +279,7 @@ Implementation decisions and compatibility requirements: [Release B execution su
 
 Subsystem interfaces and invoice/delivery compatibility: [Release C execution supplement](2026-10-23-release-c-execution.md).
 
-Local status (October 24, 2026): T14–T16 implementation and synthetic/browser checks are complete; final full build/test is 513/513. Real sandbox installment checkout, native output/readback and independent designer gates remain pending. See [local qualification](../../verification/agent-integrations-c-through-t16-2026-10-24.md). T17 is not started.
+Local status (October 24, 2026): T14–T17 implementation and synthetic/browser checks are complete; final full build/test is 524/524. Real sandbox installment checkout, native output/readback and independent packet/designer gates remain pending. See [local qualification](../../verification/agent-integrations-c-through-t17-2026-10-24.md).
 
 ### T14 — Add approved milestone schedules and installment invoices
 
@@ -327,10 +327,12 @@ Local status (October 24, 2026): T14–T16 implementation and synthetic/browser 
 **Files:** create `app/src/backend/evidencePackets.ts`, `app/tests/evidence-packets.test.mjs`; modify `server.ts` and the designer interface.
 **Interface:** `buildEvidencePacket(ctx, orderId: string): EvidencePacket`; define a JSON manifest plus human-readable HTML containing source IDs, versions, timestamps, hashes, quoted scope, request history, approvals, delivery records, and payment observations. Generated summaries identify their source records and limitations.
 
-- [ ] Test cross-project export denial, missing/deleted source content, redaction, tampered snapshot hashes, and an externally paid/refunded observation that must not be presented as an app-processed transaction.
-- [ ] Assemble the packet from immutable stored records; separate supplied statements, observed design facts, model suggestions, and recorded human decisions.
-- [ ] Provide an authenticated export and a preview for the designer. Apply the project's access and retention rules; no public bearer-link export by default.
-- [ ] Prepare a dispute-specific draft only after matching an actual dispute/payment to the order. Provider evidence submission and refund actions belong to T21 and require a reviewed action.
+- [x] Test cross-project export denial, missing/deleted source content, redaction, tampered snapshot hashes, and an externally paid/refunded observation that must not be presented as an app-processed transaction.
+- [x] Assemble the packet from immutable stored records; separate supplied statements, observed design facts, model suggestions, and recorded human decisions.
+- [x] Provide an authenticated export and a preview for the designer. Apply the project's access and retention rules; no public bearer-link export by default.
+- [x] Gate dispute-specific drafts on a verified actual dispute/payment match. No such record is available, so this implementation explicitly reports the draft unavailable. Verified matching, provider evidence submission and refund actions belong to T21 and require a reviewed action.
+
+Local T17 verification: 11 packet tests; full build/test 524/524; authenticated browser preview/download, digest and source-to-packet comparison passed at desktop/390px. Pixel bytes are deliberately omitted; retained hashes and client-supplied provenance remain explicit. See [evidence packets](../../EVIDENCE-PACKETS.md). Independent packet review and real/native qualification are still pending.
 
 **Verify:** `node --test tests/evidence-packets.test.mjs` after build and manual source-to-packet comparison. **Release C gate:** full tests, real installment lifecycle, native artifact review, and an independently readable evidence packet.
 

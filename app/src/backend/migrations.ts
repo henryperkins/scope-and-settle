@@ -317,6 +317,12 @@ export const migrations: readonly Migration[] = [
  CREATE TRIGGER immutable_delivery_acceptance BEFORE UPDATE ON delivery_acceptances BEGIN SELECT RAISE(ABORT,'Immutable delivery acceptance'); END;
  CREATE TRIGGER retained_delivery_acceptance BEFORE DELETE ON delivery_acceptances BEGIN SELECT RAISE(ABORT,'Retained delivery acceptance'); END;
  `);}},
+ {id:16,name:'scoped-immutable-evidence-packets',up(db){db.exec(`
+ CREATE TABLE evidence_packets(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,run_id TEXT NOT NULL,order_id TEXT NOT NULL,revision INTEGER NOT NULL,manifest_json TEXT NOT NULL,json_text TEXT NOT NULL,html_text TEXT NOT NULL,created_at TEXT NOT NULL);
+ CREATE INDEX evidence_packets_order ON evidence_packets(project_id,run_id,order_id,created_at);
+ CREATE TRIGGER immutable_evidence_packet BEFORE UPDATE ON evidence_packets BEGIN SELECT RAISE(ABORT,'Immutable evidence packet'); END;
+ CREATE TRIGGER retained_evidence_packet BEFORE DELETE ON evidence_packets BEGIN SELECT RAISE(ABORT,'Retained evidence packet'); END;
+ `);}},
 ];
 
 /** Each migration and its ledger entry commit together. Never swallow DDL failures. */

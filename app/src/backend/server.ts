@@ -34,6 +34,7 @@ import {listRequestInbox,getInboxSettings,saveInboxSettings,refreshRequestThread
 import {issueConnectorCredential,listConnectorCredentials,revokeConnectorCredential} from './mcpAuth.js';
 import {MCP_PATH,handleMcpRequest,drainMcp} from './mcp.js';
 import {getStatusCard,getCardDisplaySettings,saveCardDisplaySettings} from './statusCards.js';
+import {buildEvidencePacket,getEvidencePacket,evidencePacketFile} from './evidencePackets.js';
 
 function json(res: ServerResponse, status: number, body: unknown) {
   const text = JSON.stringify(body);
@@ -69,7 +70,7 @@ export const server = createServer(async (req, res) => {
   if (path === MCP_PATH) return handleMcpRequest(req, res);
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
-    const publicFiles: Record<string, string> = {"/delivery":"delivery-review.html","/assets/delivery-review.js":"delivery-review.js","/assets/delivery.js":"delivery.js","/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
+    const publicFiles: Record<string, string> = {"/assets/evidence-packets.js":"evidence-packets.js","/delivery":"delivery-review.html","/assets/delivery-review.js":"delivery-review.js","/assets/delivery.js":"delivery.js","/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
       "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
@@ -164,6 +165,18 @@ export const server = createServer(async (req, res) => {
       (req.method === "POST" && scopedOrder[2] === "approve")));
     if (session.role !== "designer" && !clientAction) return json(res, 403, { error: "Requires designer role" });
     if (path === "/api/session" && req.method === "GET") return json(res, 200, session);
+    const packetBuild=path.match(/^\/api\/change-orders\/([^/]+)\/evidence-packets$/);
+    if(packetBuild&&req.method==='POST'){
+      const b=await scopedBody();if(!b||typeof b!=='object'||Array.isArray(b)||Object.keys(b).length)throw new ScopedAccessError(400,'Only the scoped order identity is accepted');
+      return json(res,201,buildEvidencePacket(ctx,packetBuild[1]));
+    }
+    const packetRead=path.match(/^\/api\/evidence-packets\/([^/]+)(?:\/files\/(packet\.json|packet\.html|manifest\.json))?$/);
+    if(packetRead&&req.method==='GET'){
+      if(!packetRead[2])return json(res,200,getEvidencePacket(ctx,packetRead[1]));
+      const file=evidencePacketFile(ctx,packetRead[1],packetRead[2]);
+      res.writeHead(200,{'Content-Type':file.mediaType+'; charset=utf-8','Content-Disposition':`attachment; filename="${file.filename}"`,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'",'Access-Control-Allow-Origin':'*'});
+      return res.end(file.text);
+    }
     if(deliveryReviewRoute){
       const id=deliveryReviewRoute[1],action=deliveryReviewRoute[2];
       if(req.method==='GET'&&!action)return json(res,200,getDeliveryReview(ctx,id));

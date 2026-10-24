@@ -150,6 +150,8 @@ export interface DeliveryBrief {
 }
 export interface DeliverySnapshot {id:string;deliveryRunId:string;hash:string;imageHash:string;fileKey:string;pageId:string;areaId:string;nodeIds:string[];nodes:{id:string;parentId:string;type:string}[];capturedAt:string;receivedAt:string;pixelProvenance:'client_supplied';nodeProvenance:'client_plugin_claim';accepted:false;width:number;height:number}
 export interface DeliveryRun {deliveryReview?:{id:string;revision:number;snapshotHash:string;state:string}|null;id:string;operationId:string;milestoneId:string;orderId:string;revision:number;state:string;brief:DeliveryBrief;briefHash:string;latestSnapshot:DeliverySnapshot|null;financialReviewRequired:boolean;createdAt:string}
+export interface EvidencePacketManifest {schemaVersion:1;packetId:string;projectId:string;runId:string;orderId:string;revision:number;createdAt:string;algorithm:'sha256';files:{name:string;mediaType:string;sha256:string;bytes:number}[]}
+export interface EvidencePacket {schemaVersion:1;id:string;projectId:string;runId:string;orderId:string;revision:number;createdAt:string;facts:Record<string,any>;gaps:{kind:string;resourceId:string;detail:string}[];redaction:{applied:boolean;policy:string};disputeDraft:{available:boolean;reason:string};limitations:string[];manifest:EvidencePacketManifest;previewHtml:string}
 
 export interface ScopeProvenance {kind:string;createdBy:string|null;sourceReference:string|null;sourceTime:string|null;capturedAt:string}
 export interface ScopeSnapshot {id:string;projectId:string;runId:string;version:number;legacyRevision:string|null;clauses:ScopeClause[];contentHash:string;provenance:ScopeProvenance}
