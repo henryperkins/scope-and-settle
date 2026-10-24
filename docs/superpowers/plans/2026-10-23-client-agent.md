@@ -65,5 +65,5 @@ Files: current README, JUDGING, product/agent docs, version and release metadata
 - [x] Run full Windows suite and clean Linux release build; verify package checksums and preserved baseline.
 - [x] Exercise actual available provider read/write paths without exposing secrets or spending outside the existing ledger; report unavailable permissions honestly.
 - [x] Record new verification and deploy only qualified artifacts within existing authorization; preserve backups and existing paid evidence.
-- [ ] Publish the reviewed source and exact qualified plugin as the public 0.3.0 release.
+- [x] Publish the reviewed source and exact qualified plugin as the public 0.3.0 release.
 - [x] Update judging materials to distinguish the new autonomous path and previously recorded video; final Devpost submission remains pending user review.
