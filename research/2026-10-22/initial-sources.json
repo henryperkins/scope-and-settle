@@ -1,0 +1,59 @@
+{
+  "retrieved_at": "2026-10-22T16:41:22.033867+00:00",
+  "sources": [
+    {
+      "name": "payments-index",
+      "url": "https://developer.paypal.com/payments/llms.txt",
+      "final_url": "https://developer.paypal.com/payments/llms.txt",
+      "status": 200,
+      "file": "payments-index.txt",
+      "sha256": "76ff2d1c3532e9d3ed43f25e398f907e9150067fc97ebadb323c9bad63f47c06",
+      "bytes": 30974
+    },
+    {
+      "name": "revenue-index",
+      "url": "https://developer.paypal.com/revenue/llms.txt",
+      "final_url": "https://developer.paypal.com/revenue/llms.txt",
+      "status": 200,
+      "file": "revenue-index.txt",
+      "sha256": "0b65a2d0612ebe2509a1c23dc6f8075c10108709f77ffb7b436b466d80b2f3b1",
+      "bytes": 16953
+    },
+    {
+      "name": "platform-payments-index",
+      "url": "https://developer.paypal.com/platforms/payments/llms.txt",
+      "final_url": "https://developer.paypal.com/platforms/payments/llms.txt",
+      "status": 200,
+      "file": "platform-payments-index.txt",
+      "sha256": "6dee4216dba1611eef35d929fb0dbe5a40db3fb8a88eb661871948db69608133",
+      "bytes": 16356
+    },
+    {
+      "name": "developer-index",
+      "url": "https://developer.paypal.com/developer-resources/llms.txt",
+      "final_url": "https://developer.paypal.com/developer-resources/llms.txt",
+      "status": 200,
+      "file": "developer-index.txt",
+      "sha256": "492eec45f4f200db49f56643a15f0a81661da0793b026a0873669dfb4f7274b9",
+      "bytes": 26222
+    },
+    {
+      "name": "spec-list",
+      "url": "https://api.github.com/repos/paypal/paypal-rest-api-specifications/contents/openapi",
+      "final_url": "https://api.github.com/repos/paypal/paypal-rest-api-specifications/contents/openapi",
+      "status": 200,
+      "file": "spec-list.json",
+      "sha256": "81226b1d26afee211c0f6fcbeea50941b31cc51f3ef715fe748679f4c9c944d3",
+      "bytes": 13778
+    },
+    {
+      "name": "spec-head",
+      "url": "https://api.github.com/repos/paypal/paypal-rest-api-specifications/commits/main",
+      "final_url": "https://api.github.com/repos/paypal/paypal-rest-api-specifications/commits/main",
+      "status": 200,
+      "file": "spec-head.json",
+      "sha256": "e24d7eeb09df8579c1fdb1fea862fd34dd712fe49db9509c1e8ad0ae7af4a116",
+      "bytes": 5698
+    }
+  ]
+}

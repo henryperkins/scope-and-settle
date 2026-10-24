@@ -1,2 +1,7 @@
 deploy/gcp/*.sh text eol=lf
 deploy/gcp/*.service text eol=lf
+
+# Preserve exact bytes for the offline research snapshot hashes.
+/PAYPAL-API-CAPABILITIES.md -text
+/PAYPAL-REST-ENDPOINTS.csv -text whitespace=cr-at-eol
+/research/2026-10-22/** -text whitespace=cr-at-eol

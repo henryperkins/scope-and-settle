@@ -1,0 +1,282 @@
+# PayPal Business — Payments
+
+Checkout, cards, digital wallets, payment links, fraud protection, and payment methods
+
+- [Payments](/payments): Lock in on the checkout option that best satisfies the business need.
+- [PayPal payments Orders API integration](/whats-an-order): Integrate PayPal using the Orders API.
+- [Accept Alipay payments](/alipay)
+- [BANCOMAT Pay](/bancomat)
+- [Boleto Bancário](/boleto-bancario)
+- [GrabPay](/grabpay)
+- [MB WAY](/mbway)
+- [Accept OXXO payments](/oxxo)
+- [Accept Satispay payments](/satispay)
+- [Apple Pay](/apple-pay/integrate): Accept one-tap Apple Pay payments.
+- [Standalone payment buttons](/cards/standalone-payment-button): Add standalone card payment buttons.
+- [PayPal standard payments](/checkout): Accept PayPal payments on your site.
+- [PayPal payments quick start integration](/checkout/integrate): Build a PayPal checkout integration.
+- [Overview](/crypto): Learn more about accepting cryptocurrency payments using PayPal's Pay with crypto solution.
+- [SCA payment indicators](/expanded/SCA)
+- [Track transactions using an acquirer reference number](/expanded/acquirer-reference-number): Learn how the Acquirer Reference Number helps track transactions, confirm refunds, and resolve issues with lost, stolen, or closed accounts.
+- [PayPal Expanded Checkout best practices](/expanded/best-practices): This page describes how to design and operate card payments with PayPal Expanded Checkout for strong authorization, effective risk controls, and compliant stored-credential handling.
+- [Subscribe to card field events](/expanded/card-field-events): Learn how to subscribe to credit and debit card field events. Customize your form by using event listeners for advanced payment processing.
+- [Card field properties for direct merchants](/expanded/card-field-properties)
+- [Card fields style guide](/expanded/card-field-styling): Customize the layout, width, height, and styling of card fields using your stylesheets to match your site's design.
+- [Card fields](/expanded/card-fields): Accept card payments with hosted fields.
+- [Fraud Protection Advanced](/expanded/fraud-protection-advanced)
+- [Fraud protection](/expanded/fraud-protection): Use PayPal's fraud protection to reduce chargebacks. Benefit from machine learning, real-time filters, and actionable recommendations to safeguard your business.
+- [Handle buyer errors](/expanded/handle-buyer-errors): Manage payer errors and enhance the payer experience in your Expanded Checkout integration using the PayPal JavaScript SDK and Orders REST API.
+- [Level 2/Level 3 processing](/expanded/level2-level3-processing): Learn about Level 2 and Level 3 card payment transactions, and how providing additional data can reduce interchange fees for eligible payments.
+- [Real-time account updater for direct merchants](/expanded/real-time-account-updater)
+- [Process payments using third-party network token processing](/expanded/third-party-tokens): Learn how to use third-party network tokens to process payments through PayPal.
+- [Update order details](/expanded/update-order-details): Learn how to update an existing order's amounts and details before capture using the PayPal JavaScript SDK and Orders API.
+- [Choose integration option](/payment-links-buttons/choose-integration-option): Compare the UI Editor and the Payment Links and Buttons API to choose how to create and manage payment links.
+- [Create buy button](/payment-links-buttons/create-buy-button): Create a buy button and add its code to your website.
+- [Create shopping cart button](/payment-links-buttons/create-cart-button): Create shopping cart buttons and add them to your website.
+- [Create payment link](/payment-links-buttons/create-payment-link): Create a payment link with product details and pricing.
+- [Customize your checkout and buttons](/payment-links-buttons/customize): Configure payment methods, branding, button styles, and auto-return settings for Payment Links and Buttons.
+- [Frequently asked questions](/payment-links-buttons/faq): Find answers to common questions about using Payment Links and Buttons.
+- [Manage inventory, variants, and taxes](/payment-links-buttons/manage-inventory-variants-taxes): Configure inventory limits, variants, and item-level taxes, discounts, and fees.
+- [Payment Links and Buttons](/payment-links-buttons/overview): Create payment links and buttons to accept payments online or in person without building a custom checkout.
+- [Share a payment link or QR](/payment-links-buttons/share-payment-link): Share a payment link with customers and verify they can complete payment.
+- [Troubleshooting](/payment-links-buttons/troubleshooting): Diagnose and resolve common issues so Payment Links and Buttons display properly and provide a smooth checkout experience.
+- [Authorization and honor period](/payment-methods/auth-honor): Understand PayPal's authorization and honor period for two-step payments, including capture timing, reauthorization, and partial captures.
+- [Error codes](/payment-methods/error-codes)
+- [Payment method icons](/payment-methods/icons): Use payment method icons in your UI for your Orders API integration. Improve the payment experience by clearly displaying supported methods to your buyers.
+- [Payment methods](/payment-methods): Discover how PayPal's alternative payment methods empower global customers to pay using local options like iDEAL and Bancontact.
+- [JS SDK reference for payment fields](/payment-methods/sdk-parameter-fields): Explore the JavaScript SDK reference to learn how to configure payment fields to integrate alternative payment methods in your PayPal checkout flow.
+- [Custom style for payment fields](/payment-methods/style): Use PayPal's style options to match your checkout design by customizing the style of payment fields with supported variables and rules parameters.
+- [Handle uncaptured payments](/payment-methods/uncaptured-payments)
+- [Subscribe to checkout webhooks](/payment-methods/webhooks): Subscribe to webhooks to manage payment approvals, reversals, and payment status in your integration.
+- [Integrate Bancontact using the JavaScript SDK](/sdk/bancontact)
+- [Integrate BLIK using the JavaScript SDK](/sdk/blik)
+- [Add a donate button to your website with PayPal's Donate SDK](/sdk/donate): Integrate PayPal's Donate SDK to add a donation button to your website so users can donate without leaving your site.
+- [Integrate EPS using the JavaScript SDK](/sdk/eps)
+- [Integrate iDEAL using the JavaScript SDK](/sdk/ideal)
+- [Integrate Multibanco using the JavaScript SDK](/sdk/multibanco)
+- [Integrate MyBank using the JavaScript SDK](/sdk/mybank)
+- [Integrate Przelewy24 using the JavaScript SDK](/sdk/przelewy24)
+- [Integrate Trustly using the JavaScript SDK](/sdk/trustly)
+- [Integrate Venmo with PayPal's JavaScript SDK v6](/venmo)
+- [Test Venmo in sandbox](/venmo/test)
+- [Check eligibility](/expanded/eligibility): Learn about the countries, currencies, and card brands supported by Expanded Checkout, and how to ensure your integration is eligible to accept payments.
+- [Pay Later overview](/pay-later/overview): Learn how Pay Later helps customers purchase with flexible installment plans while merchants receive immediate payment. Explore supported countries, capabilities, and integration options.
+- [Upgrade to Pay Later v6](/pay-later/upgrade): Upgrade your Pay Later messaging integration from the PayPal JavaScript SDK v5 to v6 using the new modular architecture, custom web components, and flexible configuration options.
+- [Accept Bancontact payments](/bancontact): Accept Bancontact payments in Belgium to pay directly through major Belgian banks.
+- [Accept BLIK payments](/blik): Enable BLIK payments in Poland with PayPal Checkout. Buyers confirm payments via their bank, and merchants receive funds directly into their PayPal accounts.
+- [Accept EPS payments](/eps): Integrate EPS, a popular payment method in Austria, to allow customers to pay directly from their bank accounts using PayPal.
+- [Accept iDEAL payments](/ideal): Learn how to accept iDEAL payments in the Netherlands using PayPal Checkout.
+- [Accept Multibanco payments](/multibanco): Integrate Multibanco, an interbank network in Portugal, to enable payment processing for your customers through PayPal.
+- [Accept MyBank payments](/mybank): Integrate MyBank, a European payment method, into your PayPal checkout to offer secure payments.
+- [Accept Przelewy24 payments](/przelewy24): Learn how to accept Przelewy24 payments using PayPal to expand your payment options for buyers in Poland.
+- [Accept Swish payments](/swish)
+- [Integrate FraudNet](/ratepay/fraudnet): Integrate FraudNet to reduce fraud during PayPal checkout. Collect browser data for risk analysis and authentication using a JavaScript snippet.
+- [Pay Upon Invoice with Ratepay](/ratepay): PayPal's Pay Upon Invoice with Ratepay lets customers in Germany buy now, pay later. Verify goods and pay within 30 days without needing a PayPal account.
+- [Integrate Pay Upon Invoice](/ratepay/integrate): Learn how to integrate Pay Upon Invoice with PayPal. Get approval, set up webhooks, and manage payment preferences for smoother transactions in your checkout.
+- [Accept Trustly payments](/trustly): Learn how to accept payments using Trustly with PayPal. Buyers can pay directly from their bank accounts, and merchants get real-time notifications once payments are confirmed and processed.
+- [Use API to create payment links](/api/payment-links-buttons): Create reusable payment links and manage their lifecycle programmatically with the Payment Links and Buttons API.
+- [Integrate Bancontact using the Orders API](/api/orders-v2/bancontact)
+- [Integrate BLIK using the Orders API](/api/orders-v2/blik)
+- [Integrate crypto payments using Orders API](/api/orders-v2/crypto)
+- [Integrate EPS using the Orders API](/api/orders-v2/eps)
+- [Integrate iDEAL using the Orders API](/api/orders-v2/ideal)
+- [Integrate Multibanco using the Orders API](/api/orders-v2/multibanco)
+- [Integrate MyBank using the Orders API](/api/orders-v2/mybank)
+- [Integrate Przelewy24 using the Orders API](/api/orders-v2/przelewy24)
+- [Integrate Swish using the Orders API](/api/orders-v2/swish)
+- [Integrate Trustly using the Orders API](/api/orders-v2/trustly)
+- [Chargeback protection](/expanded/chargeback-protection)
+- [Integrate chargeback protection](/expanded/chargeback-protection/integrate)
+- [Create and set up filters](/expanded/fpa/filters)
+- [Manage lists](/expanded/fpa/lists)
+- [Monitor FPA activity](/expanded/fpa/monitor)
+- [Review transactions](/expanded/fpa/review)
+- [API use cases](/payment-links-buttons/use-cases): See example requests and responses that show how to create and manage payment links with the Payment Links and Buttons API.
+- [Alternative payment method reference](/payment-methods/reference)
+- [Card decline errors](/v5/expanded/card-decline-errors): Learn about card decline errors in PayPal Checkout. Understand AVS and CVV error codes for Visa, Mastercard, Discover, American Express, and Maestro transactions.
+- [Set up Expanded Checkout](/v5/expanded/get-started)
+- [Integrate Card Fields](/v5/expanded/integrate): Set up PayPal Card Fields with the JavaScript SDK v5 to accept debit and credit card payments with your site's branding.
+- [Expanded checkout overview](/v5/expanded/overview): PayPal Expanded Checkout is a customizable checkout experience that helps you to present custom card fields to your payers.
+- [Upgrade your Checkout integration](/v5/expanded/upgrade): Upgrade to Expanded Checkout to get dynamic payment buttons, custom styles, and support for PayPal, cards, Pay Later, Venmo, and more on your site.
+- [Add real-time account updater](/v5/improve-conversion/rtau)
+- [Save payment methods with the JavaScript SDK v5](/v5/save-payment-methods/overview): Enable faster checkouts by letting payers securely save payment methods with tokenization, streamlining future transactions without PCI compliance concerns.
+- [Add Fastlane](/fastlane/enable): Enable one-click guest checkout.
+- [Integrate Google Pay with PayPal's JavaScript SDK v6](/google-pay/integrate)
+- [Google Pay test card suite](/google-pay/test-cards): Use test cards to test Google Pay card payments for Expanded Checkout.
+- [Troubleshoot](/checkout/troubleshooting): Debug common integration issues.
+- [Add Pay Later messaging with the PayPal JS SDK v6](/pay-later/integrate): Use the PayPal JS SDK v6 to render flexible financing messages on your site with minimal configuration.
+- [Pay Later reference](/pay-later/reference): Use this reference to configure advanced options and customize your Pay Later integration.
+- [Add Pay Later messaging with the PayPal JS SDK v5](/v5/pay-later/integrate): Use the PayPal JS SDK v5 to display Pay Later messaging on product pages, cart pages, and at checkout.
+- [Pay Later messaging reference (v5)](/v5/pay-later/reference): Reference for configuring and customizing Pay Later messaging with the PayPal JS SDK v5.
+- [Save cards and PayPal with the Payment Method Tokens API](/api/save-with-purchase/save-payment-methods): Store payment methods once, then use them for subscriptions, free trials, and faster checkout.
+- [Test integration](/api/save-with-purchase/test-integration): Verify your vault integration with the Payment Method Tokens v3 API.
+- [Activating FPA for direct merchants](/expanded/fpa/get-started/activate)
+- [Disabling FPA](/expanded/fpa/get-started/disable)
+- [Getting started with FPA](/expanded/fpa/get-started)
+- [Upgrading to FPA](/expanded/fpa/get-started/upgrade)
+- [Save cards for purchase later with the Android SDK](/sdk/android/save-without-purchase/cards): Save a card to the vault with the Android SDK, no purchase required.
+- [Save PayPal for purchase later with the Android SDK](/sdk/android/save-without-purchase/paypal): Save a PayPal Wallet to the vault with the Android SDK, no purchase required.
+- [Save cards with the Android SDK](/sdk/android/save-with-purchase/cards): Turn a checkout into a reusable card on file with the Android SDK.
+- [Save PayPal with the Android SDK](/sdk/android/save-with-purchase/paypal): Turn a checkout into a reusable PayPal Wallet with the Android SDK.
+- [Save cards for purchase later with the iOS SDK](/sdk/ios/save-without-purchase/cards): Save a card to the vault with the iOS SDK, no purchase required.
+- [Save PayPal for purchase later with the iOS SDK](/sdk/ios/save-without-purchase/paypal): Save a PayPal Wallet to the vault with the iOS SDK, no purchase required.
+- [Save cards with the iOS SDK](/sdk/ios/save-with-purchase/cards): Turn a checkout into a reusable card on file with the iOS SDK.
+- [Save PayPal with the iOS SDK](/sdk/ios/save-with-purchase/paypal): Turn a checkout into a reusable PayPal Wallet with the iOS SDK.
+- [Save cards with the JavaScript SDK](/sdk/js/save-with-purchase/cards): Turn a checkout into a reusable card on file with the JavaScript SDK.
+- [Save PayPal with the JavaScript SDK](/sdk/js/save-with-purchase/paypal): Turn a checkout into a reusable PayPal Wallet with the JavaScript SDK.
+- [Save Venmo with the JavaScript SDK](/sdk/js/save-with-purchase/venmo): Turn a checkout into a reusable Venmo account with the JavaScript SDK.
+- [Save cards](/sdk/save-without-purchase/cards): Save a card to the vault with the JavaScript SDK, no purchase required.
+- [Save PayPal](/sdk/save-without-purchase/paypal): Save a PayPal Wallet to the vault with the JavaScript SDK, no purchase required.
+- [3D Secure](/expanded/3d-secure): Add 3D Secure card authentication.
+- [3D Secure for Fastlane](/v5/fastlane/3ds)
+- [Fastlane reference](/v5/fastlane/reference)
+- [Upgrade to Fastlane](/v5/fastlane/upgrade)
+- [Integrate Apple Pay with JS SDK for direct merchants](/v5/apple-pay/integrate): Learn how to add Apple Pay to your checkout process. Enable payments for physical, digital goods, and services on the web and iOS devices.
+- [Integrate Google Pay with JS SDK for direct merchants](/v5/google-pay/integrate): Add Google Pay to your PayPal checkout using the JavaScript SDK to enable payments for physical goods and services directly on the web.
+- [Pay with Venmo integration](/v5/venmo/integrate): Add the Venmo button to your checkout integration with PayPal. Follow steps to set up your account, integrate the JavaScript SDK, and customize the button layout.
+- [Pay with Venmo](/v5/venmo/overview): Add a Venmo payment button to your Checkout integration. Enhance the checkout experience with streamlined processes and social sharing features.
+- [Set up PayPal Checkout](/v5/checkout/getting-started)
+- [One-time payments](/v5/checkout/one-time)
+- [Recurring payments](/v5/checkout/recurring)
+- [Authorize and delay capture](/checkout/delay-capture): Authorize now, capture payment later.
+- [Extend an authorization](/checkout/extend-authorization): Extend an expiring authorization hold.
+- [Buy online, pick up in store](/checkout/in-store-pick-up): Support in-store pickup orders.
+- [PayPal standard full integration example](/checkout/put-it-all-together): Review a complete integration example.
+- [Refund a payment](/checkout/refund-payment): Return funds to a buyer.
+- [Save PayPal information for future payments](/checkout/save-customer-info): Store PayPal details for repeat buyers.
+- [Void an authorized payment](/checkout/void-authorized-payment): Cancel an authorization before capture.
+- [Commerce platforms overview](/v5/pay-later/commerce-platforms)
+- [Save cards with the Orders API](/api/orders-v2/save-with-purchase/cards): Turn a checkout into a reusable card on file with the Orders v2 API.
+- [Save PayPal with the Orders API](/api/orders-v2/save-with-purchase/paypal): Turn a checkout into a reusable PayPal Wallet with the Orders v2 API.
+- [3D Secure: Orders API](/api/orders-v2/expanded/3d-secure): Learn how to enable 3D Secure to enhance payment security for PayPal Expanded Checkout using the Orders API.
+- [Save cards with the Payment Method Tokens API](/api/payment-tokens/save-without-purchase/cards): Save a card to the vault with the Payment Method Tokens v3 API, no purchase required.
+- [Save PayPal with the Payment Method Tokens API](/api/payment-tokens/save-without-purchase/paypal): Save a PayPal Wallet to the vault with the Payment Method Tokens v3 API, no purchase required.
+- [Save cards for purchase later with the JavaScript SDK v5](/sdk/js/v5/save-without-purchase/cards): Save a card to the vault with the JavaScript SDK v5, no purchase required.
+- [Save PayPal for purchase later with the JavaScript SDK v5](/sdk/js/v5/save-without-purchase/paypal): Save a PayPal Wallet to the vault with the JavaScript SDK v5, no purchase required.
+- [Save Apple Pay with the JavaScript SDK v5](/sdk/js/v5/save-with-purchase/apple-pay): Turn a checkout into a reusable Apple Pay payment method with the JavaScript SDK v5.
+- [Save cards with the JavaScript SDK v5](/sdk/js/v5/save-with-purchase/cards): Turn a checkout into a reusable card on file with the JavaScript SDK v5.
+- [Save PayPal with the JavaScript SDK v5](/sdk/js/v5/save-with-purchase/paypal): Turn a checkout into a reusable PayPal Wallet with the JavaScript SDK v5.
+- [Save Venmo with the JavaScript SDK v5](/sdk/js/v5/save-with-purchase/venmo): Turn a checkout into a reusable Venmo account with the JavaScript SDK v5.
+- [3D Secure response parameters](/v5/expanded/3d-secure/response-parameters): View 3D Secure response parameters and integrate with the JavaScript SDK to handle responses.
+- [3D Secure test scenarios](/v5/expanded/3d-secure/test-scenarios): Use PayPal's sandbox to test 3D Secure scenarios with test cards. Simulate various responses to ensure a secure payment experience for your users.
+- [Authorize a payment and capture funds later](/v5/checkout/auth-capture): Use PayPal's authorize and capture model to hold funds, verify stock, and finalize payments later.
+- [Handle buyer checkout errors](/v5/checkout/handle-errors): Use onError callbacks and alternate checkout pages to effectively manage and handle buyer checkout errors, ensuring a smooth payment experience.
+- [Handle funding failures](/v5/checkout/handle-funding-failure): Learn how to handle funding failures and restart payments using the Orders API.
+- [Overcharge handling](/v5/checkout/handle-overcharge)
+- [Pass a buyer identifier to streamline buyer login](/v5/checkout/pass-buyer-id)
+- [Recurring payments module](/v5/checkout/recurring-payments)
+- [Display funding source used](/v5/checkout/show-fund-source): Customize your PayPal checkout experience by displaying the funding source used by the buyer on the confirmation page or notification.
+- [Display other payment methods](/v5/checkout/show-payment-method): Use radio buttons to show other funding sources alongside PayPal, including Venmo, Pay Later, and cards.
+- [PayPal payments with single-page applications](/v5/checkout/single-page-app): Integrate standard PayPal payments in single-page applications built with tools like React, Vue, or Angular.
+- [Handle uncaptured payments](/v5/checkout/uncaptured-payments)
+- [Validate user input](/v5/checkout/validate-input): Validate payer input before or after rendering PayPal buttons. Use synchronous or asynchronous validation to ensure a smooth and secure checkout experience.
+- [Pay with PayPal for one-time payments](/v5/checkout/best-practice/one-time)
+- [Pay with PayPal for recurring payments](/v5/checkout/best-practice/recurring)
+- [Pay with PayPal for vaulted payments](/v5/checkout/best-practice/vaulted)
+- [Shipping module](/v5/checkout/add-shipping): Allow buyers to update their shipping information by supporting merchant-provided shipping options and changes to the shipping address during checkout.
+- [Messaging with buttons](/v5/checkout/button-messaging)
+- [Pass line-item details](/v5/checkout/pass-line-items)
+- [Pay another account](/v5/checkout/pay-another-account)
+- [Pay Now or continue](/v5/checkout/pay-now): Learn how to integrate Pay Now for payments on the PayPal review page. Ideal for digital goods and items without shipping costs.
+- [Show cancellation page](/v5/checkout/show-cancellation)
+- [Contact module](/v5/checkout/show-contact-details)
+- [Update order details](/v5/checkout/show-order-updates): Learn how to update order details, including amounts, shipping, and tax. Capture new totals without payer re-approval and modify fields like the shipping address.
+- [Integrate 3D Secure using Card Fields](/v5/expanded/3d-secure/integrate/card-fields): Enable 3D Secure for advanced card payments using the PayPal JavaScript SDK. Integrate authentication for credit and debit card transactions.
+- [3D Secure authentication](/v5/expanded/3d-secure/integrate): Integrate 3D Secure with the JavaScript SDK v5.
+- [Reference](/v5/checkout/fx/currency-codes)
+- [Get started](/v5/checkout/fx/get-started)
+- [Integrate](/v5/checkout/fx/integrate)
+- [Foreign Exchange as a Service](/v5/checkout/fx/overview)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/ca)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/ca)
+- [Enable Pay Later messaging on OpenCart](/v5/pay-later/opencart/ca)
+- [Enable Pay Later messaging on BigCommerce](/v5/pay-later/bigcommerce/ca)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/de)
+- [Customize the Pay Later messaging layout on PrestaShop](/v5/pay-later/prestashop/es)
+- [Enable Pay Later for Viva Wallet](/v5/pay-later/viva-wallet/es)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/es)
+- [Enable Pay Later messaging for Angell EYE on WooCommerce](/v5/pay-later/angelleye/au)
+- [Enable Pay Later messaging on BigCommerce](/v5/pay-later/bigcommerce/au)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/es)
+- [Enable Pay Later messaging on Commerce Vision (Braintree)](/v5/pay-later/commerce-vision/au)
+- [Enable Pay Later messaging on Freewebstore](/v5/pay-later/freewebstore/au)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/au)
+- [Enable Pay Later messaging on OpenCart](/v5/pay-later/opencart/au)
+- [Enable Pay Later messaging on Salesforce](/v5/pay-later/salesforce/au)
+- [Customize the Pay Later messaging layout on PrestaShop](/v5/pay-later/prestashop/au)
+- [Enable Pay Later messaging for Maropost](/v5/pay-later/maropost/au)
+- [Enable Pay Later messaging on SAP](/v5/pay-later/sap/au)
+- [Enable Pay Later messaging on WooCommerce](/v5/pay-later/woocommerce/au)
+- [Customize Pay Later messaging on X-Cart](/v5/pay-later/x-cart/au)
+- [Customize the Pay Later messaging layout on PrestaShop](/v5/pay-later/prestashop/it)
+- [Enable Pay Later for Viva Wallet](/v5/pay-later/viva-wallet/it)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/it)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal-it)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/it)
+- [Enable Pay Later messaging for AngellEYE on WooCommerce](/v5/pay-later/angelleye/fr)
+- [Enable Pay Later messaging on Freewebstore](/v5/pay-later/freewebstore/fr)
+- [Enable Pay Later messaging on OpenCart](/v5/pay-later/opencart/fr)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/fr)
+- [Customize the Pay Later messaging layout on PrestaShop](/v5/pay-later/prestashop/fr)
+- [Enable Pay Later messaging on SAP](/v5/pay-later/sap/fr)
+- [Enable Pay Later for Viva Wallet](/v5/pay-later/viva-wallet/fr)
+- [Enable Pay Later messaging for Angell EYE on WooCommerce](/v5/pay-later/angelleye/us)
+- [Enable Pay Later messaging on BigCommerce](/v5/pay-later/bigcommerce/us)
+- [Enable Pay Later messaging on Cart.com](/v5/pay-later/cart/us)
+- [Enable Pay Later messaging on WooCommerce](/v5/pay-later/woocommerce/fr)
+- [Enable Pay Later messaging in Centarro](/v5/pay-later/centarro/us)
+- [Enable Pay Later messaging on Freewebstore](/v5/pay-later/freewebstore/us)
+- [Customize the Pay Later messaging layout on Miva](/v5/pay-later/miva/us)
+- [Enable Pay Later messaging on JotForm](/v5/pay-later/jotform/us)
+- [Enable Pay Later messaging on Magento (Braintree)](/v5/pay-later/magento-2/braintree)
+- [Enable Pay Later messaging on Gene Commerce for Magento (Braintree)](/v5/pay-later/magento-2/genecommerce)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal): Promote Pay Later offers on your Magento store with messaging and buttons. US buyers can access interest-free payments and financing options through PayPal.
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/us)
+- [Enable Pay Later messaging on OpenCart](/v5/pay-later/opencart/us): Promote PayPal Pay Later offers on your OpenCart store, including Pay in 4 and Pay Monthly options with interest-free payments for eligible US buyers.
+- [Customize the Pay Later messaging layout on PinnacleCart](/v5/pay-later/pinnaclecart/us)
+- [Enable Pay Later messaging on Salesforce Commerce Cloud](/v5/pay-later/salesforce/us)
+- [Customize the Pay Later messaging layout on Shift4Shop](/v5/pay-later/shift4shop/us)
+- [Enable Pay Later messaging on Solidus](/v5/pay-later/solidus/us)
+- [Enable Pay Later messaging and button for UENI](/v5/pay-later/ueni/us)
+- [Enable Pay Later messaging on Volusion](/v5/pay-later/volutus/us)
+- [Customize Pay Later messaging on Vortx](/v5/pay-later/vortx/us)
+- [Customize Pay Later messaging on X-Cart](/v5/pay-later/x-cart/us)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/us): Promote PayPal Pay Later offers on your WooCommerce store. Enable Pay in 4 and Pay Monthly options with interest-free payments and flexible terms for eligible US buyers.
+- [Enable Pay Later messaging for Angell EYE on WooCommerce](/v5/pay-later/angelleye/gb)
+- [Enable Pay Later messaging on BigCommerce](/v5/pay-later/bigcommerce/gb)
+- [Enable Pay Later messaging and buttons on Bluepark](/v5/pay-later/bluepark/gb)
+- [Customize the Pay Later messaging layout on CubeCart](/v5/pay-later/cubecart/gb)
+- [Enable Pay Later for EKM](/v5/pay-later/ekm/gb)
+- [Enable Pay Later messaging on Freewebstore](/v5/pay-later/freewebstore/gb)
+- [Enable Pay Later for Holbi](/v5/pay-later/holbi/gb)
+- [Enable Pay Later messaging on Magento 2](/v5/pay-later/magento-2/gb)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal-gb)
+- [Customize the Pay Later messaging layout on Mal's E-Commerce](/v5/pay-later/mals/gb)
+- [Customize the Pay Later messaging layout on Miva](/v5/pay-later/miva/gb)
+- [Enable Pay Later messaging on OpenCart](/v5/pay-later/opencart/gb)
+- [Customize the Pay Later messaging layout on PinnacleCart](/v5/pay-later/pinnaclecart/gb)
+- [Enable Pay Later messaging and button for RomanCart](/v5/pay-later/romancart/gb)
+- [Enable Pay Later messaging and button for Sellr](/v5/pay-later/sellr/gb)
+- [Customize the Pay Later messaging layout on Shift4Shop](/v5/pay-later/shift4shop/gb)
+- [Enable Pay Later messaging on Salesforce Commerce Cloud](/v5/pay-later/salesforce/gb)
+- [Enable Pay Later messaging and button for UENI](/v5/pay-later/ueni/gb)
+- [Enable Pay Later messaging for Visualsoft](/v5/pay-later/visualsoft/gb)
+- [Enable Pay Later for Viva Wallet](/v5/pay-later/viva-wallet/gb)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/gb)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd/es)
+- [Enable Pay Later messaging on Gene Commerce for Magento (Braintree)](/v5/pay-later/magento-2/genecommerce/es)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal/es)
+- [Enable Pay Later messaging on Magento (Braintree)](/v5/pay-later/magento-2/braintree/au)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd/au)
+- [Enable Pay Later messaging on Gene Commerce for Magento (Braintree)](/v5/pay-later/magento-2/genecommerce/au)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal/au)
+- [Enable Pay Later messaging on Gene Commerce for Magento (Braintree)](/v5/pay-later/magento-2/genecommerce/it)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd/it)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd/fr)
+- [Enable Pay Later messaging on Magento PayPal Express Checkout](/v5/pay-later/magento-2/paypal/fr)
+- [Customize the Pay Later messaging layout on Braintree for WooCommerce](/v5/pay-later/woocommerce/braintree/fr)
+- [Reference](/v5/pay-later/woocommerce/braintree/reference)
+- [Customize the Pay Later messaging layout on WooCommerce](/v5/pay-later/woocommerce/paypal/fr)
+- [Enable Pay Later messaging on Gene Commerce for Magento (Braintree)](/v5/pay-later/magento-2/genecommerce/gb)
+- [Enable Pay Later messaging for IWD on Magento 2](/v5/pay-later/magento-2/iwd/gb)

@@ -1,0 +1,82 @@
+{
+  "retrieved_at": "2026-10-22T16:48:05.252906+00:00",
+  "sources": [
+    {
+      "name": "billing_subscriptions_v1.json",
+      "url": "https://developer.paypal.com/api/subscriptions/v1/schema.json",
+      "sha256": "f8535d303786f248a474df720317928f4b06f6e6a29e90fe0043b9b349251dd9",
+      "operations": 17
+    },
+    {
+      "name": "catalogs_products_v1.json",
+      "url": "https://developer.paypal.com/api/catalog-products/v1/schema.json",
+      "sha256": "e446275f2787d12ff8a633e3db423fe773d1178395e53a9adca58b7d71e941ae",
+      "operations": 4
+    },
+    {
+      "name": "checkout_orders_v2.json",
+      "url": "https://developer.paypal.com/api/orders/v2/schema.json",
+      "sha256": "5bcb2242a4158a307dceff74f74352a078777f9afb9b0fb407ce10e392ee96b7",
+      "operations": 10
+    },
+    {
+      "name": "customer_disputes_v1.json",
+      "url": "https://developer.paypal.com/api/customer-disputes/v1/schema.json",
+      "sha256": "fee5e04ab606f8961b95744e65c4189fc7c4613e79ba2f944d2deab79e834330",
+      "operations": 15
+    },
+    {
+      "name": "customer_partner_referrals_v2.json",
+      "url": "https://developer.paypal.com/api/partner-referrals/v2/schema.json",
+      "sha256": "9f272dc81e62b9e78c468c09ab9bc961d385faffe428230cd52a11960f7594e2",
+      "operations": 2
+    },
+    {
+      "name": "invoicing_v2.json",
+      "url": "https://developer.paypal.com/api/invoicing/v2/schema.json",
+      "sha256": "db08da2d52aafb7a6a823b59bffa78d7901003eb65e48686f29fd90828b0867f",
+      "operations": 44
+    },
+    {
+      "name": "notifications_webhooks_v1.json",
+      "url": "https://developer.paypal.com/api/webhooks/v1/schema.json",
+      "sha256": "a10f9d6d44b4732393bf07001979110e0f6a584efad07e31d0d4ad76d6300ca3",
+      "operations": 16
+    },
+    {
+      "name": "payment-experience_web_experience_profiles_v1.json",
+      "url": "https://developer.paypal.com/api/payment-experience/v1/schema.json",
+      "sha256": "4e1b2d2d8b85de62687b2cd0143c6be1ffb411b19ee722e40eecef699cf5594a",
+      "operations": 6
+    },
+    {
+      "name": "payments_payment_v2.json",
+      "url": "https://developer.paypal.com/api/payments/v2/schema.json",
+      "sha256": "c2c95b3b8a4baca873712cc72cc63240ba95f0627aae12614526a2c17792803a",
+      "operations": 8
+    },
+    {
+      "name": "payments_payouts_batch_v1.json",
+      "url": "https://developer.paypal.com/api/payouts/v1/schema.json",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "reporting_transactions_v1.json",
+      "url": "https://developer.paypal.com/api/transaction-search/v1/schema.json",
+      "sha256": "85909abeb33b12e184a11d404beb6494ad51115523e6d534ee26ef865d3f9a6d",
+      "operations": 4
+    },
+    {
+      "name": "shipping_shipment_tracking_v1.json",
+      "url": "https://developer.paypal.com/api/tracking/v1/schema.json",
+      "sha256": "7d6f992eb95d6ab4be23755a00455cd3d4fbcf4da0d2abafe72e934529f5f0f1",
+      "operations": 5
+    },
+    {
+      "name": "vault_payment_tokens_v3.json",
+      "url": "https://developer.paypal.com/api/payment-tokens/v3/schema.json",
+      "sha256": "8bf036030c40ddd843b0ed8fdbf8f71f11a4960936e87633dfe64f1a9c9be5ab",
+      "operations": 6
+    }
+  ]
+}

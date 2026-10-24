@@ -1,0 +1,921 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "Currency Exchange",
+    "description": "The exchange currency API to convert one currency to another one.",
+    "version": "2.17",
+    "contact": {}
+  },
+  "servers": [
+    {
+      "url": "https://api-m.sandbox.paypal.com",
+      "description": "PayPal API Sandbox"
+    }
+  ],
+  "tags": [
+    {
+      "name": "exchange-currency",
+      "description": "Exchange currency."
+    },
+    {
+      "name": "quote-exchange-rates",
+      "description": "exchange rate quotes for currency pairs."
+    },
+    {
+      "name": "quote-exchange-rate-contract",
+      "description": "Quote Exchange rate contract for category/country."
+    },
+    {
+      "name": "linked-quote-exchange-rate-contract",
+      "description": "Link quote exchange rate contract to category/country."
+    }
+  ],
+  "externalDocs": {
+    "url": "https://developer.paypal.com/docs/api/pricing/v2/"
+  },
+  "paths": {
+    "/v2/pricing/quote-exchange-rates": {
+      "post": {
+        "summary": "Create Exchange Rate Quote",
+        "description": "<strong>Purpose:</strong><ul><p>The PayPal Exchange Rate Quote API enables businesses to dynamically display prices in multiple currencies by generating exchange rate quotes for currency pair.</p></ul><strong>Key Features:</strong><ul><p>FX Rate Guarantee: Guarantees exchange rates for a specified duration, ensuring stability and consistency in currency presentment scenarios.</p><p>Customizable Pricing: Provides flexible exchange rate options tailored to business needs, allowing customization through negotiated rates and dynamic pricing models to align with business requirements.</p><p>Provides functionality to source wholesale market rates with the addition of a percentage-based currency conversion fee. This enables the delivery of retail exchange rates without offering a rate guarantee.</p><p>FX Rate Revenue Markup: Offers merchants the flexibility to apply customized markups on exchange rates, allowing them to generate additional revenue from currency conversions. Enables businesses to define their own pricing strategies by setting adjustable markups based on transaction volume, customer segments, or market conditions, ensuring greater control over foreign exchange earnings while maintaining competitive pricing for end users.</p></ul><strong>Quote API Usage:</strong><ul><p>Need a Guaranteed Rate for a Certain Timeframe: Businesses want to lock in an exchange rate for a defined period to protect against market fluctuations and reduce the risk of FX volatility.</p><p>Offer Customers Stable, Upfront Pricing for a Limited Time: Displaying FX rates but ensuring the rate remains fixed for a short duration, allowing customers to complete their purchase without unexpected price changes.</p><p>Integrate with PayPal as Payment Processor for Real-Time Quoting Scenarios: Leveraging PayPal’s payment processing capabilities, ensuring seamless multi-currency support.</p></ul><strong>Sample Use cases:</strong> Multi-Currency Presentment, Real-Time Checkout Quotes, Subscription Pricing with Guaranteed Rate, Buy-Now-Price Guarantee for Cross-Border Seller.",
+        "operationId": "quote_exchange_rates",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/quote_exchange_rates_request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP `200 OK` status code and a JSON response body that shows quote exchange rate details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/quote_exchange_rates_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authorization failed due to insufficient permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/pricing/quote-exchange-rates/read"
+            ]
+          }
+        ],
+        "tags": [
+          "quote-exchange-rates"
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Oauth2": {
+        "type": "oauth2",
+        "description": "Oauth 2.0 authentication",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/api/oauth-proxy",
+            "scopes": {
+              "https://uri.paypal.com/services/pricing/exchange-currency/read": "This privilege allows client to get SELL and BUY rate through exchange-currency API.",
+              "https://uri.paypal.com/services/pricing/quote-exchange-rates/read": "This privilege allows client to get quote the exchange rate for merchants and tenants.",
+              "https://uri.paypal.com/services/pricing/quote-exchange-rates/readwrite": "This privilege allows client to update the quote exchange rate for merchants and tenants."
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "currency_code": {
+        "description": "The [3-character ISO-4217 currency code](/api/rest/reference/currency-codes/) that identifies the currency.",
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 3,
+        "x-security-classification": {
+          "data_class": "class4",
+          "data_category": "INTRINSIC"
+        }
+      },
+      "date_time": {
+        "type": "string",
+        "description": "The date and time, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). Seconds are required while fractional seconds are optional.<blockquote><strong>Note:</strong> The regular expression provides guidance but does not reject all invalid dates.</blockquote>",
+        "format": "ppaas_date_time_v3",
+        "minLength": 20,
+        "maxLength": 64,
+        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])[T,t]([0-1][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)([.][0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+      },
+      "error": {
+        "type": "object",
+        "title": "Error",
+        "description": "The error details.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The human-readable, unique name of the error."
+          },
+          "message": {
+            "type": "string",
+            "description": "The message that describes the error."
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "information_link": {
+            "type": "string",
+            "description": "The information link, or URI, that shows detailed information about this error for the developer.",
+            "readOnly": true
+          },
+          "details": {
+            "$ref": "#/components/schemas/error_details_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/link_description_list"
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "debug_id"
+        ]
+      },
+      "error_400": {
+        "type": "object",
+        "title": "Bad Request Error",
+        "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INVALID_REQUEST"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Request is not well-formed, syntactically incorrect, or violates schema."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_401": {
+        "type": "object",
+        "title": "Unauthorized Error",
+        "description": "Authentication failed due to missing Authorization header, or invalid authentication credentials.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION_FAILURE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authentication failed due to missing authorization header, or invalid authentication credentials."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_403": {
+        "type": "object",
+        "title": "Not Authorized Error",
+        "description": "The client is not authorized to access this resource, although it may have valid credentials. ",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "NOT_AUTHORIZED"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authorization failed due to insufficient permissions."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_404": {
+        "type": "object",
+        "title": "Not found Error",
+        "description": "The server has not found anything matching the request URI. This either means that the URI is incorrect or the resource is not available.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_NOT_FOUND"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The specified resource does not exist."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_409": {
+        "type": "object",
+        "title": "Resource Conflict Error",
+        "description": "The server has detected a conflict while processing this request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_CONFLICT"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server has detected a conflict while processing this request."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_415": {
+        "type": "object",
+        "title": "Unsupported Media Type Error",
+        "description": "The server does not support the request payload's media type.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNSUPPORTED_MEDIA_TYPE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server does not support the request payload's media type."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_422": {
+        "type": "object",
+        "title": "Unprocessable Entity Error",
+        "description": "The requested action cannot be performed and may require interaction with APIs or processes outside of the current request. This is distinct from a 500 response in that there are no systemic problems limiting the API from performing the request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNPROCESSABLE_ENTITY"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The requested action could not be performed, semantically incorrect, or failed business validation."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_429": {
+        "type": "object",
+        "title": "Too many requests",
+        "description": "Too many requests. Blocked due to rate limiting.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RATE_LIMIT_REACHED"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Too many requests. Blocked due to rate limiting."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          }
+        }
+      },
+      "error_500": {
+        "type": "object",
+        "title": "Internal Server Error",
+        "description": "This is either a system or application error, and generally indicates that although the client appeared to provide a correct request, something unexpected has gone wrong on the server.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INTERNAL_SERVER_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "An internal server error occurred."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "INTERNAL_SERVER_ERROR",
+            "message": "An internal server error occurred.",
+            "debug_id": "90957fca61718",
+            "links": [
+              {
+                "href": "https://developer.paypal.com/api/orders/v2/#error-INTERNAL_SERVER_ERROR",
+                "rel": "information_link"
+              }
+            ]
+          }
+        ]
+      },
+      "error_503": {
+        "type": "object",
+        "title": "Service Unavailable Error",
+        "description": "The server is temporarily unable to handle the request, for example, because of planned maintenance or downtime.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Service Unavailable."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "SERVICE_UNAVAILABLE",
+            "message": "Service Unavailable.",
+            "debug_id": "90957fca61718",
+            "information_link": "https://developer.paypal.com/docs/api/orders/v2/#error-SERVICE_UNAVAILABLE"
+          }
+        ]
+      },
+      "error_default": {
+        "description": "The default error response.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/error_400"
+          },
+          {
+            "$ref": "#/components/schemas/error_401"
+          },
+          {
+            "$ref": "#/components/schemas/error_403"
+          },
+          {
+            "$ref": "#/components/schemas/error_404"
+          },
+          {
+            "$ref": "#/components/schemas/error_409"
+          },
+          {
+            "$ref": "#/components/schemas/error_415"
+          },
+          {
+            "$ref": "#/components/schemas/error_422"
+          },
+          {
+            "$ref": "#/components/schemas/error_429"
+          },
+          {
+            "$ref": "#/components/schemas/error_500"
+          },
+          {
+            "$ref": "#/components/schemas/error_503"
+          }
+        ]
+      },
+      "error_details": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "$ref": "#/components/schemas/error_location"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details-2": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "type": "string",
+            "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+            "default": "body"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details_list": {
+        "type": "array",
+        "description": "An array of additional details about the error.",
+        "items": {
+          "$ref": "#/components/schemas/error_details-2"
+        }
+      },
+      "error_link_description": {
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "type": "object",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call.",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20000,
+            "pattern": "^.*$"
+          },
+          "rel": {
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml).",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 100,
+            "pattern": "^.*$"
+          },
+          "method": {
+            "description": "The HTTP method required to make the related call.",
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 6,
+            "pattern": "^[A-Z]*$",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "error_location": {
+        "type": "string",
+        "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+        "enum": [
+          "body",
+          "path",
+          "query"
+        ],
+        "default": "body"
+      },
+      "link_description": {
+        "type": "object",
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call."
+          },
+          "rel": {
+            "type": "string",
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml)."
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method required to make the related call.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "HEAD",
+              "CONNECT",
+              "OPTIONS",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/api/rest/responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        }
+      },
+      "money": {
+        "type": "object",
+        "title": "Money",
+        "description": "The currency and amount for a financial transaction, such as a balance or payment due.",
+        "properties": {
+          "currency_code": {
+            "$ref": "#/components/schemas/currency_code"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value, which might be:<ul><li>An integer for currencies like `JPY` that are not typically fractional.</li><li>A decimal fraction for currencies like `TND` that are subdivided into thousandths.</li></ul>For the required number of decimal places for a currency code, see [Currency Codes](/api/rest/reference/currency-codes/).",
+            "maxLength": 32,
+            "pattern": "^((-?[0-9]+)|(-?([0-9]+)?[.][0-9]+))$"
+          }
+        },
+        "required": [
+          "currency_code",
+          "value"
+        ]
+      },
+      "percentage": {
+        "type": "string",
+        "description": "The percentage, as a fixed-point, signed decimal number. For example, define a 19.99% interest rate as `19.99`.",
+        "format": "ppaas_common_percentage_v2",
+        "pattern": "^((-?[0-9]+)|(-?([0-9]+)?[.][0-9]+))$"
+      },
+      "quote_exchange_rates_request": {
+        "type": "object",
+        "title": "Request Object for quoting exchange rates.",
+        "description": "Request Object for quoting exchange rates.",
+        "properties": {
+          "organization": {
+            "description": "Organization this managed account belongs to, in the partner's hierarchy, in the form of a path.",
+            "type": "string",
+            "pattern": "^\\w{2,20}(\\/\\w{2,20})*$",
+            "maxLength": 100,
+            "minLength": 2
+          },
+          "quote_items": {
+            "$ref": "#/components/schemas/quote_item_list"
+          }
+        },
+        "required": [
+          "quote_items"
+        ]
+      },
+      "quote_exchange_rates_response": {
+        "type": "object",
+        "title": "Response Object for quoting exchange rates.",
+        "description": "Response Object for quoting exchange rates.",
+        "properties": {
+          "exchange_rate_quotes": {
+            "$ref": "#/components/schemas/rate_detail_list"
+          }
+        },
+        "required": [
+          "exchange_rate_quotes"
+        ]
+      },
+      "quote_item": {
+        "type": "object",
+        "title": "Request object for exchange rate quote.",
+        "description": "Request object for exchange rate quote.",
+        "properties": {
+          "base_currency": {
+            "description": "The currency code of the base amount to be converted for the presentment and in which the final transaction amount needs to be settled into merchant PayPal business account. This could be your primary currency, or any other PayPal supported holding currency. You can find currency codes [here](/docs/reports/reference/paypal-supported-currencies).",
+            "$ref": "#/components/schemas/currency_code"
+          },
+          "base_amount": {
+            "description": "Product price in base currency. If not provided, PayPal returns only the exchange rate and does not calculate the <code>quote_amount</code>.",
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^([0-9]+[.][0-9]+)$"
+          },
+          "quote_currency": {
+            "description": "The currency code in which the conversion should take place using this API. This is the currency in which the transaction is performed, and the transaction amount gets converted into base currency.",
+            "$ref": "#/components/schemas/currency_code"
+          },
+          "markup_percent": {
+            "description": "The percentage of the merchant or partner spread to be included as part of the exchange rate. markup_percent can range from 0 to 100.",
+            "$ref": "#/components/schemas/percentage"
+          },
+          "fx_id": {
+            "description": "Unique identifier that links a quoted FX rate to an order.",
+            "pattern": "^[ -~]+$",
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1
+          }
+        }
+      },
+      "quote_item_list": {
+        "type": "array",
+        "description": "Parameters required to request an exchange rate, passed in the quote_items array: <ul><li>base_currency</li><li>base_amount</li><li>quote_currency</li><li>markup_percent</li><li>fx_id.</li></ul>",
+        "items": {
+          "$ref": "#/components/schemas/quote_item"
+        },
+        "maxItems": 250,
+        "minItems": 1
+      },
+      "rate_detail": {
+        "type": "object",
+        "title": "Response object for fx service exchange currency.",
+        "description": "Exchange rate details, specified as an object with the following parameters: <ul><li>base_amount</li><li>quote_amount</li><li>exchange_rate</li><li>expiry_time</li><li>rate_refresh_time</li><li>fx_id.</li></ul>",
+        "properties": {
+          "base_amount": {
+            "description": "The amount that needs to be converted. If this parameter was not passed in the request, the value of base_amount is considered as 1 by default.",
+            "$ref": "#/components/schemas/money"
+          },
+          "quote_amount": {
+            "description": "The amount in desired currency after conversion.",
+            "$ref": "#/components/schemas/money"
+          },
+          "exchange_rate": {
+            "description": "Conversion rate between the base and quote currencies. Includes markup if <code>markup_percent</code> is provided in the request.",
+            "type": "string",
+            "pattern": "^([0-9]+[.][0-9]+)$",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "fx_id": {
+            "description": "Unique identifier that links a quoted FX rate to an order. Must be passed in further API calls.",
+            "pattern": "^[ -~]+$",
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1
+          },
+          "expiry_time": {
+            "description": "The time until exchange_rate will be valid for settlement. It is represented in ISO 8601. The time is determined at the time of contract agreement.",
+            "$ref": "#/components/schemas/date_time"
+          },
+          "rate_refresh_time": {
+            "description": "The time at which new exchange rates will be available next for this currency pair. The frequency is determined at the time of contract agreement.",
+            "$ref": "#/components/schemas/date_time"
+          },
+          "update_time": {
+            "description": "The time at which the exchange rate was last updated. The time is represented in ISO 8601.",
+            "$ref": "#/components/schemas/date_time"
+          }
+        },
+        "required": [
+          "base_amount",
+          "quote_amount",
+          "exchange_rate"
+        ]
+      },
+      "rate_detail_list": {
+        "description": "Exchange rate details, specified as an array of object.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/rate_detail"
+        },
+        "maxItems": 500,
+        "minItems": 1
+      }
+    }
+  }
+}

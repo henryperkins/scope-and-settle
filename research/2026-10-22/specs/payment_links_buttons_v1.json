@@ -1,0 +1,1905 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "Payment Links and Buttons",
+    "description": "The Payment Links and Buttons API enables you to programmatically create and manage payment links and buttons. Use this API to generate shareable URLs, retrieve payment details, and update configurations without building custom checkout flows.",
+    "version": "1.8"
+  },
+  "tags": [
+    {
+      "name": "Payment-Links",
+      "description": "Use the /links/{id} resource to retrieve details about payment links."
+    },
+    {
+      "name": "Create-Context",
+      "description": "Use the `/links/{id}/create-context` resource to create context (order creation) associated with payment link."
+    },
+    {
+      "name": "Pay-Context",
+      "description": "Use the `/links/{id}/pay` resource to pay the context associated with payment link."
+    },
+    {
+      "name": "Context-Details",
+      "description": "Use the `/links/{id}/contexts/{context_id}` resource to retrieve the context details associated with payment link."
+    },
+    {
+      "name": "Acquire-Shipping-Options",
+      "description": "Use the `/links/{id}/shipping-options` resource to load the shipping options and updated amount of the context associated with payment link."
+    },
+    {
+      "name": "Cart",
+      "description": "Use the `/carts` resource to create or get cart and `/carts/{id}` resource to update or get cart."
+    },
+    {
+      "name": "Payment-Resources",
+      "description": "Use the `/payment-resources` resource to create or get payment resources and `/payment-resources/{id}` resource to update or get payment resource."
+    }
+  ],
+  "paths": {
+    "/v1/checkout/payment-resources": {
+      "post": {
+        "summary": "Creates a payment resource for a single-item purchase",
+        "description": "Creates a new PayPal payment resource for a single-item Buy Now checkout. Returns the full resource details including ID, payment link url, and status.",
+        "operationId": "payment-resources.post",
+        "tags": [
+          "Payment-Resources"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paypal_request_id"
+          },
+          {
+            "$ref": "#/components/parameters/content_type"
+          },
+          {
+            "$ref": "#/components/parameters/paypal_auth_assertion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/payment_resource_request"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment resource generated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/payment_resource_detailed_response"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Payment resource generated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/payment_resource_detailed_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failed due to insufficient permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request failed because a previous call for the given resource is in progress.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List payment resources",
+        "description": "Returns a paginated list of payment resources created by the authenticated merchant. Supports filtering by status and pagination parameters.",
+        "operationId": "payment-resources.get.list",
+        "tags": [
+          "Payment-Resources"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page_size"
+          },
+          {
+            "$ref": "#/components/parameters/page_token"
+          },
+          {
+            "$ref": "#/components/parameters/total_required"
+          },
+          {
+            "$ref": "#/components/parameters/content_type"
+          },
+          {
+            "$ref": "#/components/parameters/paypal_auth_assertion"
+          }
+        ],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP `200 OK` status code with a JSON response body that shows payment resource details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/list_payment_resource_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failed due to insufficient permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checkout/payment-resources/{id}": {
+      "get": {
+        "summary": "Retrieve a payment resource",
+        "description": "Retrieves details for a specific payment resource, including current status, integration configuration, and related HATEOAS links.",
+        "operationId": "payment-resources.get.byId",
+        "tags": [
+          "Payment-Resources"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/content_type"
+          },
+          {
+            "$ref": "#/components/parameters/paypal_auth_assertion"
+          }
+        ],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP `200 OK` status code with a JSON response body that shows payment resource details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/payment_resource_detailed_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failed due to insufficient permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested action could not be performed. Payment resource id is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Replace a payment resource",
+        "description": "Replaces all editable fields of an existing payment resource. Use this for full updates.",
+        "operationId": "payment-resources.put.byId",
+        "tags": [
+          "Payment-Resources"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/content_type"
+          },
+          {
+            "$ref": "#/components/parameters/paypal_auth_assertion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/payment_resource_detailed_response"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite"
+            ]
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "A successful request returns the HTTP 204 No Content status code with no JSON response body."
+          },
+          "400": {
+            "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorization failed due to insufficient permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a payment resource",
+        "description": "Permanently deletes the specified payment resource. Operation is irreversible and returns HTTP 204 No Content.",
+        "operationId": "payment-resources.delete.byId",
+        "tags": [
+          "Payment-Resources"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/content_type"
+          },
+          {
+            "$ref": "#/components/parameters/paypal_auth_assertion"
+          }
+        ],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources"
+            ]
+          },
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite"
+            ]
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Payment resource deleted successfully. No content returned."
+          },
+          "500": {
+            "description": "An internal server error has occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api-m.sandbox.paypal.com",
+      "description": "PayPal API Sandbox"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Oauth2": {
+        "type": "oauth2",
+        "description": "Oauth 2.0 authentication.",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/api/oauth-proxy",
+            "scopes": {
+              "https://uri.paypal.com/services/checkout/links": "Allows merchants to create context and pay for nocode payment link.",
+              "https://uri.paypal.com/services/checkout/payment-resources": "Allow merchants to read and write payment resources.",
+              "https://uri.paypal.com/services/checkout/payment-resources/read": "Allows third-party apps to have read access to payment resources.",
+              "https://uri.paypal.com/services/checkout/payment-resources/readwrite": "Allows third-party apps to have read and write access to payment resources."
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "default": {
+        "description": "The default response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error_default"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "adjustable_quantity": {
+        "type": "object",
+        "title": "Adjustable Quantity",
+        "description": "Allows customers to change the quantity of this item during checkout.",
+        "properties": {
+          "maximum": {
+            "type": "integer",
+            "description": "The maximum quantity customers can select. Must be between 1 and 100. Setting this value enables the quantity picker at checkout.",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "maximum"
+        ]
+      },
+      "code_snippet": {
+        "type": "object",
+        "title": "Code snippets",
+        "description": "Code snippets holds the code needed to inject payment resources for merchant experience. Only applicable when integration_mode=\"BUTTON\" & type=\"BUY_NOW\".",
+        "readOnly": true,
+        "properties": {
+          "single": {
+            "$ref": "#/components/schemas/single"
+          },
+          "stacked": {
+            "$ref": "#/components/schemas/code_snippet_stacked_list"
+          }
+        }
+      },
+      "code_snippet_stacked": {
+        "type": "object",
+        "title": "Code snippets for stacked button",
+        "description": "Code snippets to place the PayPal buttons on your site. It supports 2 flavours \"REACT\", \"HTML\". Applicable only when integration_mode=\"BUTTON\" & type=\"BUY_NOW\".",
+        "readOnly": true,
+        "properties": {
+          "framework": {
+            "type": "string",
+            "description": "To identify the flavour of code snippets for stacked button (e.g. \"HTML\", \"REACT\").",
+            "pattern": "^[A-Z0-9_]+$",
+            "minLength": 1,
+            "maxLength": 32,
+            "enum": [
+              "HTML",
+              "REACT"
+            ],
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "HTML"
+                ],
+                "description": "Code snippets to add stacked buttons to your site with HTML"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "REACT"
+                ],
+                "description": "Code snippets to add stacked buttons to your site with React"
+              }
+            ]
+          },
+          "head": {
+            "description": "Paste this code in your website’s head (or at the top of your page’s body above the Part 2 code) only once per page.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 9999,
+            "pattern": "^.*$"
+          },
+          "body": {
+            "description": "Paste this code in your page's body.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 9999,
+            "pattern": "^.*$"
+          },
+          "button_placement": {
+            "description": "Paste this code in the page where you want the button to show up, near your product.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 9999,
+            "pattern": "^.*$"
+          }
+        },
+        "required": [
+          "framework"
+        ]
+      },
+      "code_snippet_stacked_list": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5,
+        "description": "Code snippets to place the PayPal buttons on your site.",
+        "items": {
+          "$ref": "#/components/schemas/code_snippet_stacked"
+        }
+      },
+      "currency_code": {
+        "description": "The [three-character ISO-4217 currency code](/api/rest/reference/currency-codes/) that identifies the currency.",
+        "type": "string",
+        "format": "ppaas_common_currency_code_v2",
+        "minLength": 3,
+        "maxLength": 3
+      },
+      "customer_note": {
+        "type": "object",
+        "title": "Customer Note",
+        "description": "Label for a custom field to collect additional information from customers about this item (e.g., \"Engraving text\" or \"Special instructions\"). Can be set as mandatory.",
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "description": "Whether this custom field is required for checkout. Set to true to make the field mandatory."
+          },
+          "label": {
+            "description": "The label displayed to customers for this custom input field (e.g., \"Enter engraving text\" or \"Delivery instructions\").",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 127,
+            "pattern": "^.*$"
+          }
+        }
+      },
+      "customer_note_list": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "description": "Label for a custom field to collect additional information from customers about this item (e.g., \"Engraving text\" or \"Special instructions\"). Can be set as mandatory.",
+        "items": {
+          "$ref": "#/components/schemas/customer_note"
+        }
+      },
+      "date_time": {
+        "type": "string",
+        "description": "The date and time, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). Seconds are required while fractional seconds are optional.<blockquote><strong>Note:</strong> The regular expression provides guidance but does not reject all invalid dates.</blockquote>",
+        "format": "ppaas_date_time_v3",
+        "minLength": 20,
+        "maxLength": 64,
+        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])[T,t]([0-1][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)([.][0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+      },
+      "definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/api/rest/responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        }
+      },
+      "dimension": {
+        "type": "object",
+        "title": "Variant of Payment Resource",
+        "description": "Variant dimension structure with multiple options. Each variant can have multiple options, and only one variant can be marked as primary.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the variant dimension (e.g., \"Size\", \"Color\").",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "primary": {
+            "type": "boolean",
+            "description": "Only one dimension has <code>primary</code> set to true. Only options in the primary dimension can have <code>unit_amount</code>."
+          },
+          "options": {
+            "$ref": "#/components/schemas/dimension_option_list"
+          }
+        },
+        "required": [
+          "name",
+          "primary",
+          "options"
+        ]
+      },
+      "dimension_list": {
+        "type": "array",
+        "description": "List of variant dimensions available for this product. Each dimension can have multiple options.",
+        "minItems": 1,
+        "maxItems": 5,
+        "items": {
+          "$ref": "#/components/schemas/dimension"
+        }
+      },
+      "dimension_option": {
+        "type": "object",
+        "title": "Option available for the item.",
+        "description": "Option available for the item.",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "The display label for this option (e.g., \"Large\").",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^.*$"
+          },
+          "unit_amount": {
+            "description": "Unit Price of this option, including value and currency code.",
+            "$ref": "#/components/schemas/money"
+          }
+        },
+        "required": [
+          "label"
+        ]
+      },
+      "dimension_option_list": {
+        "type": "array",
+        "description": "List of option available.",
+        "minItems": 1,
+        "maxItems": 10,
+        "items": {
+          "$ref": "#/components/schemas/dimension_option"
+        }
+      },
+      "error": {
+        "type": "object",
+        "title": "Error",
+        "description": "The error details.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The human-readable, unique name of the error."
+          },
+          "message": {
+            "type": "string",
+            "description": "The message that describes the error."
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "details": {
+            "$ref": "#/components/schemas/error_details_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/definitions-link_description_list"
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "debug_id"
+        ]
+      },
+      "error_400": {
+        "type": "object",
+        "title": "Bad Request Error",
+        "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INVALID_REQUEST"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Request is not well-formed, syntactically incorrect, or violates schema."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_401": {
+        "type": "object",
+        "title": "Unauthorized Error",
+        "description": "Authentication failed due to missing Authorization header, or invalid authentication credentials.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION_FAILURE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authentication failed due to missing authorization header, or invalid authentication credentials."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_403": {
+        "type": "object",
+        "title": "Not Authorized Error",
+        "description": "The client is not authorized to access this resource, although it may have valid credentials. ",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "NOT_AUTHORIZED"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authorization failed due to insufficient permissions."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_404": {
+        "type": "object",
+        "title": "Not found Error",
+        "description": "The server has not found anything matching the request URI. This either means that the URI is incorrect or the resource is not available.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_NOT_FOUND"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The specified resource does not exist."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_409": {
+        "type": "object",
+        "title": "Resource Conflict Error",
+        "description": "The server has detected a conflict while processing this request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_CONFLICT"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server has detected a conflict while processing this request."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_415": {
+        "type": "object",
+        "title": "Unsupported Media Type Error",
+        "description": "The server does not support the request payload's media type.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNSUPPORTED_MEDIA_TYPE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server does not support the request payload's media type."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_422": {
+        "type": "object",
+        "title": "Unprocessable Entity Error",
+        "description": "The requested action cannot be performed and may require interaction with APIs or processes outside of the current request. This is distinct from a 500 response in that there are no systemic problems limiting the API from performing the request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNPROCESSABLE_ENTITY"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The requested action could not be performed, semantically incorrect, or failed business validation."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_500": {
+        "type": "object",
+        "title": "Internal Server Error",
+        "description": "This is either a system or application error, and generally indicates that although the client appeared to provide a correct request, something unexpected has gone wrong on the server.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INTERNAL_SERVER_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "An internal server error occurred."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "INTERNAL_SERVER_ERROR",
+            "message": "An internal server error occurred.",
+            "debug_id": "90957fca61718",
+            "links": [
+              {
+                "href": "https://developer.paypal.com/api/orders/v2/#error-INTERNAL_SERVER_ERROR",
+                "rel": "information_link"
+              }
+            ]
+          }
+        ]
+      },
+      "error_503": {
+        "type": "object",
+        "title": "Service Unavailable Error",
+        "description": "The server is temporarily unable to handle the request, for example, because of planned maintenance or downtime.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Service Unavailable."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "SERVICE_UNAVAILABLE",
+            "message": "Service Unavailable.",
+            "debug_id": "90957fca61718",
+            "information_link": "https://developer.paypal.com/docs/api/orders/v2/#error-SERVICE_UNAVAILABLE"
+          }
+        ]
+      },
+      "error_default": {
+        "description": "The default error response.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/error_400"
+          },
+          {
+            "$ref": "#/components/schemas/error_401"
+          },
+          {
+            "$ref": "#/components/schemas/error_403"
+          },
+          {
+            "$ref": "#/components/schemas/error_404"
+          },
+          {
+            "$ref": "#/components/schemas/error_409"
+          },
+          {
+            "$ref": "#/components/schemas/error_415"
+          },
+          {
+            "$ref": "#/components/schemas/error_422"
+          },
+          {
+            "$ref": "#/components/schemas/error_500"
+          },
+          {
+            "$ref": "#/components/schemas/error_503"
+          }
+        ]
+      },
+      "error_details": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "$ref": "#/components/schemas/error_location"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details-2": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "type": "string",
+            "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+            "default": "body"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "links": {
+            "$ref": "#/components/schemas/link_description_list"
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details_list": {
+        "type": "array",
+        "description": "An array of additional details about the error.",
+        "items": {
+          "$ref": "#/components/schemas/error_details-2"
+        }
+      },
+      "error_link_description": {
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "type": "object",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call.",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20000,
+            "pattern": "^.*$"
+          },
+          "rel": {
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml).",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 100,
+            "pattern": "^.*$"
+          },
+          "method": {
+            "description": "The HTTP method required to make the related call.",
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 6,
+            "pattern": "^[A-Z]*$",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "error_location": {
+        "type": "string",
+        "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+        "enum": [
+          "body",
+          "path",
+          "query"
+        ],
+        "default": "body"
+      },
+      "integration_mode": {
+        "title": "Integration Mode",
+        "description": "Determines how the payment resource is presented to customers. Currently, only LINK is supported, which generates a PayPal-hosted payment page with a shareable URL. This value is immutable after creation.",
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$",
+        "minLength": 1,
+        "maxLength": 20,
+        "enum": [
+          "LINK"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "LINK"
+            ],
+            "description": "Generates a hosted payment page accessible via URL. Currently the only supported mode."
+          }
+        ]
+      },
+      "line_item": {
+        "type": "object",
+        "title": "Line Item of Payment Resource",
+        "description": "List of individual item in payment resource.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The product or service name displayed to customers during checkout.",
+            "minLength": 1,
+            "maxLength": 127,
+            "pattern": "^.*$"
+          },
+          "product_id": {
+            "type": "string",
+            "description": "Your internal identifier for this product.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^.*$"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed information about the product or service shown to customers during checkout. Use this to provide additional context, specifications, or terms.",
+            "minLength": 1,
+            "maxLength": 2048,
+            "pattern": "^.*$"
+          },
+          "unit_amount": {
+            "description": "The price per unit of this item, including the numeric value and currency code.",
+            "$ref": "#/components/schemas/money"
+          },
+          "taxes": {
+            "$ref": "#/components/schemas/tax_list"
+          },
+          "shipping": {
+            "$ref": "#/components/schemas/shipping_list"
+          },
+          "collect_shipping_address": {
+            "type": "boolean",
+            "description": "Prompts customers for a shipping address during checkout for this item. Set to true for physical goods that require delivery, false for digital goods."
+          },
+          "customer_notes": {
+            "$ref": "#/components/schemas/customer_note_list"
+          },
+          "variants": {
+            "description": "Product variants such as size, color, or material presented to customers during checkout. Each variant (e.g., \"Size\") can have up to 10 options (e.g., \"S\", \"M\", \"L\", \"XL\"). Supports up to 5 variants total. One variant can be designated as primary to enable different prices per option.",
+            "$ref": "#/components/schemas/variants"
+          },
+          "adjustable_quantity": {
+            "description": "Allows customers to change the quantity of this item during checkout.",
+            "$ref": "#/components/schemas/adjustable_quantity"
+          }
+        }
+      },
+      "line_item_list": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "description": "List of individual item in payment resource.",
+        "items": {
+          "$ref": "#/components/schemas/line_item"
+        }
+      },
+      "link_description": {
+        "type": "object",
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call."
+          },
+          "rel": {
+            "type": "string",
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml)."
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method required to make the related call.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "HEAD",
+              "CONNECT",
+              "OPTIONS",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/api/rest/responses/#hateoas-links) that are either relevant to the issue by providing additional information or offering potential resolutions.",
+        "readOnly": true,
+        "minItems": 1,
+        "maxItems": 4,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        }
+      },
+      "list_payment_resource_response": {
+        "type": "object",
+        "title": "List Payment Resource Resources.",
+        "description": "List of payment resources.",
+        "properties": {
+          "resources": {
+            "$ref": "#/components/schemas/payment_resource_base_response_list"
+          },
+          "total_items": {
+            "description": "Total number of payment resources.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535,
+            "readOnly": true
+          },
+          "total_pages": {
+            "description": "Total number of pages.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535,
+            "readOnly": true
+          },
+          "links": {
+            "$ref": "#/components/schemas/list_payment_resource_response_definitions-link_description_list"
+          }
+        }
+      },
+      "list_payment_resource_response_definitions-link_description_list": {
+        "description": "An array of request-related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).",
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 32,
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        }
+      },
+      "money": {
+        "type": "object",
+        "title": "Money",
+        "description": "The currency and amount for a financial transaction, such as a balance or payment due.",
+        "properties": {
+          "currency_code": {
+            "$ref": "#/components/schemas/currency_code"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value, which might be:<ul><li>An integer for currencies like `JPY` that are not typically fractional.</li><li>A decimal fraction for currencies like `TND` that are subdivided into thousandths.</li></ul>For the required number of decimal places for a currency code, see [Currency Codes](/api/rest/reference/currency-codes/).",
+            "maxLength": 32,
+            "pattern": "^((-?[0-9]+)|(-?([0-9]+)?[.][0-9]+))$"
+          }
+        },
+        "required": [
+          "currency_code",
+          "value"
+        ]
+      },
+      "payment_resource_base_response": {
+        "type": "object",
+        "title": "Payment Resource Response",
+        "description": "Payment resource response details.",
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/payment_resource_id"
+              },
+              "payment_link": {
+                "type": "string",
+                "description": "The generated payment link URL for the transaction (present if integration_mode is link).",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^.*$",
+                "readOnly": true
+              },
+              "links": {
+                "$ref": "#/components/schemas/payment_resource_base_response_definitions-link_description_list"
+              },
+              "create_time": {
+                "description": "The date and time that this payment resource was created.",
+                "$ref": "#/components/schemas/date_time",
+                "readOnly": true
+              },
+              "update_time": {
+                "description": "The date and time that the payment resource was updated.",
+                "$ref": "#/components/schemas/date_time",
+                "readOnly": true
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/payment_resource_entity"
+          }
+        ]
+      },
+      "payment_resource_base_response_definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).",
+        "minItems": 1,
+        "maxItems": 20,
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        }
+      },
+      "payment_resource_base_response_list": {
+        "description": "List of resources.",
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 100,
+        "items": {
+          "$ref": "#/components/schemas/payment_resource_base_response"
+        }
+      },
+      "payment_resource_detailed_response": {
+        "type": "object",
+        "title": "Payment Resource Detailed Response",
+        "description": "Detailed response for Payment resource, which include code snippets for payment resources.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/payment_resource_base_response"
+          },
+          {
+            "properties": {
+              "code_snippets": {
+                "description": "Code snippets holds the code needed to inject payment resources for merchant experience.",
+                "$ref": "#/components/schemas/code_snippet"
+              }
+            }
+          }
+        ]
+      },
+      "payment_resource_entity": {
+        "type": "object",
+        "title": "Payment Resource Entity",
+        "description": "Payment resource details.",
+        "properties": {
+          "integration_mode": {
+            "$ref": "#/components/schemas/integration_mode"
+          },
+          "type": {
+            "$ref": "#/components/schemas/payment_resource_type"
+          },
+          "reusable": {
+            "$ref": "#/components/schemas/reusable"
+          },
+          "return_url": {
+            "type": "string",
+            "description": "URL to which the customer is redirected after completing the transaction.",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^.*$",
+            "format": "uri"
+          },
+          "line_items": {
+            "$ref": "#/components/schemas/line_item_list"
+          }
+        },
+        "required": [
+          "integration_mode",
+          "type"
+        ]
+      },
+      "payment_resource_id": {
+        "type": "string",
+        "description": "Unique identifier for the payment resource (link or button).",
+        "readOnly": true,
+        "minLength": 1,
+        "maxLength": 127,
+        "pattern": "^[A-Z]{3}-[A-Z0-9]+$"
+      },
+      "payment_resource_request": {
+        "type": "object",
+        "title": "Create Payment Resource Request.",
+        "description": "Create payment resource details.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/payment_resource_entity"
+          }
+        ]
+      },
+      "payment_resource_type": {
+        "title": "Payment Resource Type",
+        "description": "The type of payment resource. Once a payment resource is created, this field cannot be changed.",
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$",
+        "minLength": 1,
+        "maxLength": 20,
+        "enum": [
+          "BUY_NOW"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "BUY_NOW"
+            ],
+            "description": "Single-item purchase with immediate payment completion. Creates a payment resource for one product or service that processes payment in real-time during checkout."
+          }
+        ]
+      },
+      "reusable": {
+        "title": "Reusable",
+        "description": "Indicates if the payment resource can be used multiple times or only once.",
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$",
+        "minLength": 1,
+        "maxLength": 20,
+        "default": "MULTIPLE",
+        "enum": [
+          "MULTIPLE"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "MULTIPLE"
+            ],
+            "description": "The payment resource can be used multiple times."
+          }
+        ]
+      },
+      "shipping": {
+        "type": "object",
+        "title": "Shipping",
+        "description": "Shipping fee for this item. Shipping fee is displayed separately to customers during checkout.",
+        "properties": {
+          "type": {
+            "description": "The method used to calculate shipping costs.",
+            "type": "string",
+            "pattern": "^[A-Z0-9_]+$",
+            "minLength": 1,
+            "maxLength": 32,
+            "enum": [
+              "FLAT",
+              "PERCENTAGE",
+              "PREFERENCE"
+            ],
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "FLAT"
+                ],
+                "description": "Applies a fixed shipping fee regardless of quantity (e.g., $5.00 whether customer buys 1 or 10 units)."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "PERCENTAGE"
+                ],
+                "description": "Percentage shipping type eg \"10\" for 10%."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "PREFERENCE"
+                ],
+                "description": "Calculates shipping based on the merchant's PayPal account shipping settings. Requires merchant to have shipping rates configured in their PayPal Business Settings."
+              }
+            ]
+          },
+          "value": {
+            "description": "The shipping value or reference. For FLAT, enter the fixed cost (e.g., \"5\" for $5.00). For PREFERENCE, must be set to \"PROFILE\".",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "pattern": "^.*$"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "shipping_list": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "description": "Shipping fee for this item. Shipping fee is displayed separately to customers during checkout.",
+        "items": {
+          "$ref": "#/components/schemas/shipping"
+        }
+      },
+      "single": {
+        "type": "object",
+        "title": "Code snippets for single PayPal button.",
+        "description": "Code snippet to place the PayPal button on your site. Applicable only when integration_mode=\"BUTTON\" & type=\"BUY_NOW\".",
+        "properties": {
+          "body": {
+            "description": "Paste this code in your page's body tag, ideally near your product. You can repeat this for each payment resource you have on the page.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 9999,
+            "pattern": "^.*$"
+          }
+        }
+      },
+      "status": {
+        "title": "Status",
+        "description": "Status of the payment resource.",
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$",
+        "minLength": 1,
+        "maxLength": 20,
+        "default": "ACTIVE",
+        "readOnly": true,
+        "enum": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "ACTIVE"
+            ],
+            "description": "The payment resource is active."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "INACTIVE"
+            ],
+            "description": "The payment resource is inactive."
+          }
+        ]
+      },
+      "tax": {
+        "type": "object",
+        "title": "Tax",
+        "description": "Taxes applied to this item. Tax is displayed separately to customers during checkout.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Internal label for this tax (e.g., \"Sales Tax\", \"VAT\"). Not visible to customer.",
+            "minLength": 1,
+            "maxLength": 127,
+            "pattern": "^.*$"
+          },
+          "type": {
+            "description": "The method used to calculate this tax.",
+            "type": "string",
+            "pattern": "^[A-Z0-9_]+$",
+            "minLength": 1,
+            "maxLength": 32,
+            "enum": [
+              "PERCENTAGE",
+              "PREFERENCE"
+            ],
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "PERCENTAGE"
+                ],
+                "description": "Applies a flat percentage to the item amount (e.g., 10% sales tax)."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "PREFERENCE"
+                ],
+                "description": "Calculates tax based on the merchant's PayPal account tax settings. Requires merchant to have tax rates configured in their PayPal account Settings."
+              }
+            ]
+          },
+          "value": {
+            "description": "The tax amount or reference. For PERCENTAGE, enter the numeric percentage value (e.g., \"10\" for 10%). For PREFERENCE, must be set to \"PROFILE\". Maximum 20 characters.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "pattern": "^.*$"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "tax_list": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "description": "Taxes applied to this item. Tax is displayed separately to customers during checkout.",
+        "items": {
+          "$ref": "#/components/schemas/tax"
+        }
+      },
+      "variants": {
+        "type": "object",
+        "title": "Variant of Payment Resource",
+        "description": "Product variants such as size, color, or material presented to customers during checkout. Each variant (e.g., \"Size\") can have up to 10 options (e.g., \"S\", \"M\", \"L\", \"XL\"). Supports up to 5 variants total. One variant can be designated as primary to enable different prices per option.",
+        "properties": {
+          "dimensions": {
+            "$ref": "#/components/schemas/dimension_list"
+          }
+        },
+        "required": [
+          "dimensions"
+        ]
+      }
+    },
+    "parameters": {
+      "paypal_request_id": {
+        "in": "header",
+        "name": "PayPal-Request-Id",
+        "description": "The server stores keys for 6 hours.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 108,
+          "pattern": "^[0-9a-zA-Z_-]+$"
+        }
+      },
+      "content_type": {
+        "name": "Content-Type",
+        "description": "The media type. Required for operations with a request body. The value is `application/<format>`, where `format` is `json`.",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9/+-]+$"
+        }
+      },
+      "paypal_auth_assertion": {
+        "name": "PayPal-Auth-Assertion",
+        "in": "header",
+        "description": "An API-caller-provided JSON Web Token (JWT) assertion that identifies the merchant. For details, see <a href=\"https://developer.paypal.com/api/rest/requests/#paypal-auth-assertion\">PayPal-Auth-Assertion</a>.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "page_size": {
+        "name": "page_size",
+        "description": "A non-negative, non-zero integer indicating the maximum number of results to return at one time. This parameter must only be provided on initial request and not combined with <code>page_token</code>.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        }
+      },
+      "page_token": {
+        "name": "page_token",
+        "description": "An opaque value representing the page to navigate to.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "[a-zA-Z0-9_-]"
+        }
+      },
+      "total_required": {
+        "name": "total_required",
+        "description": "A boolean indicating total number of items and pages are expected to be returned in the response.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "id": {
+        "name": "id",
+        "description": "The payment resource id for which to show details.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 127,
+          "pattern": "^[A-Z]{3}-[A-Z0-9]+$"
+        }
+      }
+    }
+  }
+}

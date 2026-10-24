@@ -1,0 +1,1610 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "Shipment Tracking",
+    "description": "Merchants can use the PayPal Add Tracking API to manage tracking information. Merchants can add tracking numbers and associated information to PayPal. There are 2 ways in which tracking details can be shared to PayPal.\nIf you have a legacy integration that doesn't use the Orders v2 API, share tracking details through the <a href=\"/docs/tracking/tracking-api/\">Add Shipping Tracking API</a>. If you are using the Orders v2 API, share tracking details through the <a href=\"/docs/tracking/orders-api/integrate/\">Orders v2 API</a>.After adding these details to PayPal, merchants can:<ul><li>Update tracking details.</li><li>Show tracking details.</li><li>Cancel tracking numbers.</li></ul>For more information, see the <a href=\"/docs/tracking/tracking-api/\">Add Tracking API Overview</a> and <a href=\"/docs/tracking/tracking-api/integrate/\">Add Tracking API Integration Guide</a>.",
+    "version": "1.10"
+  },
+  "paths": {
+    "/v1/shipping/trackers-batch": {
+      "post": {
+        "summary": "Add tracking information for multiple PayPal transactions",
+        "description": "<blockquote><strong>Deprecation notice:</strong> Adding tracking details for an order through <code>/v1/shipping/trackers-batch</code> is deprecated as its a legacy way of integration. Use the new <a href=\"/docs/tracking/orders-api/integrate/\">Orders v2 API</a> to share tracking details with PayPal.</blockquote>Adds tracking information, with or without tracking numbers, for multiple PayPal transactions. Accepts up to 20 tracking IDs. For more information, see <a href=\"/docs/tracking/tracking-api/integrate/#link-addtrackinginformationwithtrackingnumbers\">Add tracking information with tracking numbers</a> and <a href=\"/docs/tracking/tracking-api/integrate/#link-addtrackinginformationwithouttrackingnumbers\">Add tracking information without tracking numbers</a>.",
+        "operationId": "trackers-batch.post",
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP 200 OK status code and a JSON response body that shows tracking information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/batch_tracker_collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not well-formed, syntactically incorrect, or violates schema."
+          },
+          "403": {
+            "description": "The authorization failed due to insufficient permissions."
+          },
+          "404": {
+            "description": "The specified resource does not exist."
+          },
+          "500": {
+            "description": "An internal server error has occurred."
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/tracker_collection"
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/shipping/trackers/readwrite"
+            ]
+          }
+        ],
+        "tags": [
+          "trackers-batch"
+        ]
+      }
+    },
+    "/v1/shipping/trackers": {
+      "post": {
+        "summary": "Add tracking information for PayPal transaction",
+        "description": "Adds tracking information for a PayPal transaction.",
+        "operationId": "trackers.post",
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP 200 OK status code and a JSON response body that shows tracking information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tracker_identifier_collection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/tracker_collection"
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/shipping/trackers/readwrite"
+            ]
+          }
+        ],
+        "tags": [
+          "trackers"
+        ]
+      },
+      "get": {
+        "summary": "List tracking information",
+        "description": "Lists tracking information that meet search criteria. The tracking ID is required but the tracking number is optional.",
+        "operationId": "trackers-batch.get",
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP 200 OK status code and a JSON response body that lists tracking information that meets search criteria.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tracker"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/components/parameters/tracking_number"
+          },
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/shipping/trackers/read",
+              "https://uri.paypal.com/services/shipping/trackers/readwrite"
+            ]
+          }
+        ],
+        "tags": [
+          "trackers"
+        ]
+      }
+    },
+    "/v1/shipping/trackers/{id}": {
+      "put": {
+        "summary": "Update or cancel tracking information for PayPal transaction",
+        "description": "Updates or cancels the tracking information for a PayPal transaction, by ID. To cancel tracking information, call this method and set the status to CANCELLED. A maximum of 5 updates are allowed for each tracking information. For more information, see <a href=\"/docs/tracking/tracking-api/integrate/#link-updateorcanceltrackinginformation\">Update or cancel tracking information</a>.",
+        "operationId": "trackers.put",
+        "responses": {
+          "204": {
+            "description": "A successful request returns the HTTP 204 OK status code with no JSON response body."
+          },
+          "400": {
+            "description": "The request is not well-formed, syntactically incorrect, or violates schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied to access the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request cannot be fulfilled as it violates the business definition.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/tracker"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/shipping/trackers/readwrite"
+            ]
+          }
+        ],
+        "tags": [
+          "trackers"
+        ]
+      },
+      "get": {
+        "summary": "Show tracking information",
+        "description": "Shows tracking information, by tracker ID, for a PayPal transaction.",
+        "operationId": "trackers.get",
+        "responses": {
+          "200": {
+            "description": "A successful request returns the HTTP `200 OK` status code and a JSON response body that shows tracking information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tracker"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "The error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/account_id"
+          }
+        ],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/shipping/trackers/read",
+              "https://uri.paypal.com/services/shipping/trackers/readwrite"
+            ]
+          }
+        ],
+        "tags": [
+          "trackers"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "trackers",
+      "description": "Use the `/trackers` resource to create and manage tracking information for PayPal transactions."
+    },
+    {
+      "name": "trackers-batch",
+      "description": "Use the `/trackers-batch` resource to add tracking information for multiple PayPal transactions."
+    },
+    {
+      "name": "carriers-recommend",
+      "description": "Use the `/carriers-recommendations` to detect the possible carriers corresponding the tracking info from tracking aggregator."
+    },
+    {
+      "name": "carriers",
+      "description": "Use the `/carriers` resource to create and list/detect all the carriers available for tracking in PayPal and its subsidiary."
+    },
+    {
+      "name": "shipments",
+      "description": "Use the `/shipments` resource to fetch all the shipments associated with a given Paypal Account Id."
+    },
+    {
+      "name": "shipment-tracker",
+      "description": "Use the `/shipment-tracker` resource to track the shipment."
+    },
+    {
+      "name": "unsubscribe-shipment-tracking",
+      "description": "Use the `/unsubscribe-shipment-tracking` resource to unsubscribe from multiple shipments."
+    },
+    {
+      "name": "shipment-trackings-update",
+      "description": "Use the `/shipment-trackings-update` resource to update shipments with live tracking data."
+    },
+    {
+      "name": "tracking-shipments",
+      "description": "Use the `/tracking-shipments` resource to track shipments."
+    }
+  ],
+  "externalDocs": {
+    "url": "/docs/tracking/"
+  },
+  "servers": [
+    {
+      "url": "https://api-m.sandbox.paypal.com",
+      "description": "PayPal API Sandbox"
+    }
+  ],
+  "components": {
+    "requestBodies": {
+      "tracker_collection": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/tracker_collection"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Oauth2": {
+        "type": "oauth2",
+        "description": "Oauth 2.0 authentication",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/api/oauth-proxy",
+            "scopes": {
+              "https://uri.paypal.com/services/shipping/trackers/readwrite": "Create or update tracking information",
+              "https://uri.paypal.com/services/shipping/trackers/read": "Retrieve tracking information"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "default": {
+        "description": "The default response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error_default"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "batch_tracker_collection": {
+        "type": "object",
+        "title": "Batch Tracker Collection",
+        "description": "The add tracking information for multiple PayPal transactions response details.",
+        "properties": {
+          "tracker_identifiers": {
+            "$ref": "#/components/schemas/tracker_identifier_list"
+          },
+          "errors": {
+            "$ref": "#/components/schemas/error_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/batch_tracker_collection_definitions-link_description_list"
+          }
+        }
+      },
+      "batch_tracker_collection_definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        },
+        "minItems": 1,
+        "maxItems": 1
+      },
+      "carrier": {
+        "type": "string",
+        "title": "Carrier",
+        "description": "The carrier for the shipment. Carrier information is required when tracking_number is provided. Some carriers have a global version as well as local subsidiaries. The subsidiaries are repeated over many countries and might also have an entry in the global list. Choose the carrier for your country. If the carrier is not available for your country, choose the global version of the carrier. If your carrier name is not in the list, set `carrier` to `OTHER` and set carrier name in `carrier_name_other`. For allowed values, see <a href=\"/docs/tracking/reference/carriers/\">Carriers</a>.",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^.*$"
+      },
+      "date_no_time": {
+        "type": "string",
+        "description": "The stand-alone date, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). To represent special legal values, such as a date of birth, you should use dates with no associated time or time-zone data. Whenever possible, use the standard `date_time` type. This regular expression does not validate all dates. For example, February 31 is valid and nothing is known about leap years.",
+        "format": "ppaas_date_notime_v2",
+        "minLength": 10,
+        "maxLength": 10,
+        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+      },
+      "date_time": {
+        "type": "string",
+        "description": "The date and time, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). Seconds are required while fractional seconds are optional.<blockquote><strong>Note:</strong> The regular expression provides guidance but does not reject all invalid dates.</blockquote>",
+        "format": "ppaas_date_time_v3",
+        "minLength": 20,
+        "maxLength": 64,
+        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])[T,t]([0-1][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)([.][0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+      },
+      "definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/api/rest/responses/#hateoas-links) that are either relevant to the issue by providing additional information or offering potential resolutions.",
+        "readOnly": true,
+        "minItems": 1,
+        "maxItems": 4,
+        "items": {
+          "$ref": "#/components/schemas/link_description-2"
+        }
+      },
+      "definitions-tracker_identifier_list": {
+        "type": "array",
+        "description": "An array of tracking IDs.",
+        "items": {
+          "$ref": "#/components/schemas/tracker_identifier"
+        },
+        "minItems": 1,
+        "maxItems": 100
+      },
+      "error": {
+        "type": "object",
+        "title": "Error",
+        "description": "The error details.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The human-readable, unique name of the error."
+          },
+          "message": {
+            "type": "string",
+            "description": "The message that describes the error."
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "information_link": {
+            "type": "string",
+            "description": "The information link, or URI, that shows detailed information about this error for the developer.",
+            "readOnly": true
+          },
+          "details": {
+            "$ref": "#/components/schemas/error_details_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/error_definitions-link_description_list"
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "debug_id"
+        ]
+      },
+      "error_400": {
+        "type": "object",
+        "title": "Bad Request Error",
+        "description": "Request is not well-formed, syntactically incorrect, or violates schema.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INVALID_REQUEST"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Request is not well-formed, syntactically incorrect, or violates schema."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_401": {
+        "type": "object",
+        "title": "Unauthorized Error",
+        "description": "Authentication failed due to missing Authorization header, or invalid authentication credentials.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION_FAILURE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authentication failed due to missing authorization header, or invalid authentication credentials."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_403": {
+        "type": "object",
+        "title": "Not Authorized Error",
+        "description": "The client is not authorized to access this resource, although it may have valid credentials. ",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "NOT_AUTHORIZED"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Authorization failed due to insufficient permissions."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_404": {
+        "type": "object",
+        "title": "Not found Error",
+        "description": "The server has not found anything matching the request URI. This either means that the URI is incorrect or the resource is not available.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_NOT_FOUND"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The specified resource does not exist."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_409": {
+        "type": "object",
+        "title": "Resource Conflict Error",
+        "description": "The server has detected a conflict while processing this request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "RESOURCE_CONFLICT"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server has detected a conflict while processing this request."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_415": {
+        "type": "object",
+        "title": "Unsupported Media Type Error",
+        "description": "The server does not support the request payload's media type.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNSUPPORTED_MEDIA_TYPE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The server does not support the request payload's media type."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_422": {
+        "type": "object",
+        "title": "Unprocessable Entity Error",
+        "description": "The requested action cannot be performed and may require interaction with APIs or processes outside of the current request. This is distinct from a 500 response in that there are no systemic problems limiting the API from performing the request.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "UNPROCESSABLE_ENTITY"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "The requested action could not be performed, semantically incorrect, or failed business validation."
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error_details"
+            }
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        }
+      },
+      "error_500": {
+        "type": "object",
+        "title": "Internal Server Error",
+        "description": "This is either a system or application error, and generally indicates that although the client appeared to provide a correct request, something unexpected has gone wrong on the server.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "INTERNAL_SERVER_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "An internal server error occurred."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "INTERNAL_SERVER_ERROR",
+            "message": "An internal server error occurred.",
+            "debug_id": "90957fca61718",
+            "links": [
+              {
+                "href": "https://developer.paypal.com/api/orders/v2/#error-INTERNAL_SERVER_ERROR",
+                "rel": "information_link"
+              }
+            ]
+          }
+        ]
+      },
+      "error_503": {
+        "type": "object",
+        "title": "Service Unavailable Error",
+        "description": "The server is temporarily unable to handle the request, for example, because of planned maintenance or downtime.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "enum": [
+              "Service Unavailable."
+            ]
+          },
+          "debug_id": {
+            "type": "string",
+            "description": "The PayPal internal ID. Used for correlation purposes."
+          },
+          "links": {
+            "description": "An array of request-related [HATEOAS links](https://en.wikipedia.org/wiki/HATEOAS).",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/error_link_description"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "SERVICE_UNAVAILABLE",
+            "message": "Service Unavailable.",
+            "debug_id": "90957fca61718",
+            "information_link": "https://developer.paypal.com/docs/api/orders/v2/#error-SERVICE_UNAVAILABLE"
+          }
+        ]
+      },
+      "error_default": {
+        "description": "The default error response.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/error_400"
+          },
+          {
+            "$ref": "#/components/schemas/error_401"
+          },
+          {
+            "$ref": "#/components/schemas/error_403"
+          },
+          {
+            "$ref": "#/components/schemas/error_404"
+          },
+          {
+            "$ref": "#/components/schemas/error_409"
+          },
+          {
+            "$ref": "#/components/schemas/error_415"
+          },
+          {
+            "$ref": "#/components/schemas/error_422"
+          },
+          {
+            "$ref": "#/components/schemas/error_500"
+          },
+          {
+            "$ref": "#/components/schemas/error_503"
+          }
+        ]
+      },
+      "error_definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/api/rest/responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description-2"
+        }
+      },
+      "error_details": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "$ref": "#/components/schemas/error_location"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details-2": {
+        "title": "Error Details",
+        "type": "object",
+        "description": "The error details. Required for client-side `4XX` errors.",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "The field that caused the error. If this field is in the body, set this value to the field's JSON pointer value. Required for client-side errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the field that caused the error."
+          },
+          "location": {
+            "type": "string",
+            "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+            "default": "body"
+          },
+          "issue": {
+            "type": "string",
+            "description": "The unique, fine-grained application-level error code."
+          },
+          "description": {
+            "type": "string",
+            "description": "The human-readable description for an issue. The description can change over the lifetime of an API, so clients must not depend on this value."
+          },
+          "links": {
+            "$ref": "#/components/schemas/definitions-link_description_list"
+          }
+        },
+        "required": [
+          "issue"
+        ]
+      },
+      "error_details_list": {
+        "type": "array",
+        "description": "An array of additional details about the error.",
+        "items": {
+          "$ref": "#/components/schemas/error_details-2"
+        }
+      },
+      "error_link_description": {
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "type": "object",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call.",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20000,
+            "pattern": "^.*$"
+          },
+          "rel": {
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml).",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 100,
+            "pattern": "^.*$"
+          },
+          "method": {
+            "description": "The HTTP method required to make the related call.",
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 6,
+            "pattern": "^[A-Z]*$",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "error_list": {
+        "type": "array",
+        "description": "An array of error responses.",
+        "items": {
+          "$ref": "#/components/schemas/error"
+        },
+        "minItems": 1,
+        "maxItems": 100
+      },
+      "error_location": {
+        "type": "string",
+        "description": "The location of the field that caused the error. Value is `body`, `path`, or `query`.",
+        "enum": [
+          "body",
+          "path",
+          "query"
+        ],
+        "default": "body"
+      },
+      "link_description": {
+        "type": "object",
+        "title": "Link Description",
+        "description": "A request-related [HATEOAS link](/api/rest/responses/#hateoas-links).",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The complete target URL. To make the related call, combine the method with this link, in [URI template format](https://tools.ietf.org/html/rfc6570). Include the `$`, `(`, and `)` characters for pre-processing. The `href` is the key HATEOAS component that links a completed call with a subsequent call."
+          },
+          "rel": {
+            "type": "string",
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml)."
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method required to make the related call.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "HEAD",
+              "CONNECT",
+              "OPTIONS",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "link_description-2": {
+        "type": "object",
+        "title": "Link Description",
+        "description": "The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information.",
+        "required": [
+          "href",
+          "rel"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call."
+          },
+          "rel": {
+            "type": "string",
+            "description": "The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml)."
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method required to make the related call.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "HEAD",
+              "CONNECT",
+              "OPTIONS",
+              "PATCH"
+            ]
+          }
+        }
+      },
+      "link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        },
+        "minItems": 1,
+        "maxItems": 2
+      },
+      "tracker": {
+        "type": "object",
+        "title": "Tracker",
+        "description": "The tracking information for a shipment.",
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "description": "The PayPal transaction ID.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9]*$"
+          },
+          "tracking_number": {
+            "type": "string",
+            "description": "The tracking number for the shipment. This property supports only ASCII characters and does not allow URL, phone number, or email formats. Carrier information (`carrier`) is required if a tracking number is provided.",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "tracking_number_type": {
+            "description": "The type of tracking number.",
+            "$ref": "#/components/schemas/tracking_number_type"
+          },
+          "status": {
+            "$ref": "#/components/schemas/tracking_status"
+          },
+          "shipment_date": {
+            "$ref": "#/components/schemas/date_no_time",
+            "description": "The date when the shipment occurred, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6)."
+          },
+          "carrier": {
+            "$ref": "#/components/schemas/carrier"
+          },
+          "carrier_name_other": {
+            "type": "string",
+            "description": "The name of the carrier for the shipment. Provide this value only if the carrier parameter is OTHER.",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "postage_payment_id": {
+            "type": "string",
+            "description": "The postage payment ID.",
+            "readOnly": true,
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "notify_buyer": {
+            "type": "boolean",
+            "description": "If true , sends an email notification to the buyer of the PayPal transaction. The email contains the tracking information that was uploaded through the API.",
+            "default": false
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "The quantity of items shipped.",
+            "readOnly": true,
+            "minimum": 1,
+            "maximum": 22
+          },
+          "tracking_number_validated": {
+            "type": "boolean",
+            "description": "Indicates whether the carrier validated the tracking number.",
+            "readOnly": true
+          },
+          "last_updated_time": {
+            "$ref": "#/components/schemas/date_time",
+            "description": "The date and time when the tracking information was last updated, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6)."
+          },
+          "shipment_direction": {
+            "type": "string",
+            "description": "To denote whether the shipment is sent forward to the receiver or returned back.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[A-Z]*$",
+            "enum": [
+              "FORWARD",
+              "RETURN"
+            ],
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "FORWARD"
+                ],
+                "description": "The shipment is sent forward to the receiver."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "RETURN"
+                ],
+                "description": "The shipment was returned back."
+              }
+            ]
+          },
+          "shipment_uploader": {
+            "readOnly": true,
+            "type": "string",
+            "description": "To denote which party uploaded the shipment tracking info.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[A-Z]*$",
+            "enum": [
+              "MERCHANT",
+              "CONSUMER",
+              "PARTNER"
+            ],
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "MERCHANT"
+                ],
+                "description": "The tracking info uploader is the merchant selling the goods and shipping it to the buyer or the payment receiver of the transaction."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "CONSUMER"
+                ],
+                "description": "The tracking info uploader is the consumer receiving the goods that was shipped by the merchant or the payment sender of the transaction."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "PARTNER"
+                ],
+                "description": "The tracking info uploader is the partner or marketplace or shipment facilitator who is uploading the tracking info on behalf of the merchant or consumer."
+              }
+            ]
+          },
+          "account_id": {
+            "type": "string",
+            "description": "Encrypted PayPal Account ID of the buyer or seller.",
+            "readOnly": true,
+            "minLength": 13,
+            "maxLength": 13,
+            "pattern": "^[2-9A-HJ-NP-Z]{13}$"
+          },
+          "tracking_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1,
+            "maxLength": 250,
+            "pattern": "^.*$",
+            "description": "Tracking Link of the shipment."
+          },
+          "fulfillment_provider": {
+            "type": "string",
+            "description": "Indicates the fulfillment service used to deliver an order.",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "links": {
+            "$ref": "#/components/schemas/link_description_list"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "status"
+        ]
+      },
+      "tracker_collection": {
+        "type": "object",
+        "title": "Tracker Collection",
+        "description": "The add tracking information for one or more transactions response details.",
+        "properties": {
+          "trackers": {
+            "$ref": "#/components/schemas/tracker_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/link_description_list"
+          }
+        }
+      },
+      "tracker_identifier": {
+        "type": "object",
+        "title": "Tracking Identifier",
+        "description": "The tracking identifiers for a shipment.",
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "description": "The PayPal transaction ID.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9]*$"
+          },
+          "tracking_number": {
+            "type": "string",
+            "description": "The tracking number for the shipment.",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^.*$"
+          },
+          "links": {
+            "$ref": "#/components/schemas/link_description_list"
+          }
+        },
+        "required": [
+          "transaction_id"
+        ]
+      },
+      "tracker_identifier_collection": {
+        "type": "object",
+        "title": "Tracker Identifier Collection",
+        "description": "The add tracking information for a PayPal transaction response details.",
+        "properties": {
+          "tracker_identifiers": {
+            "$ref": "#/components/schemas/definitions-tracker_identifier_list"
+          },
+          "links": {
+            "$ref": "#/components/schemas/tracker_identifier_collection_definitions-link_description_list"
+          }
+        }
+      },
+      "tracker_identifier_collection_definitions-link_description_list": {
+        "type": "array",
+        "description": "An array of request-related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).",
+        "readOnly": true,
+        "items": {
+          "$ref": "#/components/schemas/link_description"
+        },
+        "minItems": 1,
+        "maxItems": 1
+      },
+      "tracker_identifier_list": {
+        "type": "array",
+        "description": "The batch header.",
+        "items": {
+          "$ref": "#/components/schemas/tracker_identifier"
+        },
+        "minItems": 1,
+        "maxItems": 100
+      },
+      "tracker_list": {
+        "type": "array",
+        "description": "An array of tracking information for shipments.",
+        "items": {
+          "$ref": "#/components/schemas/tracker"
+        },
+        "minItems": 1,
+        "maxItems": 20
+      },
+      "tracking_number_type": {
+        "type": "string",
+        "title": "Tracking Number Type",
+        "description": "The tracking number type.",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[0-9A-Z_]+$",
+        "enum": [
+          "CARRIER_PROVIDED",
+          "E2E_PARTNER_PROVIDED"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "CARRIER_PROVIDED"
+            ],
+            "description": "A merchant-provided tracking number."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "E2E_PARTNER_PROVIDED"
+            ],
+            "description": "A marketplace-provided tracking number."
+          }
+        ]
+      },
+      "tracking_status": {
+        "type": "string",
+        "title": "Tracking Status",
+        "description": "The status of the item shipment. For allowed values, see <a href=\"/docs/tracking/reference/shipping-status/\">Shipping Statuses</a>.",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[A-Z_]+$",
+        "enum": [
+          "CANCELLED",
+          "DELIVERED",
+          "LOCAL_PICKUP",
+          "ON_HOLD",
+          "SHIPPED",
+          "SHIPMENT_CREATED",
+          "DROPPED_OFF",
+          "IN_TRANSIT",
+          "RETURNED",
+          "LABEL_PRINTED",
+          "ERROR",
+          "UNCONFIRMED",
+          "PICKUP_FAILED",
+          "DELIVERY_DELAYED",
+          "DELIVERY_SCHEDULED",
+          "DELIVERY_FAILED",
+          "INRETURN",
+          "IN_PROCESS",
+          "NEW",
+          "VOID",
+          "PROCESSED",
+          "NOT_SHIPPED",
+          "COMPLETED"
+        ],
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "CANCELLED"
+            ],
+            "description": "The shipment was cancelled and the tracking number no longer applies."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "DELIVERED"
+            ],
+            "description": "The item was already delivered when the tracking number was uploaded."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "LOCAL_PICKUP"
+            ],
+            "description": "Either the buyer physically picked up the item or the seller delivered the item in person without involving any couriers or postal companies."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "ON_HOLD"
+            ],
+            "description": "The item is on hold. Its shipment was temporarily stopped due to bad weather, a strike, customs, or another reason."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "SHIPPED"
+            ],
+            "description": "The item was shipped and is on the way."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "SHIPMENT_CREATED"
+            ],
+            "description": "The shipment was created."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "DROPPED_OFF"
+            ],
+            "description": "The shipment was dropped off."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "IN_TRANSIT"
+            ],
+            "description": "The shipment is in transit on its way to the buyer."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "RETURNED"
+            ],
+            "description": "The shipment was returned."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "LABEL_PRINTED"
+            ],
+            "description": "The label was printed for the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "ERROR"
+            ],
+            "description": "An error occurred with the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "UNCONFIRMED"
+            ],
+            "description": "The shipment is unconfirmed."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "PICKUP_FAILED"
+            ],
+            "description": "Pick-up failed for the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "DELIVERY_DELAYED"
+            ],
+            "description": "The delivery was delayed for the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "DELIVERY_SCHEDULED"
+            ],
+            "description": "The delivery was scheduled for the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "DELIVERY_FAILED"
+            ],
+            "description": "The delivery failed for the shipment."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "INRETURN"
+            ],
+            "description": "The shipment is being returned."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "IN_PROCESS"
+            ],
+            "description": "The shipment is in process."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "NEW"
+            ],
+            "description": "The shipment is new."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "VOID"
+            ],
+            "description": "If the shipment is cancelled for any reason, its state is void."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "PROCESSED"
+            ],
+            "description": "The shipment was processed."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "NOT_SHIPPED"
+            ],
+            "description": "The shipment was not shipped."
+          },
+          {
+            "type": "string",
+            "enum": [
+              "COMPLETED"
+            ],
+            "description": "Virtual product or service was completed."
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "transaction_id": {
+        "name": "transaction_id",
+        "in": "query",
+        "description": "Filters the tracking information that appears in the response by a PayPal transaction ID.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "tracking_number": {
+        "name": "tracking_number",
+        "in": "query",
+        "description": "Filters the tracking information that appears in the response by a tracking number.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "account_id": {
+        "name": "account_id",
+        "in": "query",
+        "description": "Encrypted PayPal Account ID of the buyer or seller.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 13,
+          "maxLength": 13,
+          "pattern": "^[2-9A-HJ-NP-Z]{13}$"
+        }
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "description": "The ID of the tracker in the <code><var>transaction_id</var>-<var>tracking_number</var></code> format.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-zA-Z0-9-_]*$"
+        }
+      }
+    }
+  },
+  "x-errors": [
+    {
+      "name": "INPUT_VALIDATION_ERROR",
+      "message": "Transaction ID specified is invalid.",
+      "description": "Re-check the transaction ID."
+    },
+    {
+      "name": "INTERNAL_SERVER_ERROR",
+      "message": "Internal server error. Please check logs for more details.",
+      "description": "An internal server error prevented the request from being processed. Try again later."
+    },
+    {
+      "name": "NOT_AUTHORIZED",
+      "message": "Authorization failed due to insufficient permissions.",
+      "description": "The caller does not have the correct permissions to authorize the payment."
+    },
+    {
+      "name": "RESOURCE_NOT_FOUND",
+      "message": "The specified resource does not exist.",
+      "description": "The resource does not exist."
+    }
+  ]
+}
