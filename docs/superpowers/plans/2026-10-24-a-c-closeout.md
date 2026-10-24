@@ -125,8 +125,8 @@ Each task ends with a direct main-session review, the listed tests and an explic
 
 **Interfaces:** keep `MCP_PATH`, `handleMcpRequest`, `drainMcp` and all public tool schemas unchanged. Add an optional typed domain `code` to `ScopedAccessError` in `context.ts`; existing two-argument callers and HTTP statuses stay compatible. Owned domain modules import that type from context, never from MCP, preventing a circular dependency. Extract schema exports and `codeFor(error):string` with typed owned-domain codes plus a named, tested legacy-adapter fallback. Introduce trusted `createMcpTransport(options)` returning `{handle,drain}` with immutable per-instance limits. Existing production limits remain 64 KiB body, 64 header lines, 8 admitted executions, 10,000 ms body timeout, 150,000 ms exchange deadline, 2,000 ms drain grace, 60,000 output bytes. Test configuration enters the constructor, never HTTP/job JSON or a mutable production export.
 
-- [ ] Add both-era regressions for deadline before/after headers, unknown/non-allowlisted tool names carrying a canary, and unsupported resource/subscription methods. Assert one bounded sanitized timeout/error carrying the matching request ID where the negotiated transport supports it, no raw-name canary or secret in responses/logs, and no second response after closure.
-- [ ] Preserve the existing batch/disconnect execution-cap tests: a disconnected request keeps admitted domain work counted until settlement; a late known result is saved without another dispatch; draining waits for work. Test frozen production limits and two independently configured fixture transports.
+- [x] Add both-era regressions for deadline before/after headers, unknown/non-allowlisted tool names carrying a canary, and unsupported resource/subscription methods. Assert one bounded sanitized timeout/error carrying the matching request ID where the negotiated transport supports it, no raw-name canary or secret in responses/logs, and no second response after closure.
+- [x] Preserve the existing batch/disconnect execution-cap tests: a disconnected request keeps admitted domain work counted until settlement; a late known result is saved without another dispatch; draining waits for work. Test frozen production limits and two independently configured fixture transports.
 
   ```js
   assert.ok(admittedExecutions <= limits.maxConcurrent);
@@ -134,8 +134,8 @@ Each task ends with a direct main-session review, the listed tests and an explic
   assert.ok(!capturedLogs.includes(untrustedToolCanary));
   assert.equal(Object.isFrozen(productionLimits), true);
   ```
-- [ ] Build/run `node --test tests/mcp.test.mjs tests/mcp-auth.test.mjs`; retain meaningful RED. Inspect the pinned SDK's actual transport implementation before choosing terminal SSE framing; do not invent unsupported protocol behavior or patch dependencies. Extract only the named boundaries and add typed codes at owned entrances; keep legacy message compatibility inside the documented adapter.
-- [ ] Rebuild/focused GREEN, then `npm.cmd test`. Expected full pass and disabled-by-default endpoint preserved. Main-session C2 review, checkpoint/protection proof and reviewed allowlist commit/push.
+- [x] Build/run `node --test tests/mcp.test.mjs tests/mcp-auth.test.mjs`; retain meaningful RED. Inspect the pinned SDK's actual transport implementation before choosing terminal SSE framing; do not invent unsupported protocol behavior or patch dependencies. Extract only the named boundaries and add typed codes at owned entrances; keep legacy message compatibility inside the documented adapter.
+- [x] Rebuild/focused GREEN, then `npm.cmd test`. Expected full pass and disabled-by-default endpoint preserved. Main-session C2 review, checkpoint/protection proof and reviewed allowlist commit/push.
 
 ### Task 6: Add opt-in exact-installment reminder policies and jobs (C3, L01)
 

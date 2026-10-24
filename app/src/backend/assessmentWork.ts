@@ -58,7 +58,7 @@ export function prepareAssessmentWork(runId:string,source:RequestSource,input:As
 function currentWork(runId:string,expected:AssessmentWorkReference,source:RequestSource,input:AssessmentInput,assertAuthorized:()=>void,evidence:DesignEvidenceSnapshot|null){
  assertAuthorized();requireSourceCurrent(runId,expected.source);
  const fresh=prepareAssessmentWork(runId,source,input,assertAuthorized,evidence);
- if(contentHash(fresh)!==contentHash(expected))throw new ScopedAccessError(409,'Assessment work was superseded; refresh before assessing');
+ if(contentHash(fresh)!==contentHash(expected))throw new ScopedAccessError(409,'Assessment work was superseded; refresh before assessing','stale_reference');
 }
 /** Missing legacy association is deliberately conservative; never invent metadata for old paid work. */
 function unresolvedWork(runId:string,reference:AssessmentWorkReference) {
@@ -68,7 +68,7 @@ function unresolvedWork(runId:string,reference:AssessmentWorkReference) {
  ORDER BY created_at,id LIMIT 1`).get(runId,reference.logicalKey??null,reference.source.id,reference.source.version) as any;
 }
 function requireNoUnresolvedWork(runId:string,reference:AssessmentWorkReference) {
- if(unresolvedWork(runId,reference))throw new ScopedAccessError(409,'Unresolved logical or legacy assessment attempt requires review before another paid attempt');
+ if(unresolvedWork(runId,reference))throw new ScopedAccessError(409,'Unresolved logical or legacy assessment attempt requires review before another paid attempt','attempt_unresolved');
 }
 /** Read-only outcome query. A prepared/dispatched attempt without this process's promise is interrupted/uncertain. */
 export function assessmentWorkOutcome(runId:string,reference:AssessmentWorkReference,assertAuthorized:()=>void){
@@ -80,7 +80,7 @@ export function assessmentWorkOutcome(runId:string,reference:AssessmentWorkRefer
 }
 function projectResult(runId:string,attempt:any,source:RequestSourceReference) {
  let record=getAssessment(attempt.assessment_id,runId);
- if(!record)throw new ScopedAccessError(409,'Saved assessment is unavailable; paid attempt requires review');
+ if(!record)throw new ScopedAccessError(409,'Saved assessment is unavailable; paid attempt requires review','attempt_unresolved');
  // Another mode/evidence assessment may have become the latest displayed item review.
  // Reuse the validated semantic output in a new immutable attachment, rather than authorizing stale UI terms.
  const superseded=(record.items??[]).some((item:any)=>(db.prepare('SELECT assessment_id FROM request_item_results WHERE item_id=? ORDER BY rowid DESC LIMIT 1').get(item.id) as any)?.assessment_id!==record.id);
@@ -106,13 +106,13 @@ export async function executeAssessmentWork(runId:string,expected:AssessmentWork
  const existing=running.get(key);
  if(existing){
   // A waiter consumes nothing and never inherits the owner's authority: it revalidates its own, including after a failed owner.
-  try{await existing;}catch{currentWork(runId,expected,source,input,assertAuthorized,evidence);throw new ScopedAccessError(409,'An identical in-flight assessment attempt did not complete; review its durable outcome before another paid attempt');}
+  try{await existing;}catch{currentWork(runId,expected,source,input,assertAuthorized,evidence);throw new ScopedAccessError(409,'An identical in-flight assessment attempt did not complete; review its durable outcome before another paid attempt','attempt_unresolved');}
   currentWork(runId,expected,source,input,assertAuthorized,evidence);const row=db.prepare("SELECT * FROM assessment_attempts WHERE run_id=? AND fingerprint=? AND outcome<>'not_dispatched'").get(runId,expected.fingerprint) as any;return projectResult(runId,row,expected.source);}
  let row=db.prepare("SELECT * FROM assessment_attempts WHERE run_id=? AND fingerprint=? AND outcome<>'not_dispatched'").get(runId,expected.fingerprint) as any;
  if(row){
   if(row.outcome==='succeeded'){currentWork(runId,expected,source,input,assertAuthorized,evidence);return projectResult(runId,row,expected.source);}
   if(row.outcome==='prepared'||row.outcome==='dispatched')db.prepare("UPDATE assessment_attempts SET outcome='uncertain',updated_at=? WHERE id=?").run(now(),row.id);
-  throw new ScopedAccessError(409,`Assessment attempt is ${row.outcome==='rejected'?'rejected':'uncertain'}; review its durable outcome before another paid attempt`);
+  throw new ScopedAccessError(409,`Assessment attempt is ${row.outcome==='rejected'?'rejected':'uncertain'}; review its durable outcome before another paid attempt`,'attempt_unresolved');
  }
  const id=randomUUID(),at=now();
  transaction(()=>{currentWork(runId,expected,source,input,assertAuthorized,evidence);requireNoUnresolvedWork(runId,expected);db.prepare("INSERT INTO assessment_attempts(id,project_id,run_id,fingerprint,logical_key,source_id,source_version,outcome,call_id,assessment_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'prepared',NULL,NULL,?,?)").run(id,input.project.id,runId,expected.fingerprint,expected.logicalKey,expected.source.id,expected.source.version,at,at);participant?.reserve(id,assessmentReservationMicroUsd());});

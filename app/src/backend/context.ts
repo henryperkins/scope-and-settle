@@ -7,8 +7,10 @@ import type { ActorContext, ResourceGrant } from "../shared/types.js";
 export type { ActorContext, ResourceGrant } from "../shared/types.js";
 export type { ConnectorOperation } from "./connectorStore.js";
 
+export const DOMAIN_ERROR_CODES=Object.freeze(['unauthorized','forbidden','not_found','invalid_arguments','conflict','stale_reference','stale_revision','operation_conflict','attempt_unresolved','source_unavailable','source_not_found','budget_exhausted','designer_review_required','item_not_billable','item_already_reserved'] as const);
+export type DomainErrorCode=typeof DOMAIN_ERROR_CODES[number];
 export class ScopedAccessError extends Error {
-  constructor(public readonly status: 400 | 401 | 403 | 404 | 409, message: string) { super(message); }
+  constructor(public readonly status: 400 | 401 | 403 | 404 | 409, message: string, public readonly code?:DomainErrorCode) { super(message); }
 }
 // Copies, prototypes and JSON objects cannot acquire this module's authority.
 const authority = new WeakMap<ActorContext, Readonly<Session>>();
@@ -69,14 +71,14 @@ type ConnectorProvenance = Readonly<{ connectorId: string; digest: string; opera
 const connectorAuthority = new WeakMap<object, ConnectorProvenance>();
 const CONNECTOR_DENIED = "Missing, malformed, expired or revoked connector credential";
 function requireConnectorEnabled(): void {
-  if (!config.mcpConnectorEnabled) throw new ScopedAccessError(403, "The Figma agent connector is disabled on this server");
+  if (!config.mcpConnectorEnabled) throw new ScopedAccessError(403, "The Figma agent connector is disabled on this server","forbidden");
 }
 function verifyConnector(authorizationHeaderValues: unknown): { record: ConnectorRecord; digest: string } {
   requireConnectorEnabled();
   const parsed = parseConnectorBearer(authorizationHeaderValues);
   const digest = parsed ? connectorDigest(parsed.token) : null;
   const record = parsed && digest ? liveConnector(parsed.id, digest) : null;
-  if (!record || !digest) throw new ScopedAccessError(401, CONNECTOR_DENIED);
+  if (!record || !digest) throw new ScopedAccessError(401, CONNECTOR_DENIED,"unauthorized");
   return { record, digest };
 }
 /** The single verifier for raw Authorization header values (a string or a one-element array). Metadata only; no authority. */
@@ -90,7 +92,7 @@ export function authenticateConnector(authorizationHeaderValues: unknown): Conne
  */
 export function mintConnectorContext(authorizationHeaderValues: unknown, operation: unknown): ConnectorContext {
   const { record, digest } = verifyConnector(authorizationHeaderValues);
-  if (!isConnectorOperation(operation) || !record.operations.includes(operation)) throw new ScopedAccessError(403, "This connector credential does not permit that operation");
+  if (!isConnectorOperation(operation) || !record.operations.includes(operation)) throw new ScopedAccessError(403, "This connector credential does not permit that operation","forbidden");
   const ctx: ConnectorContext = Object.freeze({ projectId: record.projectId, runId: record.runId, role: "connector", actorId: `connector:${record.id}`, operation,
     grant: Object.freeze({ kind: "connector", resourceId: record.id, revision: null }) });
   connectorAuthority.set(ctx, Object.freeze({ connectorId: record.id, digest, operation, projectId: record.projectId, runId: record.runId,
@@ -106,7 +108,7 @@ export type OperationAuthority = { kind: "designer"; session: Session } | { kind
 export function requireOperationContext(ctx: ServiceContext, operation: ConnectorOperation): OperationAuthority {
   const minted = connectorAuthority.get(ctx as object);
   if (minted) {
-    if (minted.operation !== operation) throw new ScopedAccessError(403, "This connector context was minted for a different operation");
+    if (minted.operation !== operation) throw new ScopedAccessError(403, "This connector context was minted for a different operation","forbidden");
     requireConnectorEnabled();
     const record = liveConnector(minted.connectorId, minted.digest);
     if (!record || record.projectId !== minted.projectId || record.runId !== minted.runId || record.fileKey !== minted.fileKey ||

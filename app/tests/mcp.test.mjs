@@ -1,6 +1,7 @@
 import {test,mock} from 'node:test';
 import assert from 'node:assert/strict';
-import {request as httpRequest} from 'node:http';
+import {request as httpRequest,createServer} from 'node:http';
+import {once} from 'node:events';
 import {connect} from 'node:net';
 import {Client,StreamableHTTPClientTransport} from '@modelcontextprotocol/client';
 import {fixture} from './source-freshness-fixture.mjs';
@@ -77,8 +78,14 @@ async function setup({enabled=true}={}){
  f.gateModel=()=>{const inner=globalThis.fetch;let release,entered;const opened=new Promise(r=>release=r),reached=new Promise(r=>entered=r);
   globalThis.fetch=async(url,init)=>{if(String(url).endsWith('/chat/completions')){entered();await opened;}return inner(url,init);};
   return {reached,release(){release();globalThis.fetch=inner;}};};
- const close=f.close;
- f.close=async()=>{for(const client of f.clients)await client.close().catch(()=>{});await close();};
+ const close=f.close,production=f.mcp,transports=[];
+ f.useTransport=async limits=>{
+  const transport=production.createMcpTransport({limits}),server=createServer((req,res)=>{void transport.handle(req,res);});
+  server.listen(0,'127.0.0.1');await once(server,'listening');transports.push({transport,server});
+  f.base='http://127.0.0.1:'+server.address().port;f.url=new URL(f.base+'/mcp');f.m.env.config.publicUrl=f.base;
+  f.mcp={...production,mcpStatus:transport.status};return transport;
+ };
+ f.close=async()=>{for(const client of f.clients)await client.close().catch(()=>{});for(const {transport,server} of transports){await transport.drain();server.closeIdleConnections();await new Promise(r=>server.close(r));}await close();};
  return f;
 }
 /** A successful tool result: bounded structured content plus one short matching text block. */
@@ -113,6 +120,47 @@ function strict(schema,path='$'){
  for(const [key,value] of Object.entries(schema.$defs??{}))strict(value,path+'.$defs.'+key);
 }
 const nonNull=schema=>schema.anyOf?schema.anyOf.find(s=>s.type!=='null'):schema;
+
+test('C2 production limits are frozen and fixture transports own independent immutable limits',async()=>{
+ const f=await setup();try {
+  assert.equal(Object.isFrozen(f.mcp.MCP_LIMITS),true);
+  assert.equal(typeof f.mcp.createMcpTransport,'function');
+  const options={limits:{exchangeTimeoutMs:71,maxConcurrent:1}},a=f.mcp.createMcpTransport(options),b=f.mcp.createMcpTransport({limits:{exchangeTimeoutMs:83,maxConcurrent:2}});
+  try {
+   options.limits.exchangeTimeoutMs=999;
+   assert.equal(a.limits.exchangeTimeoutMs,71);assert.equal(b.limits.exchangeTimeoutMs,83);
+   assert.equal(a.limits.maxConcurrent,1);assert.equal(b.limits.maxConcurrent,2);assert.equal(Object.isFrozen(a.limits),true);
+   assert.equal(f.mcp.MCP_LIMITS.exchangeTimeoutMs,150000);assert.equal(f.mcp.MCP_LIMITS.maxConcurrent,8);
+   await a.drain();assert.equal(a.status().accepting,false);assert.equal(b.status().accepting,true);
+  } finally {await a.drain();await b.drain();}
+ } finally {await f.close();}
+});
+
+test('C2 typed owned errors precede the named legacy adapter and untrusted messages remain private',async()=>{
+ const f=await setup();try {
+  const {codeFor,legacyAdapterCodeFor}=await f.app.load('mcpErrors'),{ScopedAccessError}=f.m.context;
+  assert.equal(codeFor(new ScopedAccessError(409,'PRIVATE_TYPED_CANARY','attempt_unresolved')),'attempt_unresolved');
+  assert.equal(legacyAdapterCodeFor(new Error('Exact duplicate requires review')),'designer_review_required');
+  assert.equal(legacyAdapterCodeFor(new Error('PRIVATE_TYPED_CANARY')),'internal_error');
+  assert.equal(codeFor({code:'PRIVATE_TYPED_CANARY',status:409}),'internal_error');
+ } finally {await f.close();}
+});
+
+for(const mode of MODES)test('C2 protocol errors sanitize untrusted tools and unsupported methods in '+JSON.stringify(mode),async()=>{
+ const f=await setup(),logs=[],warn=console.warn;console.warn=value=>logs.push(String(value));
+ try {
+  const credential=await f.issued({consent:true,operations:['get_project_scope']}),before=f.effects();
+  const calls=[['tools/call',{name:'PRIVATE_TOOL_CANARY',arguments:{schemaVersion:1}}],['tools/call',{name:'assess_change_request',arguments:{schemaVersion:1,commentId:'PRIVATE_TOOL_CANARY'}}],['resources/read',{uri:'PRIVATE_TOOL_CANARY'}],['resources/subscribe',{uri:'PRIVATE_TOOL_CANARY'}],['subscriptions/listen',{}]];
+  for(const [n,[method,params]] of calls.entries()){
+   const id='sanitized-'+n,modern=mode!=='legacy',body=rpc(method,modern?{...params,_meta:ENVELOPE}:params,id);
+   const headers={authorization:'Bearer '+credential.secret,...ACCEPT,...(modern?{'mcp-protocol-version':'2026-07-28','mcp-method':method,...(method==='tools/call'?{'mcp-name':params.name}:{})}:{})};
+   const reply=await f.raw({headers,body});assert.doesNotMatch(reply.text,/PRIVATE_TOOL_CANARY/);
+   const packets=responses(reply);assert.equal(packets.length,1,reply.text);assert.ok(packets[0].error,reply.text);assert.equal(packets[0].id,id,reply.text);
+   assert.ok(reply.text.length<1500);assert.doesNotMatch(reply.text,new RegExp(credential.secret.replaceAll('.','\\.')));
+  }
+  assert.doesNotMatch(logs.join('\n'),/PRIVATE_TOOL_CANARY/);assert.deepEqual(f.effects(),before);
+ } finally {console.warn=warn;await f.close();}
+});
 
 test('T11c discovery lists exactly the permitted tools with strict versioned schemas in both eras and advertises tools only',async()=>{
  const f=await setup();
@@ -532,17 +580,17 @@ test('T11c method, body, header and path bounds; duplicate or malformed credenti
 
 test('T11c concurrency and time bounds are enforced before the SDK or before headers; a disconnect or timeout never erases an attempt or authorizes a retry',async()=>{
  const f=await setup();
- const limits=f.mcp.MCP_LIMITS,saved={...limits},gates=[];
+ const gates=[];
  const hold=()=>{const gate=f.gateModel();gates.push(gate);return gate;};
  try{
   f.root('t1','Gallery alpha screen');f.root('t2','Banner bravo screen');f.root('t3','Carousel charlie screen');f.root('t4','Drawer delta screen');
-  const credential=await f.issued({consent:true,maxAssessments:5,maxCostMicroUsd:5*f.estimate()}),A={authorization:'Bearer '+credential.secret,...ACCEPT},client=await f.client(credential.secret,'legacy');
+  const credential=await f.issued({consent:true,maxAssessments:5,maxCostMicroUsd:5*f.estimate()}),A={authorization:'Bearer '+credential.secret,...ACCEPT};
   const args=commentId=>({schemaVersion:1,commentId});
   const legacyCall=(commentId,signal)=>f.raw({headers:A,signal,body:rpc('tools/call',{name:'assess_change_request',arguments:args(commentId)})});
   const modernCall=commentId=>f.raw({headers:{...A,'mcp-protocol-version':'2026-07-28','mcp-method':'tools/call','mcp-name':'assess_change_request'},
    body:{jsonrpc:'2.0',id:9,method:'tools/call',params:{name:'assess_change_request',arguments:args(commentId),_meta:ENVELOPE}}});
   // Concurrency: with one admitted exchange in flight, the next is refused before entering the SDK.
-  limits.maxConcurrent=1;
+  await f.useTransport({maxConcurrent:1});
   let gate=hold();
   const held=legacyCall('t1');
   await gate.reached;
@@ -550,25 +598,25 @@ test('T11c concurrency and time bounds are enforced before the SDK or before hea
   assert.equal(busy.status,503);assert.equal(busy.json.error.data.code,'busy');
   gate.release();
   const first=await held;assert.equal(first.status,200);assert.notEqual(first.json.result.isError,true);
-  limits.maxConcurrent=saved.maxConcurrent;
   await waitFor(()=>f.mcp.mcpStatus().exchanges===0);
   // Time bound, modern era: headers are still unsent, so the exchange is answered with a sanitized 504.
-  limits.exchangeTimeoutMs=300;
+  await f.useTransport({exchangeTimeoutMs:300});
   gate=hold();
   const slow=modernCall('t2');
   await gate.reached;
   const timedOut=await slow;
-  assert.equal(timedOut.status,504,timedOut.text);assert.equal(timedOut.json.error.data.code,'timeout');assert.match(timedOut.json.error.data.correlationId,UUID);
-  // Legacy era: the stateless fallback has already sent SSE headers, so the stream ends with no result and no second response.
+  assert.equal(timedOut.status,504,timedOut.text);assert.equal(timedOut.json.id,9);assert.equal(timedOut.json.error.data.code,'timeout');assert.match(timedOut.json.error.data.correlationId,UUID);
+  // Legacy era: headers are sent, so end the SSE stream with one matching sanitized error.
   const ended=await legacyCall('t4');
-  assert.equal(ended.status,200);assert.match(ended.headers['content-type'],/text\/event-stream/);assert.doesNotMatch(ended.text,/"result"|"error"|timeout/);
-  limits.exchangeTimeoutMs=saved.exchangeTimeoutMs;
+  assert.equal(ended.status,200);assert.match(ended.headers['content-type'],/text\/event-stream/);
+  const terminal=responses(ended);assert.equal(terminal.length,1);assert.equal(terminal[0].id,1);assert.equal(terminal[0].error.data.code,'timeout');
   gate.release();
   // Both paid attempts still complete durably and are reused, not retried.
   await waitFor(()=>f.attempt('t2')?.outcome==='succeeded'&&f.attempt('t4')?.outcome==='succeeded');
   await waitFor(()=>f.mcp.mcpStatus().domain===0&&f.mcp.mcpStatus().exchanges===0);
   const paid=f.calls;
   assert.equal(paid,3);
+  await f.useTransport({});const client=await f.client(credential.secret,'legacy');
   ok(await f.tool(client,'assess_change_request',args('t2')));ok(await f.tool(client,'assess_change_request',args('t4')));
   assert.equal(f.calls,paid);
   // Disconnect: the client goes away mid-call; the attempt completes, is accounted for and is reused, not retried.
@@ -584,7 +632,7 @@ test('T11c concurrency and time bounds are enforced before the SDK or before hea
   ok(await f.tool(client,'assess_change_request',args('t3')));
   assert.equal(f.calls,paid+1);
   assert.deepEqual(f.budget(credential.connector.id).map(r=>r.state),['settled','settled','settled','settled']);
- }finally{for(const gate of gates)gate.release();Object.assign(limits??{},saved);await f.close();}
+ }finally{for(const gate of gates)gate.release();await f.close();}
 });
 
 /** Every JSON-RPC response in a raw body, SSE or JSON, single or batched, ordered by id. */
@@ -593,14 +641,14 @@ const responses=r=>{const data=r.text.split(/\r?\n/).filter(l=>l.startsWith('dat
 
 test('T11c tool executions are bounded: a legacy batch or a disconnect-then-resend cannot exceed the cap, and a stalled body gets a flushed 408',async()=>{
  const f=await setup();
- const limits=f.mcp.MCP_LIMITS,saved={...limits},gates=[];
+ const gates=[];
  const hold=()=>{const gate=f.gateModel();gates.push(gate);return gate;};
  try{
   for(const [id,message] of [['c1','Gallery alpha screen'],['c2','Banner bravo screen'],['c3','Carousel charlie screen'],['c4','Drawer delta screen']])f.root(id,message);
   const credential=await f.issued({consent:true,maxAssessments:6,maxCostMicroUsd:6*f.estimate()}),bearer='Bearer '+credential.secret,A={authorization:bearer,...ACCEPT};
   const assess=(commentId,id=1)=>rpc('tools/call',{name:'assess_change_request',arguments:{schemaVersion:1,commentId}},id);
   // One legacy POST carrying three tools/call: executions beyond the cap are refused as busy, with no attempt or dispatch.
-  limits.maxConcurrent=2;
+  await f.useTransport({maxConcurrent:2});
   let gate=hold();
   const batch=f.raw({headers:A,body:[assess('c1',1),assess('c2',2),assess('c3',3)]});
   await gate.reached;
@@ -615,7 +663,7 @@ test('T11c tool executions are bounded: a legacy batch or a disconnect-then-rese
   await waitFor(()=>f.mcp.mcpStatus().domain===0);
   assert.equal(f.calls,2);assert.equal(f.attempt('c3'),null);assert.equal(f.budget(credential.connector.id).length,2);
   // Disconnect, then resend: the abandoned execution still holds its slot until its durable result is recorded.
-  limits.maxConcurrent=1;
+  await f.useTransport({maxConcurrent:1});
   gate=hold();
   const abort=new AbortController(),dropped=f.raw({headers:A,signal:abort.signal,body:assess('c4')}).then(()=>null,error=>error);
   await gate.reached;
@@ -631,16 +679,18 @@ test('T11c tool executions are bounded: a legacy batch or a disconnect-then-rese
   assert.equal(paid,3);
   const reused=responses(await f.raw({headers:A,body:assess('c4')}));
   assert.notEqual(reused[0].result.isError,true);assert.equal(f.calls,paid);
-  limits.maxConcurrent=saved.maxConcurrent;
   // A body that stops arriving gets a sanitized 408 that is flushed before the request is destroyed.
-  limits.bodyTimeoutMs=200;
-  const host='127.0.0.1:'+new URL(f.base).port,body=JSON.stringify(INIT);
-  const stalled=await rawSocket(f.base,['POST /mcp HTTP/1.1','Host: '+host,'Authorization: '+bearer,'Accept: '+ACCEPT.accept,'Content-Type: application/json','Content-Length: '+Buffer.byteLength(body),'Connection: close','',body.slice(0,10)].join('\r\n'));
-  assert.equal(stalled.status,408,stalled.text);
-  const refusal=JSON.parse(stalled.text.slice(stalled.text.indexOf('\r\n\r\n')+4));
-  assert.equal(refusal.error.data.code,'request_timeout');assert.match(refusal.error.data.correlationId,UUID);
+  await f.useTransport({bodyTimeoutMs:200});
+  for(const mode of MODES){
+   const host='127.0.0.1:'+new URL(f.base).port,body=JSON.stringify(mode==='legacy'?INIT:DISCOVER);
+   const extra=mode==='legacy'?[]:['Mcp-Protocol-Version: 2026-07-28','Mcp-Method: server/discover'];
+   const stalled=await rawSocket(f.base,['POST /mcp HTTP/1.1','Host: '+host,'Authorization: '+bearer,'Accept: '+ACCEPT.accept,...extra,'Content-Type: application/json','Content-Length: '+Buffer.byteLength(body),'Connection: close','',body.slice(0,10)].join('\r\n'));
+   assert.equal(stalled.status,408,stalled.text);
+   const refusal=JSON.parse(stalled.text.slice(stalled.text.indexOf('\r\n\r\n')+4));
+   assert.equal(refusal.id,null);assert.equal(refusal.error.data.code,'request_timeout');assert.match(refusal.error.data.correlationId,UUID);
+  }
   await waitFor(()=>f.mcp.mcpStatus().exchanges===0);
- }finally{for(const gate of gates)gate.release();Object.assign(limits??{},saved);await f.close();}
+ }finally{for(const gate of gates)gate.release();await f.close();}
 });
 
 test('T11c a verified evidence snapshot ID passes through assess_change_request to the shared paid path',async()=>{

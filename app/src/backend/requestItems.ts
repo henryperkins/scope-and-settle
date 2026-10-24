@@ -165,12 +165,12 @@ function reviewReference(row: any): ItemReviewReference {
 }
 const REVIEW_CHANGED = 'Reviewed item assessment, source, context or terms changed; reload and review before consenting';
 function requireExpectedReview(row: any, runId: string, expected: ItemReviewReference | undefined) {
-  if (!row) throw new ScopedAccessError(409, REVIEW_CHANGED);
+  if (!row) throw new ScopedAccessError(409, REVIEW_CHANGED,'stale_reference');
   // The shared T11a guard: exact displayed references cannot bypass a known-unavailable or changed canonical source.
   requireAssessedSourceCurrent(row.source_id, row.source_version, REVIEW_CHANGED);
   const current = reviewReference(row);
   const matches = !!expected && Object.keys(current).every(key => current[key as keyof ItemReviewReference] === expected[key as keyof ItemReviewReference]);
-  if (!matches || row.context_fingerprint !== scopeContextForRun(runId).contextFingerprint) throw new ScopedAccessError(409, REVIEW_CHANGED);
+  if (!matches || row.context_fingerprint !== scopeContextForRun(runId).contextFingerprint) throw new ScopedAccessError(409, REVIEW_CHANGED,'stale_reference');
 }
 export function setItemPrice(ctx: ActorContext, itemId: string, input: {unitAmountMinor:number; quantity:number; description:string; reason:string; expected:ItemReviewReference}) {
   requireDesignerContext(ctx);
@@ -237,7 +237,7 @@ function reserve(runId: string, projectId: string, actorId: string, itemIds: str
     if (previousOperation) {
       const sameOperation = previousOperation.run_id === runId && previousOperation.project_id === projectId
         && previousOperation.actor_id === actorId && previousOperation.terms_hash === termsHash;
-      if (!sameOperation) throw new ScopedAccessError(409, 'Operation ID belongs to different actor/items/terms');
+      if (!sameOperation) throw new ScopedAccessError(409, 'Operation ID belongs to different actor/items/terms','operation_conflict');
       return {operationId, orderId:previousOperation.order_id, itemIds, assessmentId:previousOperation.assessment_id,
         expectedContextFingerprint:previousOperation.context_fingerprint};
     }
@@ -287,7 +287,7 @@ function connectorBudget(connectorId:string,admit:()=>void):PaidWorkParticipant{
  return Object.freeze({
   reserve(attemptId:string,estimateMicroUsd:number){
    admit();const refused=reserveConnectorAttempt(connectorId,attemptId,estimateMicroUsd);
-   if(refused)throw new ScopedAccessError(409,refused==='count'?'Connector assessment count limit reached; no request was sent':'Connector assessment spending limit reached; no request was sent');
+   if(refused)throw new ScopedAccessError(409,refused==='count'?'Connector assessment count limit reached; no request was sent':'Connector assessment spending limit reached; no request was sent','budget_exhausted');
   },
   linkCall(attemptId:string,callId:string){linkConnectorCall(attemptId,callId);},
   settle(attemptId:string,actualMicroUsd:number){settleConnectorAttempt(attemptId,actualMicroUsd);},
@@ -307,7 +307,7 @@ export async function assessChangeRequest(ctx:ServiceContext,input:unknown):Prom
  const admit=()=>{
   requireOperationContext(ctx,'assess_change_request');
   if(expectedSource)requireSourceCurrent(runId,expectedSource);
-  if(expectedContext&&scopeContextForRun(runId).contextFingerprint!==expectedContext)throw new ScopedAccessError(409,'Scope context changed; reload the project scope before assessing');
+  if(expectedContext&&scopeContextForRun(runId).contextFingerprint!==expectedContext)throw new ScopedAccessError(409,'Scope context changed; reload the project scope before assessing','stale_reference');
  };
  const record=await assessComment(runId,{commentId:body.commentId,...(body.evidenceSnapshotId?{evidenceSnapshotId:body.evidenceSnapshotId}:{})},admit,
   {expectedSource,participant:authority.kind==='connector'?connectorBudget(authority.connector.id,admit):undefined});
@@ -328,7 +328,7 @@ export function draftReviewedChangeOrder(ctx:ServiceContext,input:unknown):Draft
  return transaction(()=>{
   requireOperationContext(ctx,'draft_change_order');
   const binding=reserve(ctx.runId,ctx.projectId,ctx.actorId,body.items.map((item:any)=>item.itemId),body.operationId,body.items.map((item:any)=>item.expected as ItemReviewReference));
-  if(binding.assessmentId!==body.assessmentId)throw new ScopedAccessError(409,'Selected item assessment differs from the reviewed assessment');
+  if(binding.assessmentId!==body.assessmentId)throw new ScopedAccessError(409,'Selected item assessment differs from the reviewed assessment','stale_reference');
   const order=getChangeOrder(binding.orderId);
   if(!order||order.projectId!==ctx.projectId||order.runId!==ctx.runId)throw new ScopedAccessError(404,'Change order not found');
   return projectDraft(order,{operationId:binding.operationId,assessmentId:binding.assessmentId,itemIds:binding.itemIds});
