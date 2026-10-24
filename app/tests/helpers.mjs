@@ -19,6 +19,7 @@ export async function isolatedApp() {
     AI_API_KEY: 'wrong-provider', OPENAI_API_KEY: 'wrong-provider', BASETEN_API_KEY: 'baseten-test-only',
     AI_PROVIDER: 'baseten', AI_MODEL: 'deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast', AI_REASONING_EFFORT: 'max', AI_BUDGET_USD: '25',
     PAYPAL_WEBHOOK_ID: 'test-webhook',
+    AGENT_WORKER_DISABLED: 'true',
     SCOPE_SETTLE_DATA_DIR: join(app, 'data'), PORT: '0',
   })) process.env[key] = value;
   return { root, app, load: name => import(pathToFileURL(join(app, 'dist/backend', name + '.js')).href) };

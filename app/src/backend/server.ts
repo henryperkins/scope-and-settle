@@ -14,6 +14,10 @@ import { assess, getAssessment } from "./assessment.js";
 import { db } from "./db.js";
 import { receiveWebhook } from "./webhooks.js";
 import { startJudgeRun, renewJudgeSession, createClientAccess, resetJudgeRun } from "./judging.js";
+import {getAgentPolicy,saveAgentPolicy,policyAuthority} from "./agentPolicy.js";
+import {listRequests,messagesFor,quotedTotal,runtimeValue} from "./agentStore.js";
+import {getPortalSession,portalView,addPortalRequest,replyToRequest,approvePortalQuote,refreshPortalPayment,createPortalAccess,handleAgentRequest,publishReviewedQuote} from "./agentPortal.js";
+import {startAgentWorker} from "./agentWorker.js";
 
 function json(res: ServerResponse, status: number, body: unknown) {
   const text = JSON.stringify(body);
@@ -46,7 +50,7 @@ export const server = createServer(async (req, res) => {
   const path = url.pathname;
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
-    const publicFiles: Record<string, string> = { "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html",
+    const publicFiles: Record<string, string> = { "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
       "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
@@ -97,7 +101,22 @@ export const server = createServer(async (req, res) => {
       return issued ? json(res, path === "/api/judge/start" ? 201 : 200, issued) :
         json(res, 401, { error: "Access is expired, revoked, reset or superseded. Return to judge entry for a fresh run." });
     }
-    const session = getSession(req.headers.authorization?.match(/^Bearer (.+)$/)?.[1]);
+    const bearer=req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
+    if(path==="/api/portal" || path.startsWith("/api/portal/")) {
+      const portal=getPortalSession(bearer??"");
+      if(!portal)return json(res,401,{error:"Client portal access expired, revoked or reset. Ask the designer for a new private link."});
+      if(path==="/api/portal" && req.method==="GET")return json(res,200,portalView(portal));
+      if(path==="/api/portal/requests" && req.method==="POST") {const b=await readBody(req);return json(res,201,addPortalRequest(portal,b.text,b.key));}
+      const action=path.match(/^\/api\/portal\/requests\/([^/]+)\/(reply|approve|payment-status)$/);
+      if(action && req.method==="POST") {
+        const b=await readBody(req);
+        if(action[2]==="reply")return json(res,200,replyToRequest(portal,action[1],b.text,b.key));
+        if(action[2]==="approve")return json(res,200,await approvePortalQuote(portal,action[1],b.revision,b.consent));
+        return json(res,200,await refreshPortalPayment(portal,action[1]));
+      }
+      return json(res,404,{error:"Portal route not found"});
+    }
+    const session = getSession(bearer);
     if (!session) return json(res, 401, { error: "Missing, expired, or revoked session" });
     if (session.projectId !== "demo") return json(res, 403, { error: "Session does not grant access to this project" });
     const scopedOrder = path.match(/^\/api\/change-orders\/([^/]+)(?:\/(submit|approve|invoice|payment-status|client-access))?$/);
@@ -113,6 +132,25 @@ export const server = createServer(async (req, res) => {
       (req.method === "POST" && scopedOrder[2] === "approve")));
     if (session.role !== "designer" && !clientAction) return json(res, 403, { error: "Requires designer role" });
     if (path === "/api/session" && req.method === "GET") return json(res, 200, session);
+    if(path==="/api/agent" && req.method==="GET") {
+      const policy=getAgentPolicy(session.runId);
+      const {ownerGrantId,ownerSessionHash,...publicPolicy}=policy??{};
+      return json(res,200,{policy:policy?publicPolicy:null,authorityValid:policy?policyAuthority(policy):false,quotedMinor:quotedTotal(session.runId),
+        portalReady:!!db.prepare("SELECT id FROM agent_portals WHERE run_id = ? AND revoked = 0 AND expires_at > ?").get(session.runId,new Date().toISOString()),
+        lastCycle:runtimeValue("worker-last-cycle"),figmaLastSuccess:runtimeValue("figma-last-success"),figmaNextCheckAt:runtimeValue("figma-next-check-at"),
+        error:runtimeValue(`run-error:${session.runId}`)||runtimeValue("worker-error")||(policy?.figmaClientIds.length?runtimeValue("figma-error"):null),
+        requests:listRequests(session.runId).map(r=>({...r,messages:messagesFor(r.id,r.run_id)})),
+        deliveries:db.prepare("SELECT request_id,kind,state,error,updated_at FROM agent_outbox WHERE run_id = ? ORDER BY created_at DESC LIMIT 50").all(session.runId)});
+    }
+    if(path==="/api/agent/policy" && req.method==="POST") {
+      const {ownerGrantId,ownerSessionHash,...policy}=saveAgentPolicy(session,await readBody(req));return json(res,200,policy);
+    }
+    if(path==="/api/agent/portal-access" && req.method==="POST")return json(res,201,createPortalAccess(session));
+    const agentAction=path.match(/^\/api\/agent\/requests\/([^/]+)\/(retry|dismiss|publish)$/);
+    if(agentAction && req.method==="POST") {
+      if(agentAction[2]==="publish") {const b=await readBody(req);return json(res,200,publishReviewedQuote(session,agentAction[1],b.orderId,b.revision,b.consent));}
+      return json(res,200,handleAgentRequest(session,agentAction[1],agentAction[2] as "retry"|"dismiss"));
+    }
     if (path === "/api/project" && req.method === "GET") {
       return json(res, 200, getProjectForRun(session.runId));
     }
@@ -236,11 +274,15 @@ export const server = createServer(async (req, res) => {
     return json(res, 404, { error: `No route ${req.method} ${path}` });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const status = /not found/i.test(message) ? 404 : /baseline|revision|immutable|requires.*approval|Cannot approve|wait for/i.test(message) ? 409 :
+    const status = /not found/i.test(message) ? 404 : /baseline|revision|immutable|requires.*approval|Cannot approve|wait for|already belongs|paused|already exists|needs designer/i.test(message) ? 409 :
       /Invalid|unexpected|too large|required|Provide|Unknown rate|supports USD|JSON/i.test(message) ? 400 : 502;
     return json(res, status, { error: message });
   }
 });
+
+// Test fixtures opt out; production work is driven by durable approved policies.
+const stopAgent=process.env.AGENT_WORKER_DISABLED==="true" ? ()=>{} : startAgentWorker();
+server.on("close",stopAgent);
 
 server.listen(config.port, config.host, () => {
   const missing = assertConfigured();

@@ -113,3 +113,21 @@ export function handleAgentRequest(session:Session,id:string,action:"retry"|"dis
   }
   return requestById(id,session.runId)!;
 }
+
+export function publishReviewedQuote(session:Session,id:string,orderId:string,revision:number,consent:boolean) {
+  requireDesigner(session);
+  const request=requestById(id,session.runId),order=getChangeOrder(orderId);
+  if(!request || !order || order.runId!==session.runId)throw new Error("Request or quote not found");
+  if(consent!==true || order.revision!==revision || order.status!=="awaiting_client_approval" || order.stale)throw new Error("Explicit designer consent to the submitted current revision is required");
+  if(db.prepare("SELECT id FROM agent_requests WHERE order_id = ? AND id != ?").get(orderId,id))throw new Error("This quote already belongs to another request");
+  return transaction(()=>{
+    const previous=db.prepare("SELECT snapshot_json FROM proposal_revisions WHERE change_order_id = ? AND revision = ?").get(request.order_id,request.quote_revision) as any;
+    const previousAmount=previous ? Number(JSON.parse(previous.snapshot_json).totalMinor) : 0;
+    const allowance=request.quoted_minor+(request.order_id===orderId ? Math.max(0,order.totalMinor-previousAmount) : order.totalMinor);
+    db.prepare("UPDATE agent_requests SET state = 'quoted', order_id = ?, quote_revision = ?, quoted_minor = ?, exception = NULL, version = version + 1, updated_at = ? WHERE id = ?")
+      .run(orderId,revision,allowance,now(),id);
+    db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state != 'sent'").run(id);
+    appendMessage(request,"designer",`Your designer reviewed this exception and published quote revision ${revision} for USD $${(order.totalMinor/100).toFixed(2)}. Review the exact terms below; approval is required before invoicing.`);
+    return requestById(id,session.runId)!;
+  });
+}

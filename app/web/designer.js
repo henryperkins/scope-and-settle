@@ -1,9 +1,11 @@
 import { api, sessionApi, esc, money, label, notice, busy, itemRows, safeInvoice } from './common.js';
 import { proposalDefaults } from './proposal.js';
 import { isFigmaPluginMessage } from './figma-bridge.js';
+import { mountAgent } from './agent.js';
 const $ = id => document.getElementById(id);
 const inPlugin = window.parent !== window;
 let session, project, comments = [], selected, assessment, editing, imageDataUrl, fileKey, designContext = '', selectionContext = '', preservedItems = [];
+let agentUI,reviewingRequest=null;
 const post = message => { if (inPlugin) parent.postMessage({ pluginMessage: message }, '*'); };
 function saveSession(value) {
   session = value;
@@ -14,6 +16,7 @@ function saveSession(value) {
   }
 }
 const request = sessionApi(() => session, saveSession, () => {
+  agentUI?.destroy();
   saveSession(null); $('workspace').hidden = true; $('connect').hidden = false;
   $('orders').innerHTML = ''; $('assessment').innerHTML = ''; $('share').hidden = true;
 });
@@ -31,7 +34,16 @@ async function load() {
     $('connect').hidden = true; $('workspace').hidden = false;
     $('brief').innerHTML = project.scopeClauses.map(c => `<blockquote>${esc(c.text)}<br><small>${esc(c.id)}</small></blockquote>`).join('') + `<small>${esc(project.scopeRevisionId)}</small>`;
     $('price-mode').innerHTML = project.rateCard.map(r => `<option value="${esc(r.id)}">${esc(r.description)} · ${money(r.unitAmountMinor)}</option>`).join('') + '<option value="custom">Designer-set price</option>';
-    await Promise.all([loadComments(), loadOrders()]);
+    await Promise.all([loadComments().catch(()=>{$('comments').innerHTML='<p class="notice">Figma comments are unavailable. Portal requests still work; check Figma permissions or try Refresh later.</p>';comments=[];}), loadOrders()]);
+    agentUI?.destroy();
+    agentUI=mountAgent({request,project,comments,onReview:async r=>{
+      reviewingRequest=r.id;selected=r.source==='figma'?r.source_id:null;assessment=null;
+      if(r.assessment_id){try{const a=await request('/api/assessments/'+r.assessment_id);if(a.result.classification==='new_work')assessment=a;}catch{}}
+      let order=null;if(r.order_id){const o=await request('/api/change-orders/'+r.order_id);if(['draft','awaiting_client_approval','needs_re_review'].includes(o.status))order=o;}
+      $('manual-workflow').open=true;showProposal(order);
+      if(!order&&!assessment){$('title').value='Reviewed client request';$('deliverables').value=r.text;}
+      notice('Review this exception and confirm its exact terms. Your confirmed quote will appear in the existing client portal.');
+    }});await agentUI.refresh().catch(()=>notice('Agent status is unavailable. The existing proposal and payment controls remain available.',true));
     if (session.renewalCredential) { $('resume-access').hidden = false; $('designer-resume').value = 'resume=' + session.renewalCredential; }
     checkFile();
     const budget = await request('/api/ai-budget'); $('budget').textContent = `AI budget available: $${(budget.remainingMicroUsd/1e6).toFixed(2)} of $${(budget.capMicroUsd/1e6).toFixed(2)} (conservative accounting).`;
@@ -63,6 +75,7 @@ function pricing() {
   return [{ rateCardId: rate?.id ?? null, priceSource: rate ? 'rate_card' : 'designer', description: rate?.description ?? $('title').value, quantity, unitAmountMinor: amount }, ...preservedItems];
 }
 function showProposal(order) {
+  $('manual-workflow').open=true;
   editing = order?.id ?? null;
   const draft = proposalDefaults(order, assessment, project);
   $('title').value = draft.title; $('deliverables').value = draft.deliverables.join('\n');
@@ -104,16 +117,18 @@ $('submit-proposal').onclick = e => busy(e.currentTarget, async () => {
   const body = { title:$('title').value, deliverables:$('deliverables').value.split('\n').map(x=>x.trim()).filter(Boolean), lineItems:pricing(), currency:'USD', commentId:selected || null, assessmentId:assessment?.id };
   const order = editing ? await request('/api/change-orders/'+editing, 'PATCH', body) : await request('/api/change-orders', 'POST', body);
   const submitted = await request('/api/change-orders/'+order.id+'/submit', 'POST');
+  if(reviewingRequest){await request('/api/agent/requests/'+reviewingRequest+'/publish','POST',{orderId:submitted.order.id,revision:submitted.order.revision,consent:true});reviewingRequest=null;await agentUI.refresh();}
   $('approval-link').value = submitted.approvalUrl; $('open-review').href = submitted.approvalUrl;
   $('share-expiry').textContent = 'Access ends '+new Date(submitted.approvalExpiresAt).toLocaleString()+'. Editing or resetting invalidates it.';
   $('share').hidden = false; $('proposal').hidden = true; editing = null; assessment = null;
   await loadOrders(); notice('The exact terms are ready for client review.');
 });
 $('copy-link').onclick = e => busy(e.currentTarget, async()=> { try { await navigator.clipboard.writeText($('approval-link').value); notice('Review link copied.'); } catch { $('approval-link').select(); notice('Select and copy the review link above.'); } });
-$('manual').onclick = () => { assessment = null; showProposal(); };
+$('manual').onclick = () => { assessment = null; reviewingRequest=null; showProposal(); };
 $('reset').onclick = e => busy(e.currentTarget, async()=> {
   if (!confirm('Start a fresh demo run? Local evidence and orders in this run will be cleared. PayPal sandbox invoices remain.')) return;
   const result = await request('/api/demo/reset', 'POST'); saveSession(result.session);
+  reviewingRequest=null;agentUI?.destroy();
   assessment = null; selected = null; editing = null; imageDataUrl = undefined; designContext = ''; selectionContext = ''; preservedItems = [];
   $('share').hidden = true; $('proposal').hidden = true; $('assessment').innerHTML = ''; $('frame').hidden = true; $('remove-frame').hidden = true;
   $('clarification').value = ''; $('assess').disabled = true; await load(); notice('Fresh demo ready.');

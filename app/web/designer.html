@@ -1,10 +1,12 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scope &amp; Settle · Designer</title><link rel="stylesheet" href="/assets/style.css"></head><body><main>
 <header><div class="brand">Scope <span>&amp;</span> Settle</div><span class="badge">SANDBOX DEMO</span></header>
-<div class="eyebrow">From a comment to a clear agreement</div><h1>Keep good work<br>on good terms.</h1><p class="muted">Understand the request. Agree on the extra work. Get paid.</p>
+<div class="eyebrow">Client requests, handled within your rules</div><h1>Keep good work<br>on good terms.</h1><p class="muted">Approve your rates and limits. Let the agent quote routine changes. Handle only exceptions.</p>
 <div id="notice" role="status" aria-live="polite"></div>
 <section id="connect"><h2>Open your designer session</h2><p class="muted">Paste the designer access issued at judge entry. Access grants a demo role.</p><label for="invitation">Designer access or invitation link</label><input id="invitation" type="password" autocomplete="off"><button id="connect-button" style="margin-top:12px">Connect</button><p><a href="/judge" target="_blank" rel="noreferrer">Open judge entry and installation instructions</a></p></section>
 <div id="workspace" hidden>
+<section id="agent-panel"></section>
 <details><summary>Agreed brief (provided by designer)</summary><div id="brief"></div><small>Synthetic demo content. Original brief approval took place outside this app.</small></details>
+<details id="manual-workflow"><summary>Assess a request or review terms yourself</summary>
 <section><div class="row between"><h2>1. Choose a request</h2><button class="secondary" id="refresh-comments">Refresh</button></div><div id="comments"></div>
 <div id="figma-context" class="muted"></div><div class="row"><button class="secondary" id="attach-frame" hidden>Attach selected frame</button><button class="secondary" id="remove-frame" hidden>Remove frame</button></div><img id="frame" class="frame-preview" alt="Attached Figma frame" hidden>
 <details><summary>Add a clarification reply</summary><label for="clarification">Client reply, copied by designer</label><textarea id="clarification" placeholder="Paste a reply after posting the clarification question in Figma."></textarea></details>
@@ -13,6 +15,7 @@
 <label for="price-mode">Price source</label><select id="price-mode"></select><div class="grid"><div><label for="quantity">Quantity</label><input id="quantity" type="number" min="1" max="100" value="1"></div><div id="custom-price" hidden><label for="amount">Designer-set unit price (USD)</label><input id="amount" type="number" min="0.01" step="0.01" value="250.00"></div></div>
 <div id="proposal-total" class="notice"></div><p><strong>Work begins after payment.</strong></p><button id="submit-proposal" class="full">Confirm terms &amp; create client review link</button></section>
 <section id="share" hidden><h2>Ready for your client</h2><label for="approval-link">Private client review link</label><input id="approval-link" class="link-value" readonly><p class="muted">The link opens only this proposal revision. <span id="share-expiry"></span></p><button class="secondary" id="copy-link">Copy link</button> <a id="open-review" target="_blank" rel="noreferrer">Open client review</a></section>
+</details>
 <section><div class="row between"><h2>Change orders</h2><button class="secondary" id="refresh-orders">Refresh</button></div><div id="orders"></div></section>
 <details><summary>Demo controls</summary><div id="resume-access" hidden><label for="designer-resume">Private designer access (save privately for recovery)</label><input id="designer-resume" type="password" readonly autocomplete="off"><p class="muted">This access renews your session. Reset replaces it.</p></div><p class="muted">Manual proposals let you test approval and payment before AI access is available.</p><button class="secondary" id="manual">Prepare a manual proposal</button><hr><button class="secondary danger" id="reset">Reset my demo</button><p class="muted">Clears this run’s local evidence and orders. Existing sandbox invoices remain at PayPal.</p><div id="budget" class="muted"></div></details>
 </div><footer>Synthetic project · PayPal sandbox · Work begins after payment</footer>

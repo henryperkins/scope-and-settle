@@ -35,7 +35,7 @@ test('real nested Figma message shape restores the paid session and enables fram
   vm.runInContext(source,vm.createContext({window:view,parent,document:{getElementById:element},
     isFigmaPluginMessage:event=>isFigmaPluginMessage(event,view),sessionApi:()=>async path=>responses[path],
     esc:String,label:value=>value==='paid'?'Paid':value,money:value=>`$${(value/100).toFixed(2)}`,
-    itemRows:()=>'',safeInvoice:()=>null,notice(){},proposalDefaults(){},busy:async(button,fn)=>fn(),JSON,Date}));
+    mountAgent:()=>({refresh:async()=>{},destroy(){}}),itemRows:()=>'',safeInvoice:()=>null,notice(){},proposalDefaults(){},busy:async(button,fn)=>fn(),JSON,Date}));
   const send=(message,source=top,origin='https://www.figma.com')=>listeners.message({source,origin,data:{pluginMessage:message}});
   await send({type:'session',session:{role:'designer',token:'untrusted'}},{});
   assert.equal(element('workspace').hidden,true);

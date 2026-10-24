@@ -183,7 +183,7 @@ export function resetDemoRun(runId = currentRunId()): { runId: string; tombstone
     db.prepare("DELETE FROM assessments WHERE run_id = ?").run(runId);
   }
   // A reset invalidates pending background work and portal authority atomically.
-  for (const table of ["agent_outbox","agent_messages","agent_requests","agent_policies"]) {
+  for (const table of ["agent_outbox","agent_messages","agent_requests","agent_policies","agent_policy_history"]) {
     if (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(table)) db.prepare(`DELETE FROM ${table} WHERE run_id = ?`).run(runId);
   }
   if (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'agent_portals'").get()) db.prepare("UPDATE agent_portals SET revoked = 1 WHERE run_id = ?").run(runId);

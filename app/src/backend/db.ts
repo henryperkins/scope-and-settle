@@ -112,10 +112,14 @@ for (const [table, column] of [["sessions", "run_id TEXT NOT NULL DEFAULT 'run-1
   if (!(db.prepare(`PRAGMA table_info(${table})`).all() as any[]).some(x => x.name === name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column}`);
 }
 
+let transactionDepth = 0;
 export function transaction<T>(work: () => T): T {
-  db.exec("BEGIN IMMEDIATE");
-  try { const result = work(); db.exec("COMMIT"); return result; }
-  catch (error) { db.exec("ROLLBACK"); throw error; }
+  const depth=transactionDepth++, savepoint=`nested_${depth}`;
+  try {
+    db.exec(depth ? `SAVEPOINT ${savepoint}` : "BEGIN IMMEDIATE");
+    try { const result=work(); db.exec(depth ? `RELEASE ${savepoint}` : "COMMIT"); return result; }
+    catch(error) { db.exec(depth ? `ROLLBACK TO ${savepoint}` : "ROLLBACK"); if(depth)db.exec(`RELEASE ${savepoint}`); throw error; }
+  } finally { transactionDepth--; }
 }
 
 export function currentRunId(): string {

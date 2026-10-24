@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { db, getProjectForRun, currentRunId } from "./db.js";
+import { db, getProjectForRun, currentRunId, transaction } from "./db.js";
 import { activeGrant } from "./judgeAccess.js";
 import { credentialHash } from "./judgeAccess.js";
 import { getSession } from "./sessions.js";
@@ -38,12 +38,16 @@ export function activeAgentPolicy(runId: string): AgentPolicy | null {
   return p?.enabled && policyAuthority(p) ? p : null;
 }
 export function saveAgentPolicy(session: Session, input: any): AgentPolicy {
+  return transaction(()=>savePolicy(session,input));
+}
+function savePolicy(session: Session, input: any): AgentPolicy {
   if (session.role !== "designer") throw new Error("Requires designer role");
   if (!getSession(session.token) || !input || typeof input!=="object") throw new Error("Invalid policy or expired designer session");
   const previous=getAgentPolicy(session.runId), project=getProjectForRun(session.runId);
   if (input.enabled === false && previous) {
     const paused={...previous,enabled:false,version:previous.version+1};
     db.prepare("UPDATE agent_policies SET policy_json = ?, updated_at = ? WHERE run_id = ?").run(JSON.stringify(paused),now(),session.runId);
+    db.prepare("INSERT INTO agent_policy_history VALUES (?,?,?)").run(session.runId,paused.version,JSON.stringify(paused));
     return paused;
   }
   if (input.enabled !== true || input.consent !== true) throw new Error("Explicit consent is required to enable automatic quotes");
@@ -70,6 +74,7 @@ export function saveAgentPolicy(session: Session, input: any): AgentPolicy {
     expiresAt:grant?.expires_at ?? new Date(Date.now()+24*60*60_000).toISOString(),startedAt:previous?.enabled ? previous.startedAt : at,approvedAt:at};
   db.prepare("INSERT INTO agent_policies (run_id,policy_json,updated_at) VALUES (?,?,?) ON CONFLICT(run_id) DO UPDATE SET policy_json=excluded.policy_json,updated_at=excluded.updated_at")
     .run(session.runId,JSON.stringify(policy),at);
+  db.prepare("INSERT INTO agent_policy_history VALUES (?,?,?)").run(session.runId,policy.version,JSON.stringify(policy));
   return policy;
 }
 

@@ -6,6 +6,10 @@ db.exec(`
 CREATE TABLE IF NOT EXISTS agent_policies (
   run_id TEXT PRIMARY KEY, policy_json TEXT NOT NULL, updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS agent_policy_history (
+  run_id TEXT NOT NULL, version INTEGER NOT NULL, policy_json TEXT NOT NULL,
+  PRIMARY KEY(run_id,version)
+);
 CREATE TABLE IF NOT EXISTS agent_requests (
   id TEXT PRIMARY KEY, run_id TEXT NOT NULL, source TEXT NOT NULL, source_id TEXT NOT NULL,
   text TEXT NOT NULL, state TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,

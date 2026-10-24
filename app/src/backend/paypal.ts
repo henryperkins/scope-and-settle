@@ -7,6 +7,7 @@ export async function getAccessToken(): Promise<string> {
   const basic = Buffer.from(`${config.paypalClientId}:${config.paypalClientSecret}`).toString("base64");
   const res = await fetch(`${paypalBase}/v1/oauth2/token`, {
     method: "POST",
+    redirect: "error", signal: AbortSignal.timeout(20_000),
     headers: { Authorization: `Basic ${basic}`, "Content-Type": "application/x-www-form-urlencoded" },
     body: "grant_type=client_credentials",
   });
@@ -20,6 +21,7 @@ async function api(path: string, init: RequestInit = {}): Promise<{ status: numb
   const token = await getAccessToken();
   const res = await fetch(`${paypalBase}${path}`, {
     ...init,
+    redirect: "error", signal: AbortSignal.timeout(20_000),
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
   });
   const text = await res.text();
@@ -93,6 +95,14 @@ export async function sendInvoice(invoiceId: string): Promise<string | null> {
   if (fromSend) return fromSend;
   const detail = await getInvoice(invoiceId);
   return detail.payerViewUrl ?? payerViewUrl(invoiceId);
+}
+
+/** Explicitly enabled reminder policy only. This never records a payment. */
+export async function remindInvoice(invoiceId:string):Promise<void> {
+  const {status}=await api(`/v2/invoicing/invoices/${encodeURIComponent(invoiceId)}/remind`,{
+    method:"POST",body:JSON.stringify({send_to_invoicer:false}),
+  });
+  if(status!==202 && status!==200 && status!==204)throw new Error(`PayPal reminder was not acknowledged (HTTP ${status})`);
 }
 
 /** Reconciliation: find an existing invoice by its invoice_number (e.g. after a lost create response). */
