@@ -897,6 +897,7 @@ test("R4 transient projection read failure keeps the CANCELLED outcome and a lat
       assert.equal(outcome.state, "reconciled", mode);
       assert.equal(outcome.providerStatus, "CANCELLED");
       assert.equal(outcome.localProjection, "pending");
+      assert.equal(outcome.localProjectionReason, "retryable_read");
       assert.match(outcome.message, /pending/);
       assert.doesNotMatch(outcome.message, /now shows/);
       const saved = recorded(f, p.id);
@@ -969,6 +970,9 @@ test("R5 changed invoice association, tombstone or revoked caller blocks the pro
         assert.equal(outcome.providerStatus, "CANCELLED");
         assert.equal(outcome.localProjection, "pending");
         assert.match(outcome.message, /pending/);
+        assert.equal(outcome.localProjectionReason, "association_changed");
+        assert.doesNotMatch(outcome.message, /Check payment retries it/);
+        assert.match(outcome.message, /review.*invoice association/i);
       }
       // A changed association stops before any projection read; a tombstone or revocation is
       // caught by the serialized refresh after its fresh read, before anything is recorded.
@@ -997,6 +1001,35 @@ test("R5 changed invoice association, tombstone or revoked caller blocks the pro
     } finally {
       f.close();
     }
+  }
+});
+
+test("C1 revoked owner cannot receive saved reconciliation after held GET", async () => {
+  const f = await fixture();
+  let release;
+  try {
+    const { x, p } = await uncertainCancel(f);
+    // The original POST was acknowledged, but read-back still says SENT. The saved
+    // uncertain result must stay durable without being returned to a revoked caller.
+    const acknowledged = recorded(f, p.id).action.result_json;
+    let enter;
+    const entered = new Promise(r => { enter = r; });
+    const held = new Promise(r => { release = r; });
+    f.hook = async phase => {
+      if (phase === "invoice-read") { enter(); await held; }
+    };
+    const pending = confirm(f, p);
+    await entered;
+    f.sessions.revokeSession(f.session.token);
+    release();
+    await assert.rejects(pending, error => error.status === 401);
+    assert.equal(f.writes, 1);
+    assert.equal(recorded(f, p.id).action.result_json, acknowledged);
+    assert.equal(JSON.parse(acknowledged).providerStatus, "204");
+    assert.equal(f.orders.getChangeOrder(x.order.id).financialState.invoiceState, "payable");
+  } finally {
+    release?.();
+    f.close();
   }
 });
 

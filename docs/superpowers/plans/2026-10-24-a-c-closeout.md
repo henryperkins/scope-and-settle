@@ -67,7 +67,7 @@ Each task ends with a direct main-session review, the listed tests and an explic
 
 **Interfaces:** retain existing prepare/confirm/read-only outcome APIs and `ActionResult`; add `localProjectionReason?: 'retryable_read'|'association_changed'` only if needed to render truthful recovery. Ended authority throws the existing 401/403 scoped error rather than returning an earlier result. Known provider acknowledgement remains durable.
 
-- [ ] Add `C1 revoked owner cannot receive saved reconciliation after held GET`, `C1 changed invoice projection does not promise Check payment can repair it`, and a retryable-read control. Assert 401/403 after revocation, no additional outbound writes, the original CANCELLED acknowledgement retained, and association-change text directing review rather than a send/retry claim.
+- [x] Add `C1 revoked owner cannot receive saved reconciliation after held GET`, `C1 changed invoice projection does not promise Check payment can repair it`, and a retryable-read control. Assert 401/403 after revocation, no additional outbound writes, the original CANCELLED acknowledgement retained, and association-change text directing review rather than a send/retry claim.
 
   ```js
   assert.equal(revokedResponse.status, 401);
@@ -75,8 +75,8 @@ Each task ends with a direct main-session review, the listed tests and an explic
   assert.equal(savedOutcome.providerStatus, 'CANCELLED');
   assert.doesNotMatch(associationChanged.message, /Check payment retries it/);
   ```
-- [ ] Build/run `node --test tests/reviewed-actions.test.mjs` and retain meaningful RED. Correct post-await authority checks before returning/saving a response; do not erase a previously known outcome when the caller loses access.
-- [ ] Rebuild/rerun; expected all pass. Exercise only the affected uncertain-outcome browser control using successful-response waits. Review and commit the exact task allowlist.
+- [x] Build/run `node --test tests/reviewed-actions.test.mjs` and retain meaningful RED. Correct post-await authority checks before returning/saving a response; do not erase a previously known outcome when the caller loses access.
+- [x] Rebuild/rerun; expected all pass. Exercise only the affected uncertain-outcome browser control using successful-response waits. Review and commit the exact task allowlist.
 
 ### Task 3: Preserve unresolved logical assessment work across code upgrades (B08)
 

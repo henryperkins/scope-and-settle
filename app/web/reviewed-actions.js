@@ -13,7 +13,9 @@ export function mountReviewedActions({ request, onComplete }) {
   function renderPreview({ preview: p, result }) {
     const terminal = result?.state && result.state !== "prepared";
     const canCheckOutcome =
-      result?.state === "uncertain" || result?.localProjection === "pending";
+      result?.state === "uncertain" ||
+      (result?.localProjection === "pending" &&
+        result.localProjectionReason !== "association_changed");
     show(`<h2 tabindex="-1" id="reviewed-heading">Review ${esc(label(p.kind))}</h2>
       <div id="reviewed-preview"><p>${esc(p.wording)}</p>
       <p>Request ${esc(p.rootId)} &middot; source version ${esc(p.source.version)}</p>

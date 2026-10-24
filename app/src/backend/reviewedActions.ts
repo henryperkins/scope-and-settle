@@ -114,6 +114,7 @@ export interface ActionResult {
   approvalExpiresAt?: string;
   /** Cancellation only: whether local payment status shows the confirmed CANCELLED. */
   localProjection?: "applied" | "pending";
+  localProjectionReason?: "retryable_read" | "association_changed";
 }
 export interface ActionPreview {
   id: string;
@@ -959,12 +960,19 @@ function cancellationAuthority(ctx: ActorContext, p: Stored) {
     );
   return order;
 }
-function projected(outcome: ActionResult, applied: boolean): ActionResult {
+function projected(
+  outcome: ActionResult,
+  applied: boolean,
+  reason: ActionResult["localProjectionReason"] = "retryable_read",
+): ActionResult {
   return {
     ...outcome,
     localProjection: applied ? "applied" : "pending",
+    ...(!applied ? { localProjectionReason: reason } : {}),
     message: applied
       ? "PayPal confirms CANCELLED and local payment status now shows it; cause and notification delivery are unverified"
+      : reason === "association_changed"
+      ? "PayPal confirms CANCELLED; the local payment status update is pending. Review the changed invoice association before updating local status; cause and notification delivery are unverified"
       : "PayPal confirms CANCELLED; the local payment status update is still pending (Check payment retries it); cause and notification delivery are unverified",
   };
 }
@@ -985,7 +993,17 @@ async function projectCancellation(
     });
     applied = order.financialState?.invoiceState === "cancelled";
   } catch {}
-  return projected(outcome, applied);
+  let reason: ActionResult["localProjectionReason"] = "retryable_read";
+  if (!applied) {
+    try {
+      cancellationAuthority(ctx, p);
+      if (isTombstonedInvoice(p.invoiceId!)) reason = "association_changed";
+    } catch {
+      // The public confirmation boundary separately denies ended caller authority.
+      reason = "association_changed";
+    }
+  }
+  return projected(outcome, applied, reason);
 }
 function locallyCancelled(ctx: ActorContext, p: Stored) {
   try {
@@ -1008,6 +1026,7 @@ async function reconcile(ctx: ActorContext, row: any): Promise<ActionResult> {
         owned(ctx, p.id);
         return true;
       });
+      owned(ctx, p.id);
       if (
         detail.id === p.invoiceId &&
         detail.status === "CANCELLED" &&
@@ -1025,6 +1044,7 @@ async function reconcile(ctx: ActorContext, row: any): Promise<ActionResult> {
         );
     } catch {}
     // Dispatch, its error path, later confirmations and restart recovery all arrive here.
+    owned(ctx, p.id);
     if (cancelled) return projectCancellation(ctx, p, cancelled);
   }
   if (p.kind === "issue_approved_invoice") {
