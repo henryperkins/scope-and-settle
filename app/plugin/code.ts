@@ -1,7 +1,7 @@
 // Scope & Settle — Figma plugin main code.
 // Runs in Figma's main thread: owns document access, talks to the UI iframe.
 
-figma.showUI(__html__, { width: 440, height: 720, title: "Scope & Settle" });
+figma.showUI(__html__, { width: 440, height: 720, title: "Scope & Settle", themeColors: true });
 
 function selectionSummary(nodes: readonly SceneNode[] = figma.currentPage.selection) {
   return nodes.map((n) => ({

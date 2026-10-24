@@ -1,0 +1,72 @@
+{
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "app/web/client.html"
+        ],
+        "createdAt": "2026-10-24T23:01:27.322Z",
+        "reason": "Claude: file-mode scan cannot resolve the server route /assets/style.css and measures 16px defaults; rendered detect on the live pages reports no flat hierarchy (display 30px vs headline 21px = 1.43x)"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "app/web/designer.html"
+        ],
+        "createdAt": "2026-10-24T23:01:27.606Z",
+        "reason": "Claude: file-mode scan cannot resolve the server route /assets/style.css and measures 16px defaults; rendered detect on the live pages reports no flat hierarchy (display 30px vs headline 21px = 1.43x)"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "app/web/judge.html"
+        ],
+        "createdAt": "2026-10-24T23:01:27.910Z",
+        "reason": "Claude: file-mode scan cannot resolve the server route /assets/style.css and measures 16px defaults; rendered detect on the live pages reports no flat hierarchy (display 30px vs headline 21px = 1.43x)"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/statement.html"
+        ],
+        "createdAt": "2026-10-24T23:01:28.210Z",
+        "reason": "Claude: decision-round sketch thumbnail rendered as a skeleton, not shipping UI"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "grotesk\",system-ui,sans-serif",
+        "files": [
+          ".impeccable/mocks/decision/statement.html"
+        ],
+        "createdAt": "2026-10-24T23:18:37.795Z",
+        "reason": "Claude: decision-round sketch, not shipping UI; the stack is Hanken Grotesk, the face DESIGN.md declares"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "grotesk\",system-ui,sans-serif",
+        "files": [
+          ".impeccable/mocks/decision/your-move.html"
+        ],
+        "createdAt": "2026-10-24T23:18:38.102Z",
+        "reason": "Claude: decision-round sketch, not shipping UI; the stack is Hanken Grotesk, the face DESIGN.md declares"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "grotesk\",system-ui,sans-serif",
+        "files": [
+          ".impeccable/mocks/decision/track-cards.html"
+        ],
+        "createdAt": "2026-10-24T23:18:38.393Z",
+        "reason": "Claude: decision-round sketch, not shipping UI; the stack is Hanken Grotesk, the face DESIGN.md declares"
+      }
+    ]
+  }
+}

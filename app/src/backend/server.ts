@@ -51,11 +51,12 @@ export const server = createServer(async (req, res) => {
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
     const publicFiles: Record<string, string> = { "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
-      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
+      "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js",
+      "/assets/fonts/hanken-grotesk-latin.woff2": "fonts/hanken-grotesk-latin.woff2" };
     if (req.method === "GET" && publicFiles[path]) {
-      const file = publicFiles[path];
-      res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : file.endsWith(".css") ? "text/css" : "text/javascript",
-        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
+      const file = publicFiles[path], font = file.endsWith(".woff2");
+      res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : file.endsWith(".css") ? "text/css" : font ? "font/woff2" : "text/javascript",
+        "Cache-Control": font ? "public, max-age=604800" : "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
         "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" });
       return res.end(readFileSync(resolve(APP_ROOT, "web", file)));
     }

@@ -14,7 +14,7 @@ async function designer(){
  const view={addEventListener(){}};view.parent=view;
  const ctx=vm.createContext({window:view,parent:view,document:{getElementById:el},sessionStorage:{getItem(){return null;},setItem(){}},localStorage:{setItem(){}},location:{hash:''},history:{},
    api:async()=>({role:'designer',token:'fixture'}),sessionApi:()=>request,mountAgent:options=>{agent=options;return {refresh:async()=>{},destroy(){}};},
-   esc:String,money:x=>String(x),label:String,notice(){},busy:async(b,fn)=>fn(),safeInvoice:()=>null,itemRows:()=>'',proposalDefaults,JSON,Date});
+   esc:String,money:x=>String(x),label:String,notice(){},busy:async(b,fn)=>fn(),safeInvoice:()=>null,itemRows:()=>'',icon:()=>'',when:String,proposalDefaults,JSON,Date});
  vm.runInContext(source,ctx);await vm.runInContext('connect("resume=fixture")',ctx);
  return {el,calls,edit,comment,review:r=>agent.onReview(r)};
 }

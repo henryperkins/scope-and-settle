@@ -20,8 +20,11 @@ await esbuild.build({
 
 const backend = process.env.PUBLIC_BASE_URL || 'http://localhost:8787';
 const bundled = await esbuild.build({ entryPoints: [resolve(appRoot, 'web/designer.js')], bundle: true, format: 'iife', write: false, target: 'es2020' });
+// The plugin UI has no same-origin asset route, so the self-hosted font travels inside the stylesheet.
+const font = 'data:font/woff2;base64,' + readFileSync(resolve(appRoot, 'web/fonts/hanken-grotesk-latin.woff2')).toString('base64');
+const css = readFileSync(resolve(appRoot, 'web/style.css'), 'utf8').replace('/assets/fonts/hanken-grotesk-latin.woff2', font);
 const ui = readFileSync(resolve(appRoot, 'web/designer.html'), 'utf8')
-  .replace('<link rel="stylesheet" href="/assets/style.css">', '<style>' + readFileSync(resolve(appRoot, 'web/style.css'), 'utf8') + '</style>')
+  .replace('<link rel="stylesheet" href="/assets/style.css">', '<style>' + css + '</style>')
   .replace('<script type="module" src="/assets/designer.js"></script>', '<script>window.SCOPE_SETTLE_API=' + JSON.stringify(backend) + ';' + bundled.outputFiles[0].text.replaceAll('</script', '<\\/script') + '</script>');
 writeFileSync(resolve(distDir, 'ui.html'), ui);
 const manifest = JSON.parse(readFileSync(resolve(pluginDir, 'manifest.json'), 'utf8'));

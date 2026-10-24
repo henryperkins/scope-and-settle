@@ -1,0 +1,852 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T23:15:13.091Z",
+  "title": "Design System: Scope & Settle",
+  "extensions": {
+    "colorMeta": {
+      "settle-teal": {
+        "role": "primary",
+        "displayName": "Settle Teal",
+        "cssVar": "--teal",
+        "canonical": "#006b65",
+        "oklch": "oklch(47.6% 0.083 188)",
+        "figmaDark": "#4cbfb2",
+        "tonalRamp": [
+          "#000f0d",
+          "#002c29",
+          "#024d48",
+          "#0e706a",
+          "#41928b",
+          "#73b3ad",
+          "#aad3ce",
+          "#e0f3f1"
+        ]
+      },
+      "settle-teal-strong": {
+        "role": "primary",
+        "displayName": "Settle Teal Strong",
+        "cssVar": "--teal-strong",
+        "canonical": "#00544f",
+        "oklch": "oklch(40.2% 0.070 187)",
+        "figmaDark": "#6ccfc2",
+        "tonalRamp": [
+          "#010e0d",
+          "#012c29",
+          "#0a4c48",
+          "#286e68",
+          "#4f908a",
+          "#7cb1ab",
+          "#b0d1cd",
+          "#e2f3f0"
+        ]
+      },
+      "paid-deep-teal": {
+        "role": "primary",
+        "displayName": "Paid Deep Teal",
+        "cssVar": "--teal-deep",
+        "canonical": "#0b3f3b",
+        "oklch": "oklch(33.4% 0.053 187)",
+        "figmaDark": "#4cbfb2",
+        "tonalRamp": [
+          "#040d0c",
+          "#0e2a28",
+          "#214a46",
+          "#3c6b66",
+          "#5e8d87",
+          "#88aea9",
+          "#b6cfcc",
+          "#e5f1f0"
+        ]
+      },
+      "teal-mist": {
+        "role": "primary",
+        "displayName": "Teal Mist",
+        "cssVar": "--teal-tint",
+        "canonical": "#dff0ec",
+        "oklch": "oklch(94.1% 0.019 180)",
+        "figmaDark": "#173c39",
+        "tonalRamp": [
+          "#090c0b",
+          "#1f2725",
+          "#394542",
+          "#566562",
+          "#778683",
+          "#9ca8a5",
+          "#c3cbc9",
+          "#ebefee"
+        ]
+      },
+      "teal-wash": {
+        "role": "primary",
+        "displayName": "Teal Wash",
+        "cssVar": "--teal-wash",
+        "canonical": "#eef7f5",
+        "oklch": "oklch(96.9% 0.010 181)",
+        "figmaDark": "#1a3133",
+        "tonalRamp": [
+          "#090c0b",
+          "#212625",
+          "#3c4442",
+          "#5a6462",
+          "#7b8583",
+          "#9fa7a5",
+          "#c5cac9",
+          "#ecefee"
+        ]
+      },
+      "teal-hairline": {
+        "role": "primary",
+        "displayName": "Teal Hairline",
+        "cssVar": "--teal-line, --selection",
+        "canonical": "#b4d9d1",
+        "oklch": "oklch(85.6% 0.041 180)",
+        "figmaDark": "#2c5b56",
+        "tonalRamp": [
+          "#060d0b",
+          "#162926",
+          "#2c4843",
+          "#476962",
+          "#698a83",
+          "#90aca6",
+          "#bbceca",
+          "#e8f1ef"
+        ]
+      },
+      "harbour-ink": {
+        "role": "neutral",
+        "displayName": "Harbour Ink",
+        "cssVar": "--ink",
+        "canonical": "#152d37",
+        "oklch": "oklch(28.2% 0.035 227)",
+        "figmaDark": "#e3eeee",
+        "tonalRamp": [
+          "#060c0f",
+          "#19272e",
+          "#30464f",
+          "#4c6671",
+          "#6e8792",
+          "#93a9b3",
+          "#beccd2",
+          "#e9f0f3"
+        ]
+      },
+      "slate-ink": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "cssVar": "--ink-2, --working-ink",
+        "canonical": "#3a565e",
+        "oklch": "oklch(43.4% 0.036 217)",
+        "figmaDark": "#c3d3d6",
+        "tonalRamp": [
+          "#060c0e",
+          "#18282d",
+          "#2e464d",
+          "#4a666f",
+          "#6b8890",
+          "#92aab1",
+          "#bcccd1",
+          "#e8f0f2"
+        ]
+      },
+      "weathered-slate": {
+        "role": "neutral",
+        "displayName": "Weathered Slate",
+        "cssVar": "--muted",
+        "canonical": "#526871",
+        "oklch": "oklch(50.3% 0.030 224)",
+        "figmaDark": "#9fb3b8",
+        "tonalRamp": [
+          "#070c0e",
+          "#1b272c",
+          "#33454d",
+          "#4f656e",
+          "#70868f",
+          "#96a9b0",
+          "#bfccd1",
+          "#e9f0f2"
+        ]
+      },
+      "placeholder-slate": {
+        "role": "neutral",
+        "displayName": "Placeholder Slate",
+        "cssVar": "--placeholder",
+        "canonical": "#5d7279",
+        "oklch": "oklch(53.8% 0.027 220)",
+        "figmaDark": "#90a5ab",
+        "tonalRamp": [
+          "#070c0e",
+          "#1c272b",
+          "#34454b",
+          "#51656c",
+          "#72868d",
+          "#97a9ae",
+          "#c0cbcf",
+          "#eaf0f2"
+        ]
+      },
+      "control-slate": {
+        "role": "neutral",
+        "displayName": "Control Slate",
+        "cssVar": "--control",
+        "canonical": "#778d92",
+        "oklch": "oklch(62.8% 0.026 212)",
+        "figmaDark": "#62777e",
+        "tonalRamp": [
+          "#070c0d",
+          "#1b272a",
+          "#344549",
+          "#51656a",
+          "#72878b",
+          "#97a9ad",
+          "#c0ccce",
+          "#eaf0f1"
+        ]
+      },
+      "control-slate-deep": {
+        "role": "neutral",
+        "displayName": "Control Slate Deep",
+        "cssVar": "--control-hover",
+        "canonical": "#566e74",
+        "oklch": "oklch(52.1% 0.030 214)",
+        "figmaDark": "#8399a0",
+        "tonalRamp": [
+          "#070c0e",
+          "#1a282b",
+          "#32464b",
+          "#4e666c",
+          "#6f878d",
+          "#95a9ae",
+          "#bfcccf",
+          "#e9f0f1"
+        ]
+      },
+      "working-slate": {
+        "role": "status",
+        "displayName": "Working Slate",
+        "cssVar": "--working",
+        "canonical": "#7b9096",
+        "oklch": "oklch(63.9% 0.026 216)",
+        "figmaDark": "#8399a0",
+        "tonalRamp": [
+          "#070c0d",
+          "#1c272a",
+          "#35454a",
+          "#51656b",
+          "#72868c",
+          "#97a8ad",
+          "#c0cbcf",
+          "#eaf0f1"
+        ]
+      },
+      "working-mist": {
+        "role": "status",
+        "displayName": "Working Mist",
+        "cssVar": "--working-tint",
+        "canonical": "#e9eff0",
+        "oklch": "oklch(94.8% 0.007 208)",
+        "figmaDark": "#2a373c",
+        "tonalRamp": [
+          "#090c0c",
+          "#212627",
+          "#3c4445",
+          "#5a6365",
+          "#7b8486",
+          "#9fa7a8",
+          "#c5cacb",
+          "#ecefef"
+        ]
+      },
+      "cool-hairline": {
+        "role": "neutral",
+        "displayName": "Cool Hairline",
+        "cssVar": "--line",
+        "canonical": "#d5e0df",
+        "oklch": "oklch(89.8% 0.012 190)",
+        "figmaDark": "#34444a",
+        "tonalRamp": [
+          "#090c0b",
+          "#212626",
+          "#3c4443",
+          "#5a6363",
+          "#7b8584",
+          "#9fa7a6",
+          "#c5caca",
+          "#ecefef"
+        ]
+      },
+      "soft-hairline": {
+        "role": "neutral",
+        "displayName": "Soft Hairline",
+        "cssVar": "--line-soft",
+        "canonical": "#e4ebeb",
+        "oklch": "oklch(93.5% 0.007 197)",
+        "figmaDark": "#2b393e",
+        "tonalRamp": [
+          "#090c0c",
+          "#212626",
+          "#3c4444",
+          "#5a6363",
+          "#7b8585",
+          "#9fa7a7",
+          "#c5caca",
+          "#ecefef"
+        ]
+      },
+      "tide-ground": {
+        "role": "neutral",
+        "displayName": "Tide Ground",
+        "cssVar": "--page",
+        "canonical": "#f5f7f7",
+        "oklch": "oklch(97.5% 0.002 197)",
+        "figmaDark": "#182024",
+        "tonalRamp": [
+          "#090c0c",
+          "#212626",
+          "#3c4444",
+          "#5a6363",
+          "#7b8585",
+          "#9fa7a7",
+          "#c5caca",
+          "#ecefef"
+        ]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "cssVar": "--surface, --on-teal",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89)",
+        "figmaDark": "#1f292d (surface) / #062321 (on-teal)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#262521",
+          "#44423c",
+          "#64615a",
+          "#85827b",
+          "#a7a59e",
+          "#cbc9c5",
+          "#efeeec"
+        ]
+      },
+      "sunken-mist": {
+        "role": "neutral",
+        "displayName": "Sunken Mist",
+        "cssVar": "--sunken",
+        "canonical": "#eef3f3",
+        "oklch": "oklch(96.0% 0.005 197)",
+        "figmaDark": "#182024",
+        "tonalRamp": [
+          "#090c0c",
+          "#212626",
+          "#3c4444",
+          "#5a6363",
+          "#7b8585",
+          "#9fa7a7",
+          "#c5caca",
+          "#ecefef"
+        ]
+      },
+      "ochre-ink": {
+        "role": "status",
+        "displayName": "Ochre Ink",
+        "cssVar": "--attention-ink",
+        "canonical": "#6f4c0c",
+        "oklch": "oklch(44.4% 0.088 76)",
+        "figmaDark": "#f2cf86",
+        "tonalRamp": [
+          "#120901",
+          "#342100",
+          "#593b03",
+          "#7d5a1f",
+          "#9f7b45",
+          "#bea073",
+          "#dac6a9",
+          "#f7eddf"
+        ]
+      },
+      "ochre": {
+        "role": "status",
+        "displayName": "Ochre",
+        "cssVar": "--attention",
+        "canonical": "#a86f0a",
+        "oklch": "oklch(58.8% 0.123 72)",
+        "figmaDark": "#e0a93f",
+        "tonalRamp": [
+          "#130900",
+          "#352000",
+          "#5b3a00",
+          "#845603",
+          "#ad7620",
+          "#ca9b5d",
+          "#e3c39c",
+          "#fcecd9"
+        ]
+      },
+      "ochre-tint": {
+        "role": "status",
+        "displayName": "Ochre Tint",
+        "cssVar": "--attention-tint",
+        "canonical": "#fbefd2",
+        "oklch": "oklch(95.4% 0.040 88)",
+        "figmaDark": "#3a2f16",
+        "tonalRamp": [
+          "#0d0b06",
+          "#2a2416",
+          "#4a412c",
+          "#6b6047",
+          "#8c8168",
+          "#ada48f",
+          "#cfc9ba",
+          "#f1eee7"
+        ]
+      },
+      "ochre-line": {
+        "role": "status",
+        "displayName": "Ochre Line",
+        "cssVar": "--attention-line",
+        "canonical": "#e5c787",
+        "oklch": "oklch(84.1% 0.089 85)",
+        "figmaDark": "#6b5420",
+        "tonalRamp": [
+          "#110a01",
+          "#312300",
+          "#543e02",
+          "#785d1b",
+          "#997e43",
+          "#b9a272",
+          "#d7c8a8",
+          "#f5eede"
+        ]
+      },
+      "brick-ink": {
+        "role": "status",
+        "displayName": "Brick Ink",
+        "cssVar": "--danger-ink",
+        "canonical": "#8a2f20",
+        "oklch": "oklch(43.7% 0.127 31)",
+        "figmaDark": "#ffb3a5",
+        "tonalRamp": [
+          "#190402",
+          "#451008",
+          "#722417",
+          "#9c4030",
+          "#c06452",
+          "#dd8d7d",
+          "#f1baaf",
+          "#fee9e5"
+        ]
+      },
+      "brick": {
+        "role": "status",
+        "displayName": "Brick",
+        "cssVar": "--danger",
+        "canonical": "#a8392a",
+        "oklch": "oklch(50.2% 0.149 30)",
+        "figmaDark": "#f08a78",
+        "tonalRamp": [
+          "#1b0301",
+          "#4a0803",
+          "#79190e",
+          "#a43628",
+          "#ca5c4b",
+          "#e68877",
+          "#f7b7ab",
+          "#fee9e5"
+        ]
+      },
+      "brick-tint": {
+        "role": "status",
+        "displayName": "Brick Tint",
+        "cssVar": "--danger-tint",
+        "canonical": "#fdeeea",
+        "oklch": "oklch(96.0% 0.017 35)",
+        "figmaDark": "#43211b",
+        "tonalRamp": [
+          "#0d0a0a",
+          "#2a2321",
+          "#4a3f3d",
+          "#6b5e5b",
+          "#8c7f7c",
+          "#ada29f",
+          "#cfc7c5",
+          "#f1edec"
+        ]
+      },
+      "brick-line": {
+        "role": "status",
+        "displayName": "Brick Line",
+        "cssVar": "--danger-line",
+        "canonical": "#e9b3a8",
+        "oklch": "oklch(81.3% 0.065 31)",
+        "figmaDark": "#7a3a2f",
+        "tonalRamp": [
+          "#130806",
+          "#371d18",
+          "#5d362f",
+          "#82534a",
+          "#a5756b",
+          "#c39a91",
+          "#dec2bc",
+          "#f9ebe8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "amount": {
+        "displayName": "Amount",
+        "cssVar": "--text-amount",
+        "compactSize": "1.75rem",
+        "purpose": "The total in the decision panel; tabular lining figures."
+      },
+      "display": {
+        "displayName": "Display",
+        "cssVar": "--text-display",
+        "compactSize": "1.5rem",
+        "purpose": "The page H1, one per page; 86 percent of size below 560 px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "cssVar": "--text-headline",
+        "compactSize": "1.125rem",
+        "purpose": "Section and card headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "cssVar": "--text-title",
+        "compactSize": "0.9375rem",
+        "purpose": "Sub-section headings, legends, statement bar; ledes and money summaries at 400."
+      },
+      "body": {
+        "displayName": "Body",
+        "cssVar": "--text-body",
+        "compactSize": "0.875rem (leading 1.5)",
+        "purpose": "Reading text and controls; statement and job headings at 640."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "cssVar": "--text-meta",
+        "compactSize": "unchanged",
+        "purpose": "Metadata, hints, captions; field labels at 620, station names at 680."
+      },
+      "label": {
+        "displayName": "Label",
+        "cssVar": "--text-label",
+        "compactSize": "unchanged",
+        "purpose": "Status chips, column heads, total labels; sentence case."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "compactSize": "unchanged",
+        "purpose": "\"Scope & Settle\" with the ampersand in Settle Teal."
+      },
+      "code": {
+        "displayName": "Inline code",
+        "purpose": "File names and other literal code inside setup steps, set in the platform monospace on a sunken chip; never used for data or as a technical costume."
+      }
+    },
+    "fonts": [
+      {
+        "family": "Hanken Grotesk",
+        "file": "app/web/fonts/hanken-grotesk-latin.woff2",
+        "licence": "SIL Open Font License (app/web/fonts/OFL.txt)",
+        "weights": "100 900 (variable)",
+        "delivery": "Same-origin at /assets/fonts/; the Figma plugin build inlines it as a data URI."
+      }
+    ],
+    "themes": {
+      "light": {
+        "scope": ":root",
+        "colorScheme": "light",
+        "appliesTo": "All browser pages, and the Figma plugin in light theme."
+      },
+      "compact": {
+        "scope": ".compact",
+        "appliesTo": "Designer workspace and Figma plugin (operator density).",
+        "tokens": {
+          "--text-body": ".875rem",
+          "--text-title": ".9375rem",
+          "--text-headline": "1.125rem",
+          "--text-display": "1.5rem",
+          "--text-amount": "1.75rem",
+          "--leading": "1.5"
+        }
+      },
+      "figmaDark": {
+        "scope": "html.figma-dark, .theme-dark",
+        "colorScheme": "dark",
+        "appliesTo": "Figma plugin only, when Figma runs dark. Browser pages stay light.",
+        "note": "Per-colour dark values are in colorMeta.<token>.figmaDark."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "cssVar": "--lift",
+        "value": "0 1px 2px rgb(21 45 55 / .06), 0 16px 36px -20px rgb(21 45 55 / .30)",
+        "purpose": "The decision panel and the floating toast only."
+      },
+      {
+        "name": "lift-figma-dark",
+        "cssVar": "--lift",
+        "value": "0 1px 2px rgb(0 0 0 / .3), 0 16px 36px -20px rgb(0 0 0 / .6)",
+        "purpose": "The same lift under the Figma dark theme."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "cssVar": "--ease",
+        "value": "cubic-bezier(.22,1,.36,1)",
+        "purpose": "Every transition and animation."
+      },
+      {
+        "name": "fast",
+        "cssVar": "--fast",
+        "value": "120ms",
+        "purpose": "Button, field and link state changes."
+      },
+      {
+        "name": "base",
+        "cssVar": "--base",
+        "value": "180ms",
+        "purpose": "Consent, row background, chevron rotation, toast entry."
+      },
+      {
+        "name": "breathe",
+        "value": "1.6s, dot opacity to .35",
+        "purpose": "Live working chips and the current working track stop."
+      },
+      {
+        "name": "arrive",
+        "value": "1.6s, background from teal-tint",
+        "purpose": "One-time flash on a newly arrived statement row; its updated dot pings twice over 0.8s."
+      },
+      {
+        "name": "toast-in",
+        "value": "base duration, from 8px below and transparent",
+        "purpose": "Toast entry."
+      },
+      {
+        "name": "shimmer",
+        "value": "1.4s linear",
+        "purpose": "Loading skeleton."
+      },
+      {
+        "name": "spin",
+        "value": "0.7s linear",
+        "purpose": "Busy button ring."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "1ms durations, one iteration",
+        "purpose": "All motion under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "statement-compress",
+        "value": "1080px",
+        "purpose": "Statement columns narrow."
+      },
+      {
+        "name": "board-vertical",
+        "value": "900px",
+        "purpose": "Settlement line turns vertical; stations stack."
+      },
+      {
+        "name": "single-column",
+        "value": "860px",
+        "purpose": "Two-column splits collapse; statement rows stack."
+      },
+      {
+        "name": "phone",
+        "value": "560px",
+        "purpose": "Shell and card padding 16px; H1 at 86 percent."
+      },
+      {
+        "name": "figma-plugin",
+        "value": "440px",
+        "purpose": "Plugin panel width (440 x 720); renders the vertical board."
+      }
+    ],
+    "icons": {
+      "style": "One stroke set on a 24px grid, stroke 1.75, round caps and joins, currentColor, aria-hidden.",
+      "source": "app/web/common.js (glyphs)",
+      "sizes": "16px in buttons, 1.15em elsewhere."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The viewer's move: one teal fill per decision.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Send request</button>",
+      "css": ".ds-btn-primary{font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:40px;padding:9px 16px;border-radius:var(--radius-control);font-size:var(--text-body);font-weight:640;line-height:1.2;cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);border:1px solid var(--teal);background:var(--teal);color:var(--on-teal)}.ds-btn-primary:hover{background:var(--teal-strong);border-color:var(--teal-strong)}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}.ds-btn-primary:disabled{background:var(--sunken);border-color:var(--line);color:var(--muted);cursor:not-allowed;transform:none}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Row actions and alternatives beside a primary action.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">Review &amp; approve</button>",
+      "css": ".ds-btn-secondary{font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:40px;padding:9px 16px;border-radius:var(--radius-control);font-size:var(--text-body);font-weight:640;line-height:1.2;cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);border:1px solid var(--control);background:var(--surface);color:var(--teal)}.ds-btn-secondary:hover{background:var(--teal-wash);border-color:var(--teal)}.ds-btn-secondary:active{transform:translateY(1px)}.ds-btn-secondary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Refresh, tool toggles and low-stakes exits; pressed state for an open tool.",
+      "html": "<button class=\"ds-btn-quiet\" type=\"button\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19.5 12a7.5 7.5 0 1 1-2.2-5.3\"/><path d=\"M19.5 4.5v4.5H15\"/></svg>Refresh</button>",
+      "css": ".ds-btn-quiet{font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:40px;padding:9px 16px;border-radius:var(--radius-control);font-size:var(--text-body);font-weight:640;line-height:1.2;cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);padding-inline:10px;border:1px solid transparent;background:transparent;color:var(--teal)}.ds-btn-quiet:hover{background:var(--teal-wash)}.ds-btn-quiet[aria-expanded=true]{background:var(--teal-tint);color:var(--teal-strong)}.ds-btn-quiet:focus-visible{outline:2px solid var(--teal);outline-offset:2px}.ds-icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive resets only.",
+      "html": "<button class=\"ds-btn-danger\" type=\"button\">Reset my demo</button>",
+      "css": ".ds-btn-danger{font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:40px;padding:9px 16px;border-radius:var(--radius-control);font-size:var(--text-body);font-weight:640;line-height:1.2;cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);border:1px solid var(--danger-line);background:var(--surface);color:var(--danger)}.ds-btn-danger:hover{background:var(--danger-tint);border-color:var(--danger)}.ds-btn-danger:active{transform:translateY(1px)}.ds-btn-danger:focus-visible{outline:2px solid var(--teal);outline-offset:2px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Label above, hint below, teal caret and focus ring.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-ask\">What would you like to change?</label><input class=\"ds-input\" id=\"ds-ask\" placeholder=\"Can you add the mobile checkout?\"><p class=\"ds-hint\">Requests are checked against your agreed brief and your designer's approved rates.</p></div>",
+      "css": ".ds-field{font-family:var(--font);display:grid;color:var(--ink)}.ds-label{display:block;font-size:var(--text-meta);font-weight:620;margin:0 0 6px}.ds-input{font-family:var(--font);width:100%;font-size:var(--text-body);color:var(--ink);background:var(--surface);border:1px solid var(--control);border-radius:var(--radius-control);padding:10px 12px;caret-color:var(--teal);transition:border-color var(--fast) var(--ease)}.ds-input:hover{border-color:var(--control-hover)}.ds-input:focus-visible{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal)}.ds-input::placeholder{color:var(--placeholder);opacity:1}.ds-input[readonly]{background:var(--sunken);color:var(--ink-2)}.ds-input:disabled{background:var(--sunken);color:var(--muted);border-color:var(--line)}.ds-hint{margin:6px 0 0;font-size:var(--text-meta);color:var(--muted)}"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "status-action",
+      "description": "One tone per meaning: action, working, waiting, attention, danger, quiet, settled.",
+      "html": "<div class=\"ds-chips\"><span class=\"ds-status\" data-tone=\"action\">Quote ready</span><span class=\"ds-status\" data-tone=\"working\">Assessing your request</span><span class=\"ds-status\" data-tone=\"waiting\">Waiting for client</span><span class=\"ds-status\" data-tone=\"attention\">Needs your review</span><span class=\"ds-status\" data-tone=\"danger\">Payment needs review</span><span class=\"ds-status\" data-tone=\"quiet\">Covered by the brief</span><span class=\"ds-status\" data-tone=\"settled\">Paid</span></div>",
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:var(--s2)}.ds-status{font-family:var(--font);display:inline-flex;align-items:center;gap:6px;font-size:var(--text-label);font-weight:640;line-height:1.2;border-radius:var(--radius-pill);padding:4px 10px 4px 8px;white-space:nowrap;color:var(--working-ink);background:var(--working-tint)}.ds-status::before{content:\"\";width:7px;height:7px;border-radius:50%;background:var(--working);flex:none}.ds-status[data-tone=working]::before{animation:ds-breathe 1.6s var(--ease) infinite}.ds-status[data-tone=action]{color:var(--teal-strong);background:var(--teal-tint)}.ds-status[data-tone=action]::before{background:var(--teal)}.ds-status[data-tone=attention]{color:var(--attention-ink);background:var(--attention-tint)}.ds-status[data-tone=attention]::before{background:var(--attention)}.ds-status[data-tone=danger]{color:var(--danger-ink);background:var(--danger-tint)}.ds-status[data-tone=danger]::before{background:var(--danger)}.ds-status[data-tone=quiet]{color:var(--muted);background:var(--sunken)}.ds-status[data-tone=quiet]::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--control)}.ds-status[data-tone=settled]{color:var(--on-teal);background:var(--teal-deep)}.ds-status[data-tone=settled]::before{width:9px;height:5px;border-radius:0;background:none;border:solid currentColor;border-width:0 0 2px 2px;transform:translateY(-2px) rotate(-45deg)}@keyframes ds-breathe{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.ds-status::before{animation:none!important}}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat white surface, hairline border, 12 px corners.",
+      "html": "<section class=\"ds-card\"><h3 class=\"ds-card-title\">Open your project</h3><p class=\"ds-card-body\">Private access link from your designer.</p></section>",
+      "css": ".ds-card{font-family:var(--font);display:grid;gap:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-card);padding:var(--s6);color:var(--ink)}.ds-card-title{margin:0;font-size:var(--text-headline);line-height:1.25;font-weight:680;letter-spacing:-.012em}.ds-card-body{margin:0;font-size:var(--text-body);line-height:var(--leading);color:var(--muted)}"
+    },
+    {
+      "name": "Settlement Track",
+      "kind": "custom",
+      "refersTo": "settlement-track",
+      "description": "Signature: Request, Quote, Approval, Payment. Reached stops checked, current stop ringed.",
+      "html": "<ol class=\"ds-track\" aria-label=\"Progress: stage 3 of 4, Approval\"><li class=\"done\">Request</li><li class=\"done\">Quote</li><li class=\"current\">Approval</li><li>Payment</li></ol>",
+      "css": ".ds-track{font-family:var(--font);list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);max-width:640px}.ds-track li{position:relative;display:grid;justify-items:start;gap:6px;margin:0;padding-right:var(--s2);font-size:var(--text-label);font-weight:560;color:var(--muted)}.ds-track li::before{content:\"\";position:relative;z-index:1;box-sizing:border-box;width:14px;height:14px;border-radius:50%;border:2px solid var(--control);background:var(--surface)}.ds-track li::after{content:\"\";position:absolute;top:6px;left:14px;right:0;height:2px;background:var(--line)}.ds-track li:last-child::after{display:none}.ds-track li.done{color:var(--ink-2)}.ds-track li.done::before{border-color:var(--teal);background:var(--teal) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.6 7.2l2.2 2.2 4.5-4.8' fill='none' stroke='white' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\") center/12px no-repeat}.ds-track li.done::after{background:var(--teal)}.ds-track li.current{color:var(--ink);font-weight:680}.ds-track li.current::before{border-color:var(--teal);background:var(--teal);box-shadow:inset 0 0 0 3px var(--surface)}.ds-track li.current.attention{color:var(--attention-ink)}.ds-track li.current.attention::before{border-color:var(--attention);background:var(--attention)}"
+    },
+    {
+      "name": "Decision Panel",
+      "kind": "custom",
+      "refersTo": "decision-panel",
+      "description": "Signature: the one lifted surface, holding the total, the exact consent and the single action.",
+      "html": "<aside class=\"ds-decision\" aria-label=\"Approval and payment\"><div class=\"ds-total\"><span class=\"ds-total-label\">Total, revision 1</span><span class=\"ds-amount\">$250.00</span></div><label class=\"ds-consent\"><input type=\"checkbox\"><span>I approve the exact deliverables and $250.00 total in revision 1, and agree that work begins after payment.</span></label><button class=\"ds-decide\" type=\"button\">Approve revision 1 &amp; prepare PayPal invoice</button></aside>",
+      "css": ".ds-decision{font-family:var(--font);display:grid;gap:var(--s4);max-width:380px;background:var(--surface);border:1px solid var(--teal-line);border-radius:var(--radius-card);padding:var(--s5);box-shadow:var(--lift);color:var(--ink)}.ds-total{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s4)}.ds-total-label{font-size:var(--text-label);font-weight:620;letter-spacing:.01em;color:var(--muted)}.ds-amount{font-size:var(--text-amount);font-weight:720;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums lining-nums}.ds-consent{display:flex;gap:var(--s3);align-items:flex-start;font-size:var(--text-body);line-height:1.45;cursor:pointer;border:1px solid var(--teal-line);background:var(--teal-wash);border-radius:var(--radius-inner);padding:var(--s3) var(--s4);transition:background-color var(--base) var(--ease),border-color var(--base) var(--ease)}.ds-consent input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:var(--teal);cursor:pointer}.ds-consent:has(input:checked){background:var(--teal-tint);border-color:var(--teal)}.ds-consent input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}.ds-decide{font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:40px;padding:9px 16px;border-radius:var(--radius-control);font-size:var(--text-body);font-weight:640;line-height:1.2;cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);width:100%;border:1px solid var(--teal);background:var(--teal);color:var(--on-teal)}.ds-decide:hover{background:var(--teal-strong);border-color:var(--teal-strong)}.ds-decide:active{transform:translateY(1px)}.ds-decide:focus-visible{outline:2px solid var(--teal);outline-offset:2px}"
+    },
+    {
+      "name": "Evidence Quote",
+      "kind": "custom",
+      "refersTo": "evidence-quote",
+      "description": "Agreed-brief text quoted exactly, with its clause reference.",
+      "html": "<figure class=\"ds-evidence\"><blockquote>Design covers the desktop checkout flow.</blockquote><figcaption>Agreed brief · clause C2</figcaption></figure>",
+      "css": ".ds-evidence{font-family:var(--font);--ds-quote:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 6C6.6 7.2 4.6 9.9 4.6 13.6V18h5.6v-5.4H7.6c.2-2.2 1.2-3.7 3.2-4.5zM19.4 6C16 7.2 14 9.9 14 13.6V18h5.6v-5.4H17c.2-2.2 1.2-3.7 3.2-4.5z'/%3E%3C/svg%3E\");position:relative;margin:0;background:var(--sunken);border-radius:var(--radius-inner);padding:var(--s3) var(--s4) var(--s3) 44px}.ds-evidence::before{content:\"\";position:absolute;left:14px;top:13px;width:18px;height:18px;background:var(--teal);-webkit-mask:var(--ds-quote) center/contain no-repeat;mask:var(--ds-quote) center/contain no-repeat}.ds-evidence blockquote{margin:0;color:var(--ink);font-size:var(--text-body);line-height:1.5}.ds-evidence figcaption{margin-top:6px;font-size:var(--text-meta);color:var(--muted)}"
+    },
+    {
+      "name": "Toast Notice",
+      "kind": "custom",
+      "refersTo": "notice",
+      "description": "Live page status floating at the bottom centre; confirmations fade, errors persist until dismissed.",
+      "html": "<div class=\"ds-toast\" role=\"status\"><svg class=\"ds-toast-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 11v5M12 7.8h.01\"/></svg><span>Your request was sent to your designer.</span><button class=\"ds-dismiss\" type=\"button\" aria-label=\"Dismiss message\"><svg class=\"ds-toast-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg></button></div>",
+      "css": ".ds-toast{font-family:var(--font);display:flex;gap:var(--s3);align-items:flex-start;width:min(560px,100%);padding:var(--s3) var(--s4);border-radius:var(--radius-inner);background:var(--teal-wash);color:var(--ink);border:1px solid var(--teal-line);box-shadow:var(--lift);font-size:var(--text-body);line-height:var(--leading);animation:ds-toast-in var(--base) var(--ease)}.ds-toast>span{flex:1;min-width:0}.ds-toast>.ds-toast-icon{color:var(--teal);margin-top:2px}.ds-toast-icon{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}.ds-dismiss{display:inline-flex;align-items:center;min-height:24px;padding:2px 6px;margin:-2px -6px -2px 0;background:transparent;border:1px solid transparent;border-radius:var(--radius-control);color:inherit;cursor:pointer}.ds-dismiss:hover{background:color-mix(in srgb,currentColor 10%,transparent)}.ds-dismiss:focus-visible{outline:2px solid var(--teal);outline-offset:2px}.ds-toast.error{background:var(--danger-tint);border-color:var(--danger-line);color:var(--danger-ink)}.ds-toast.error>.ds-toast-icon{color:var(--danger)}@keyframes ds-toast-in{from{opacity:0;transform:translateY(8px)}}"
+    },
+    {
+      "name": "Stage-Board Station",
+      "kind": "custom",
+      "refersTo": "job-card",
+      "description": "Designer board column: node, name and count on the settlement line, job cards beneath; ochre when it holds an exception.",
+      "html": "<section class=\"ds-station\" data-state=\"alert\"><header class=\"ds-station-head\"><span class=\"ds-node\" aria-hidden=\"true\"></span><h3>Quote</h3><span class=\"ds-count\">1</span></header><article class=\"ds-job\" data-tone=\"attention\"><span class=\"ds-job-chip\">Needs your review</span><h4>And a tablet layout for the checkout as well, please.</h4><p class=\"ds-reason\">This quote exceeds the remaining cumulative allowance.</p><div class=\"ds-job-actions\"><button type=\"button\" class=\"ds-job-primary\">Review exception</button><button type=\"button\" class=\"ds-job-secondary\">Retry within policy</button></div></article></section>",
+      "css": ".ds-station{font-family:var(--font);display:grid;gap:var(--s3);max-width:320px;padding:var(--s2);background:var(--page);color:var(--ink)}.ds-station-head{display:flex;align-items:center;gap:var(--s2);min-height:18px}.ds-station-head h3{margin:0;font-size:var(--text-meta);font-weight:680;letter-spacing:.01em}.ds-count{font-size:var(--text-label);font-weight:640;color:var(--muted);font-variant-numeric:tabular-nums}.ds-node{box-sizing:border-box;width:16px;height:16px;flex:none;border-radius:50%;border:2px solid var(--control);background:var(--page)}.ds-station[data-state=active] .ds-node{border-color:var(--teal);background:var(--teal);box-shadow:inset 0 0 0 3px var(--page)}.ds-station[data-state=alert] .ds-node{border-color:var(--attention);background:var(--attention);box-shadow:inset 0 0 0 3px var(--page)}.ds-station[data-state=alert] h3{color:var(--attention-ink)}.ds-job{display:grid;gap:var(--s2);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-inner);padding:var(--s3) var(--s4)}.ds-job[data-tone=attention]{border-color:var(--attention-line);background:color-mix(in srgb,var(--attention-tint) 45%,var(--surface))}.ds-job h4{margin:0;font-size:var(--text-body);font-weight:640;line-height:1.35}.ds-job-chip{justify-self:start;display:inline-flex;align-items:center;gap:6px;font-size:var(--text-label);font-weight:640;line-height:1.2;border-radius:var(--radius-pill);padding:4px 10px 4px 8px;color:var(--attention-ink);background:var(--attention-tint)}.ds-job-chip::before{content:\"\";width:7px;height:7px;border-radius:50%;background:var(--attention)}.ds-reason{margin:0;font-size:var(--text-meta);color:var(--ink-2)}.ds-job-actions{display:flex;flex-wrap:wrap;gap:var(--s2)}.ds-job-actions button{font-family:var(--font);min-height:32px;padding:5px 11px;font-size:var(--text-meta);font-weight:640;line-height:1.2;border-radius:var(--radius-control);cursor:pointer;transition:background-color var(--fast) var(--ease),border-color var(--fast) var(--ease)}.ds-job-primary{background:var(--teal);color:var(--on-teal);border:1px solid var(--teal)}.ds-job-primary:hover{background:var(--teal-strong);border-color:var(--teal-strong)}.ds-job-secondary{background:var(--surface);color:var(--teal);border:1px solid var(--control)}.ds-job-secondary:hover{background:var(--teal-wash);border-color:var(--teal)}.ds-job-actions button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Good Terms",
+    "overview": "Good Terms is the feeling of two people who already agree on what is being asked, what it costs and what has been paid. The system is calm, flat and exact: a cool, faintly teal-tinted ground, white hairline-bordered surfaces, one deep harbour ink for text and one brand teal that means \"this move is yours\". Every state the product can be in has a colour with a single meaning, so a client reads where the money stands before reading a word. The client's experience wins when designer and client needs conflict; the client surfaces carry the money moment and the full reading density, the designer surfaces compress the same system into operator density.\n\nThe world evolves the 0.3.0 system rather than replacing it. Its anchors stay: the \"Scope & Settle\" wordmark with its teal ampersand, brand teal and harbour ink, calm flat bordered cards. What it adds is one self-hosted face (Hanken Grotesk), a fixed type scale in two densities, a status language, a single lifted decision panel and the settlement track (Request, Quote, Approval, Payment), which is the signature that runs through every surface. It must never feel like legal-document stiffness, and never too playful. The Figma plugin follows Figma's light or dark theme; browser pages stay light.",
+    "keyCharacteristics": [
+      "Flat, hairline-bordered white surfaces on a cool tinted ground; one lifted panel where a decision is made.",
+      "One face, one fixed rem scale, two densities (reading and operator).",
+      "Colour is status: teal for the viewer's move, slate for someone else working, amber for care, brick for failure, deep teal with a check for Paid.",
+      "The settlement track (Request, Quote, Approval, Payment) is the recurring signature, from a 10 px mini track in a row to the full board.",
+      "Tabular figures on every amount, time and count.",
+      "Quiet motion: short eased state changes, a breathing dot for live work, nothing decorative."
+    ],
+    "rules": [
+      {
+        "name": "The Viewer's Move Rule",
+        "body": "A solid teal fill, a teal action chip or a teal stage label means the person looking has something to do. On the settlement track, teal marks the stops already reached. Anything waiting on someone else is slate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Meaning-Only Rule",
+        "body": "Ochre means needs care and brick means failed. Neither appears for emphasis, decoration or brand colour; a surface with nothing wrong carries neither (the sandbox chip's caution dot is the standing exception).",
+        "section": "colors"
+      },
+      {
+        "name": "The Paid Is Earned Rule",
+        "body": "Paid Deep Teal with a check appears only when payment is settled. No other state borrows it, and no state is shown as settled before it is.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Face Rule",
+        "body": "Every word is Hanken Grotesk, loaded from the same origin or inlined; no second display or body family, and no page falls back to the machine's system face by design.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Densities Rule",
+        "body": "Sizes come only from the seven type tokens; density changes by swapping the token set for the whole surface, never by setting a one-off size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Amounts, times, counts and step numbers use tabular lining figures so columns of money line up.",
+        "section": "typography"
+      },
+      {
+        "name": "The Line Never Wraps Rule",
+        "body": "The settlement line runs in one direction: across when four readable columns fit, straight down the left edge when they do not. It never wraps into two rows.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "On any page, the only raised surface in the flow is the decision panel. Cards, rows, job cards and buttons stay flat at rest and on hover; hover changes tone, never height.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do take every colour, size, space, radius and duration from the custom properties in `app/web/style.css`; values in this file mirror them.",
+      "Do keep the wordmark as \"Scope & Settle\" at 760 weight with only the ampersand in Settle Teal.",
+      "Do draw the favicon from the wordmark's own ampersand: the Hanken Grotesk glyph at 760, outlined as a path, white on a Settle Teal 32 px tile with 8 px corners, never live text in a system face.",
+      "Do give every state one tone from the status set and keep its meaning: teal for the viewer's move, slate for someone else working, ochre for care, brick for failure, Paid Deep Teal with a check for Paid.",
+      "Do show progress with the settlement track, at full size where there is room and as the 10 px mini track inside rows.",
+      "Do use the operator density (`.compact`) for designer surfaces and the reading density for client surfaces.",
+      "Do honour Figma's light and dark theme in the plugin by swapping the token set; keep browser pages light.",
+      "Do set amounts, times and counts in tabular lining figures, and show the price source on every line item.",
+      "Do use stroke icons from the shared set (24 px grid, 1.75 stroke, round caps), decorative and hidden from assistive technology.",
+      "Do respect reduced motion: every animation and transition collapses to 1 ms."
+    ],
+    "donts": [
+      "Don't let it stiffen into a legal document: agreement text appears only as short evidence quotes, and terms read as plain sentences beside the decision.",
+      "Don't make it too playful: motion stays short and eased (120 to 180 ms state changes, a breathing dot for live work), and no hue is added beyond the teal family and the status tones.",
+      "Don't lift anything except the decision panel and the floating toast.",
+      "Don't put an uppercase eyebrow or kicker above headings; the 0.3.0 eyebrows were removed.",
+      "Don't use thick coloured side stripes on notices, quotes or cards; tone and hairlines carry meaning.",
+      "Don't nest bordered cards inside cards; the decision panel inside an open statement row is the one sanctioned exception.",
+      "Don't use ochre or brick for emphasis, or Paid Deep Teal for anything not settled.",
+      "Don't load another font family or rely on the system face for display text."
+    ]
+  }
+}

@@ -14,7 +14,7 @@ globalThis.fetch = async (url, init) => {
 for (const name of ['designer.html','review.html']) {
   const path=join(fixture.app,'web',name);
   const html=await readFile(path,'utf8');
-  await writeFile(path,html.replaceAll('SANDBOX DEMO','BROWSER TEST FIXTURE').replaceAll('CLIENT REVIEW · SANDBOX','CLIENT REVIEW · TEST FIXTURE'));
+  await writeFile(path,html.replaceAll('Sandbox demo','Browser test fixture').replaceAll('Client review · sandbox','Client review · test fixture'));
 }
 const { config } = await fixture.load('env');
 const { server } = await fixture.load('server');

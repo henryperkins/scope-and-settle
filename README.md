@@ -62,7 +62,7 @@ For automatic quoting:
 
 The cumulative allowance counts delivered quotes, including unpaid quotes. Pausing prevents new assessments and messages; existing published quotes remain available for explicit client approval. Natural session expiry does not stop authorized work, but parent revocation, access expiry, reset or a changed brief stops the delegation. Development invitations delegate for at most 24 hours; durable judging grants last until their parent expiry. Provider outages and uncertain delivery appear as exceptions; unattended does not mean maintenance-free.
 
-For a designer-reviewed assessment with an actual selected frame, expand **Assess a request or review terms yourself**:
+For a designer-reviewed assessment with an actual selected frame, choose **Assess a request** in the designer toolbar:
 
 1. Select the actual Figma comment and optionally attach one selected frame.
 2. Assess it against the supplied brief. Included work produces no billable proposal. For uncertainty, post the drafted question manually in Figma, paste the reply, and reassess.

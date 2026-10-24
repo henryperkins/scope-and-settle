@@ -26,6 +26,10 @@ app/web/**
 !app/web/*.html
 !app/web/*.js
 !app/web/*.css
+!app/web/fonts/
+app/web/fonts/**
+!app/web/fonts/*.woff2
+!app/web/fonts/OFL.txt
 !app/plugin/
 app/plugin/**
 !app/plugin/code.ts
