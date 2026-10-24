@@ -4,6 +4,7 @@ export interface FigmaComment {
   id: string;
   message: string;
   userHandle: string | null;
+  userId?: string | null;
   createdAt: string | null;
   resolvedAt: string | null;
   nodeId: string | null;

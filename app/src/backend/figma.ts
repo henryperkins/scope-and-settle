@@ -4,7 +4,7 @@ import type { FigmaComment } from "../shared/types.js";
 interface FigmaApiComment {
   id: string;
   message?: string;
-  user?: { handle?: string };
+  user?: { id?: string; handle?: string };
   created_at?: string;
   resolved_at?: string | null;
   client_meta?: { node_id?: string } | null;
@@ -27,6 +27,7 @@ export async function fetchComments(fileKey: string): Promise<FigmaComment[]> {
     id: c.id,
     message: c.message ?? "",
     userHandle: c.user?.handle ?? null,
+    userId: c.user?.id ?? null,
     createdAt: c.created_at ?? null,
     resolvedAt: c.resolved_at ?? null,
     nodeId: c.client_meta?.node_id ?? null,
