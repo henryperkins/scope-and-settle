@@ -55,7 +55,7 @@ Import `app/plugin/dist/manifest.json` in Figma desktop. A native plugin run, re
 
 ## Operations
 
-The current **0.2.1** release uses reviewed source `99de2812193425b3c49c46b2faed91a4a40d8b57` and runtime image `sha256:07f7cf5e62ee9f597e3fea750d99d5d069657cf4ab44805203b964be7dcb94cf`. Windows and clean-source Linux builds passed **52 tests, 0 failed, 0 skipped**. Hosted entry, expiry/renewal, independent reset, preserved Paid state and restart checks passed. Both actual Paid orders retain their approvals and verified signed receipts. [Judging verification](JUDGING-VERIFICATION-2026-10-23.md) records the exact ZIP checksum and evidence; [webhook verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) describes the separate ingress. Later sections preserve historical deployment observations.
+The current **0.3.0** release uses reviewed source `f9431bb89613e22ced6aff307a1b26fb5f1e8eac` and runtime image `sha256:d2da90d3d9379355d8ef1eb2de3bbaf615da1ebb4963a21f405fd2fb6205191e`. Windows and clean-source Linux builds passed **79 tests, 0 failed, 0 skipped**. Additive agent tables preserve the existing judging access, AI ledger, three Paid orders, original approvals and signed receipts. [Agent verification](CLIENT-AGENT-VERIFICATION-2026-10-23.md) records artifact identity and live automatic quoting; [earlier judging verification](JUDGING-VERIFICATION-2026-10-23.md) records the 0.2.1 acceptance, and [webhook verification](PAYPAL-WEBHOOK-DIAGNOSTIC-2026-10-23.md) describes the separate ingress. Later sections preserve historical deployment observations.
 
 Connect using:
 

@@ -4,7 +4,21 @@ This is a recording outline and observation guide. It is not evidence that the r
 
 **October 23 recording update:** the actual product demonstration is now edited and reviewed at **2:49**, with English narration and captions. See [the completed video and its evidence](DEMO-VIDEO.md). The earlier outline below is planning material; the final edit's actual sequence, compression and limitations are documented separately. No outside-designer walkthrough has been completed.
 
-## Under-three-minute video
+## Agent demonstration to record for 0.3.0
+
+The existing public video shows 0.2.1 manual review. A new recording must show the actual automatic-quoting workflow before the submission presents it as demonstrated. Target 2:45–2:55:
+
+| Time | Show | Explain |
+| --- | --- | --- |
+| 0:00–0:20 | Client scope-change request beside the agreed desktop brief | Freelance designers need an explicit agreement for additional work. |
+| 0:20–0:40 | Designer selects the $250 catalogue item and approves quote/cumulative limits | One policy setup delegates only those terms; client text cannot change the policy. |
+| 0:40–1:10 | Actual new Figma comment; plugin closes; quote arrives in its thread and private portal | Hosted AI compares the request with agreement evidence. Code calculates the permitted amount and checks limits. Label any time compression. |
+| 1:10–1:30 | A request over the approved limit appears in the exception queue | Routine quotes do not need a designer click; unsupported terms do. |
+| 1:30–2:10 | Client reviews the exact revision, gives consent, then opens the actual PayPal sandbox invoice | Payment is a separate client action; recovery retains the invoice. |
+| 2:10–2:40 | Authoritative Paid status and native reopening | Use genuine paid evidence. If reusing the earlier completed payment, visibly identify it as a different previously paid revision; do not splice it into the new automatic order as if it were the same payment. |
+| 2:40–2:55 | Clear outcome, setup link and bounded prototype scope | One synthetic file, USD and sandbox payments. No claims of measured designer time savings or broad model reliability. |
+
+## Earlier manual-workflow video outline
 
 | Time | Show | Explain |
 | --- | --- | --- |
@@ -24,8 +38,8 @@ Recruit participants separately; no outreach has been sent by this project. Ask 
 
 1. Ask how they currently handle requests outside an agreed brief. Record their description as self-report.
 2. Observe a manual comparison task using their usual email/invoice tools where practical. Record start/end time and incomplete steps.
-3. Give them the comment → reviewed change → client approval task in Scope & Settle. Avoid coaching until they are stuck; record each intervention.
-4. Ask them to explain the evidence, price source and payment status in their own words. Record misunderstandings.
+3. Give them the current judging instructions: approve rates/limits, share the private portal, submit a matching request, approve as client, then inspect an over-limit exception. Observe whether they understand that closing Figma does not stop the hosted agent. Avoid coaching until they are stuck; record each intervention.
+4. Ask them to explain the evidence, price source, delegated limits, client consent and payment status in their own words. Include pausing the agent and reopening the same revision. Record misunderstandings.
 5. Ask what would make the result trustworthy, where they would still use their existing workflow, and what should change.
 
 | Participant | Task | Observed start/end | Completed? | Hesitation/intervention | Self-reported comparison | Suggested change |

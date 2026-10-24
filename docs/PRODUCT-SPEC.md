@@ -40,7 +40,7 @@ The positive payment acceptance test requires an actual personal sandbox buyer c
 
 ## Acceptance status
 
-The 0.3.0 agent candidate and its new assessment contract require their own release qualification. See [agent verification](CLIENT-AGENT-VERIFICATION-2026-10-23.md). The following live payment/video evidence was established on the earlier 0.2.1 manual-review workflow and does not prove automatic quote delivery or the new prompt's model quality.
+The deployed 0.3.0 agent has separate [release qualification](CLIENT-AGENT-VERIFICATION-2026-10-23.md): live automatic portal quotes, over-limit escalation, explicit approval and actual sandbox invoice creation, plus an actual Figma thread reply with the plugin closed. The following completed-payment/video evidence was established on the earlier 0.2.1 manual-review workflow and does not establish general accuracy of the new prompt.
 
 1. Verified: actual comment → frame export → live assessment inside Figma desktop. Image attachment is proven; visual reasoning quality is not independently established.
 2. Verified for the bounded synthetic cases: final six fixtures and three fresh paraphrases have correct classifications, meaningful clause evidence and rates. Latencies and earlier failures are recorded.

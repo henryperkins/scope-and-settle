@@ -1,5 +1,7 @@
 # Judging access verification — October 23, 2026 UTC
 
+Historical 0.2.1 acceptance record. For the deployed 0.3.0 automatic-quoting release, see [client agent verification](CLIENT-AGENT-VERIFICATION-2026-10-23.md). The payment and native evidence below remains preserved.
+
 Judging implementation is deployed, with webhook and native bridge fixes in `codex/paypal-webhook-delivery`. A fresh isolated judge run completed live assessment, client approval, sandbox payment, and automatic signed PAID delivery. The exact final 0.2.1 ZIP was then installed in Figma Desktop under a separate test account: actual frame attachment, authoritative payment refresh and restoration of the same Paid revision after reopening passed. The separate native acceptance below reuses the completed judge payment; it does not claim a second fresh native AI-to-checkout sequence or a walkthrough by an outside designer.
 
 ## Source and isolated local checks

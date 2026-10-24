@@ -30,39 +30,40 @@
 
 Files: new `app/src/backend/agentPolicy.ts`, `agentStore.ts`; tests `app/tests/agent-policy.test.mjs`; extend Figma comment user ID contract.
 Interfaces: `saveAgentPolicy(session, input)`, `getAgentPolicy(runId)`, `evaluateAutoQuote(project,result,policy,alreadyQuotedMinor)`; durable request/message/outbox records scoped by run.
-- [ ] Write/run failing tests for exact rates, missing coverage, limits, scope mismatch, explicit consent and cumulative allowance.
-- [ ] Implement additive schema, typed policy validation and deterministic quote gate.
-- [ ] Run policy tests and commit reviewed files.
+- [x] Write/run failing tests for exact rates, missing coverage, limits, scope mismatch, explicit consent and cumulative allowance.
+- [x] Implement additive schema, typed policy validation and deterministic quote gate.
+- [x] Run policy tests and commit reviewed files.
 
 ### Task 2: Portal authority and request lifecycle
 
 Files: new `agentPortal.ts`; modify role/grant checks and reset lifecycle; tests `agent-portal.test.mjs`.
 Interfaces: `createPortalAccess(session)`, `portalView(session)`, `addPortalRequest(session,text,parentId?)`, `approvePortalQuote(session,requestId,revision,consent)`.
-- [ ] Write/run failing authorization, expiry, reset, unpublished/stale/cross-run approval tests.
-- [ ] Implement hashed renewable portal grants and request/message storage, bounded text and immutable published quote references.
-- [ ] Run portal and existing judging/session tests; commit.
+- [x] Write/run failing authorization, expiry, reset, unpublished/stale/cross-run approval tests.
+- [x] Implement hashed renewable portal grants and request/message storage, bounded text and immutable published quote references.
+- [x] Run portal and existing judging/session tests; commit.
 
 ### Task 3: Autonomous worker and provider outbox
 
 Files: new `agentWorker.ts`; extend `figma.ts`, `paypal.ts`; tests `agent-worker.test.mjs`.
 Interfaces: `runAgentCycle(dependencies?)`, `startAgentWorker()`, Figma comment post/reconciliation and PayPal reminder adapter.
-- [ ] Write/run failing automatic intake, clarification, quote, exception, race, restart, cumulative limit and self-loop tests using isolated providers.
-- [ ] Implement single-flight worker, durable jobs/outbox, polling cursors, authority checks, payment tracking and opt-in reminders.
-- [ ] Run worker/provider tests; commit.
+- [x] Write/run failing automatic intake, clarification, quote, exception, race, restart, cumulative limit and self-loop tests using isolated providers.
+- [x] Implement single-flight worker, durable jobs/outbox, polling cursors, authority checks, payment tracking and opt-in reminders.
+- [x] Run worker/provider tests; commit.
 
 ### Task 4: HTTP and browser experience
 
 Files: server routes; new `app/web/agent.js`, `client.html`, `client.js`; designer UI/style; plugin packaging inputs as needed; tests `agent-http.test.mjs`.
 Routes: designer `/api/agent` GET, `/api/agent/policy` POST, `/api/agent/portal-access` POST, `/api/agent/requests/:id/{retry,dismiss}` POST; portal `/api/portal` GET, `/api/portal/requests` POST, `/api/portal/requests/:id/{reply,approve}` POST. Client portal is `/client`.
-- [ ] Write/run failing endpoint isolation, consent and static asset tests.
-- [ ] Implement policy setup, activity, exceptions and private portal delivery with accessible controls.
-- [ ] Run whole suite and browser walkthrough; commit.
+- [x] Write/run failing endpoint isolation, consent and static asset tests.
+- [x] Implement policy setup, activity, exceptions and private portal delivery with accessible controls.
+- [x] Run whole suite and browser walkthrough; commit.
 
 ### Task 5: Review and release qualification
 
 Files: current README, JUDGING, product/agent docs, version and release metadata.
-- [ ] Fresh independent review against spec and listed failure modes; fix material findings with regression tests.
-- [ ] Run full Windows suite and clean Linux release build; verify package checksums and preserved baseline.
-- [ ] Exercise actual available provider read/write paths without exposing secrets or spending outside the existing ledger; report unavailable permissions honestly.
-- [ ] Record new verification, commit exact allowlist, publish/deploy only qualified artifacts within existing authorization, preserve backups and existing paid evidence.
-- [ ] Update judging materials to distinguish the new autonomous path and previously recorded video; final Devpost submission remains pending user review.
+- [x] Fresh independent review against spec and listed failure modes; fix material findings with regression tests.
+- [x] Run full Windows suite and clean Linux release build; verify package checksums and preserved baseline.
+- [x] Exercise actual available provider read/write paths without exposing secrets or spending outside the existing ledger; report unavailable permissions honestly.
+- [x] Record new verification and deploy only qualified artifacts within existing authorization; preserve backups and existing paid evidence.
+- [ ] Publish the reviewed source and exact qualified plugin as the public 0.3.0 release.
+- [x] Update judging materials to distinguish the new autonomous path and previously recorded video; final Devpost submission remains pending user review.

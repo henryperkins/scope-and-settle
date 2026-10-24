@@ -1,6 +1,6 @@
 # Client agent verification — October 23, 2026
 
-Status: 0.3.0 candidate under qualification. This document separates the new agent from the existing 0.2.1 hosted payment evidence. No outside designer walkthrough has been completed, and the current public video predates automatic quoting.
+Status: 0.3.0 deployed from `f9431bb89613e22ced6aff307a1b26fb5f1e8eac`. Checks below ran October 23 in America/Chicago, with some provider timestamps on October 24 UTC. This document separates new automatic-quote evidence from the existing 0.2.1 completed-payment evidence. No outside designer walkthrough has been completed, and the current public video predates automatic quoting.
 
 ## Implemented
 
@@ -12,17 +12,23 @@ Status: 0.3.0 candidate under qualification. This document separates the new age
 
 ## Automated and browser fixtures
 
-After review fixes: Windows Node 24.15.0 suite **78 passed, 0 failed, 0 skipped**. Tests cover policy authority, canonical coverage, cumulative limits, client isolation/consent, pause/reset during assessment, duplicate intake, uncertain reply reconciliation, reminder rechecks, Paid continuity and the existing 52-test baseline. Added regressions cover stale cached evidence, invoice-in-flight recovery, separate delivery attention, OAuth authority races, immutable request/invoice associations, incomplete source coverage and exception editor context. All providers are fixtures in these checks.
+After review and live-contract fixes: Windows Node 24 and clean committed-source Linux suites each passed **79 tests, 0 failed, 0 skipped**. Tests cover policy authority, canonical coverage, cumulative limits, client isolation/consent, pause/reset during assessment, duplicate intake, uncertain reply reconciliation, reminder rechecks, Paid continuity and the existing 52-test baseline. Added regressions cover stale cached evidence, invoice-in-flight recovery, separate delivery attention, OAuth authority races, immutable request/invoice associations, incomplete source coverage, exception editor context and generation constraints. All providers are fixtures in these automated checks.
 
 Local browser operator walkthrough: approved a $250 rate / $250 quote cap / $500 cumulative policy, opened the private portal, submitted the mobile request, observed an automatically delivered $250 revision-1 quote without returning to the designer, explicitly approved as client, and observed payment-due with a sandbox checkout link from the fixture provider. A third request exceeded the $500 allowance and appeared in the exception queue; explicit designer review published the override to the same portal. At a 420px viewport, document width remained within the viewport. No actual payment or live inference was performed in this local walkthrough.
 
-## Qualification still required
+## Live qualification
 
-- Completed: independent review findings reproduced and fixed with regression tests.
-- Clean-source Linux build and final release ZIP identity.
-- Live Baseten automatic-assessment contract and actual available Figma capabilities.
-- Additive deployment, preserved three Paid orders/receipts/AI ledger, and hosted agent/reopening checks.
-- Final native release installation acceptance and a demonstration covering the new agent.
+- Source: `f9431bb89613e22ced6aff307a1b26fb5f1e8eac`; runtime image configuration digest: `sha256:d2da90d3d9379355d8ef1eb2de3bbaf615da1ebb4963a21f405fd2fb6205191e`. Public ZIP SHA-256: `d77743f03551d94630d3bca35499fd0c8e0202b5622378cda4f1efa0e4fee2e6`. A fresh hosted download matched the clean Linux build.
+- The first automatic assessment on the earlier candidate failed closed. A diagnostic response wrongly cited the client comment as an agreement clause and omitted the priced deliverable. The `scope-agent-v2` schema restricts agreement IDs and priced deliverables to the supplied catalogue and asks for clarification when it cannot price the entire request. A live candidate diagnostic passed, then the actual released worker processed a fresh provider response and published a $250 quote automatically. No recorded answer was substituted for live inference.
+- Portal request `69473bed-644d-4d41-bedc-15c34f006416` produced order `902d565d-60ba-4989-a142-f48e026a79f3`, revision 1 / `scope-rev-1`. It had no invoice before client consent. Explicit consent through the client endpoint created sandbox invoice `INV2-5CU2-S4HC-VC3S-U9A5`, $250 due. The browser portal refreshed from PayPal and restored the same revision after reload. This invoice has not been paid; existing completed payments are retained separately.
+- A second live request under a $200 per-quote limit became an exception with no order or invoice. The designer page showed the reason while routine quoted work stayed in activity.
+- Actual Figma test-account root comment `1979968914` was posted at `2026-10-24T00:55:21.789Z`. With the plugin closed and the browser designer page replaced by a blank page, the worker assessed it and posted reply `1979968944` at `00:55:38.050Z`: the exact $250 catalogue quote, client-approval requirement and payment term. The native thread and REST readback both confirmed delivery. The reply contains no private portal link. It belongs to order `cace8d82-f9e0-419d-811f-e9213d36e882`, revision 1, and created no invoice. This verifies actual comment-read/write capability on the configured file; it is not a Figma webhook test.
+- Additive deployment preserved all three previously Paid orders, their original approvals and seven reconciled webhook receipts. Database integrity passed. A consistent off-host pre-agent backup is retained privately. All 70 protected primary-checkout fingerprints remained unchanged. The shared hosted ledger reached **$0.132623** after these checks; its **$24.16** allocation was not reset. Earlier local accounting remains $0.837288, for $0.969911 combined conservative usage/reservations.
+- The exact released manifest was imported in Figma Desktop under the existing separate test account. Only the old 0.2.1 development registration was removed; its files remain. The new plugin restored the existing Paid orders and exported the actual selected 1200 × 982 frame. Closing and reopening the plugin after the backend restart restored access without reconnecting and displayed both previous judge/recording invoices as Paid, revision 1 / `scope-rev-1`, $0 due. A fresh native **Check payment** at 20:01 America/Chicago retained Paid and the original revision. No extra inference or payment was needed for that frame/persistence check.
+- A backend restart retained both automatic orders and their revisions, the single new invoice, the over-limit exception, sent Figma delivery, paused policy and unchanged AI ledger. The verification policy was paused after the external-delivery check; new judges explicitly enable their own independent run. A transient 502 banner remained in an already-open portal across deployment until reload; the live data recovered, and a fresh/reopened portal showed the correct state.
+- A consistent post-agent backup was copied off-host and opened read-only: integrity `ok`, three Paid orders, one sent outbox record and all 31 AI ledger entries totaling $0.132623. Its SHA-256 is `953eb33ecd780c6a0ba8bb3542c71edc9d38edc1597d5578dbfc60365594b1a7`. The backup contains private access data and is not a public release asset.
+
+Still required for the final hackathon package: a demonstration covering this agent workflow, actual designer walkthrough observations, updated Devpost claims, entrant answers and final submission approval. The pre-existing video documents the manual workflow only.
 
 ## Operational limits
 
