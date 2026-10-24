@@ -1,8 +1,8 @@
-# Scope & Settle — v1 product contract
+# Scope & Settle — client agent product contract
 
 ## Audience and outcome
 
-Freelance designers and small studios working with a client in Figma need to decide whether a casual request is included, additional work, or too ambiguous to price. The product links **agreement → evidence → designer review → client approval → PayPal invoice → payment status** in one small workflow.
+Freelance designers and small studios need to decide whether a client request is included, additional work, or too ambiguous to price. The product links **agreement → evidence → approved policy or designer exception review → client approval → PayPal invoice → payment status**. Clients can use the private portal without a Figma account; verified client authors can also submit new Figma threads.
 
 ## Boundary
 
@@ -17,11 +17,12 @@ One configured synthetic Figma project, one designer role, one client role, one 
 | AI | Baseten Model API, `deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast`, maximum reasoning, structured JSON and optional frame vision. Final six fixtures and three fresh paraphrases passed; earlier failures and limits are preserved in the verification record. |
 | Judgment | Classify as included, new work or needs clarification. Decisive classifications need quoted agreement evidence. An absent mobile frame never proves scope exclusion. |
 | Quality | Target approximately 15 seconds. Evaluate both false billable decisions and recognition of legitimate new work; an always-clarify result is inadequate. |
-| Context | Selected comment and direct replies, optionally one selected frame. Post clarification questions manually in Figma and capture the reply for reassessment. |
+| Context | Hosted worker reads new threads from designated client author IDs and private portal requests/replies. Automatic assessment uses text and the agreed brief. Manual assessment can additionally attach an actual selected frame. |
 | Pricing | Code resolves known rate IDs and calculates integer amounts. Fixture rates: $250 mobile checkout and $100 onboarding screen. Designer-set amounts stay visibly distinguished from rate-card prices. |
-| Review | The designer confirms deliverables and price. The client explicitly approves that exact proposal revision. AI cannot approve or invoice anything. |
+| Review | The designer approves rates and limits once. Code automatically publishes canonical rate-card terms only when AI supplies full explicit pricing coverage and policy checks pass. Exceptions need designer review. The client always explicitly approves the exact revision before invoice creation. |
+| Automation | One hosted worker, durable request states and outbox, exclusive Figma author routing, restart recovery, bounded clarification and opt-in reminders. Parent authority, policy and request versions are checked after awaited operations. No blind retries of uncertain notifications. |
 | Revisions | Approved/invoiced terms are immutable. A baseline change invalidates pending approval until designer re-review. Never silently rebase. |
-| Access | Expiring, revocable role links redeemed into project/run-scoped server sessions; client access binds to one revision. Links grant demo authority, not verified identity. |
+| Access | Expiring, revocable role links and a separately hashed portal credential scoped to one run. Portal approval can target only its published current revision. Worker delegation survives natural session expiry but follows parent revocation, reset and policy expiry. Links grant demo authority, not verified identity. |
 | Persistence | One Node 24 process and SQLite database. The selected Google Cloud VM hosts the HTTPS service with a persistent data disk; local setup is the fallback. |
 | Reset | Clear only the active run's local evidence and orders. Keep invoice tombstones and the AI budget ledger; PayPal invoices remain at PayPal. |
 | Budget | Reserve before calls, limit output and concurrency, record usage, and refuse calls above the configured remaining allowance. Overall development cap $25 across instances; hosted allocation $24.16 after earlier local usage. Moving deployments requires allocating only the remaining total budget. |
@@ -38,6 +39,8 @@ Treat a verified payment event as a reason to retrieve the invoice. Confirm invo
 The positive payment acceptance test requires an actual personal sandbox buyer checkout. Recording an external payment or injecting a simulated event cannot substitute for it.
 
 ## Acceptance status
+
+The 0.3.0 agent candidate and its new assessment contract require their own release qualification. See [agent verification](CLIENT-AGENT-VERIFICATION-2026-10-23.md). The following live payment/video evidence was established on the earlier 0.2.1 manual-review workflow and does not prove automatic quote delivery or the new prompt's model quality.
 
 1. Verified: actual comment → frame export → live assessment inside Figma desktop. Image attachment is proven; visual reasoning quality is not independently established.
 2. Verified for the bounded synthetic cases: final six fixtures and three fresh paraphrases have correct classifications, meaningful clause evidence and rates. Latencies and earlier failures are recorded.

@@ -4,9 +4,9 @@ import {config} from "./env.js";
 import {assess,getAssessment,type AssessmentResult} from "./assessment.js";
 import {fetchComments,postComment,FigmaRequestError} from "./figma.js";
 import {remindInvoice} from "./paypal.js";
-import {createChangeOrder,submitForApproval,getChangeOrder,refreshPaymentStatus} from "./orders.js";
-import {activeAgentPolicy,evaluateAutoQuote,policyAuthority,type AgentPolicy} from "./agentPolicy.js";
-import {createRequest,requestById,appendMessage,messagesFor,exceptionFor,quotedTotal,now,runtimeValue,setRuntimeValue,type AgentRequest} from "./agentStore.js";
+import {createChangeOrder,submitForApproval,getChangeOrder,refreshPaymentStatus,isInvoiceInFlight} from "./orders.js";
+import {activeAgentPolicy,evaluateAutoQuote,policyAuthority,projectHash,type AgentPolicy} from "./agentPolicy.js";
+import {createRequest,requestById,appendMessage,messagesFor,exceptionFor,attentionFor,quotedTotal,now,runtimeValue,setRuntimeValue,type AgentRequest} from "./agentStore.js";
 import type {FigmaComment} from "../shared/types.js";
 
 export interface AgentDependencies {
@@ -27,7 +27,7 @@ function current(request:AgentRequest,policy:AgentPolicy) {
   return fresh && active && active.version===policy.version && fresh.version===request.version && fresh.state!=="dismissed" ? fresh : null;
 }
 function queueMessage(request:AgentRequest,policy:AgentPolicy,text:string,key:string) {
-  appendMessage(request,"agent",text);
+  appendMessage(request,"agent",text,`agent:${request.id}:${key}`);
   if(request.source!=="figma" || !policy.figmaReplies)return;
   const marker=`${markerPrefix}${request.id}:${key}]`, at=now();
   const body=JSON.stringify({text:`${text}\n${marker}`,policyVersion:policy.version,requestVersion:request.version});
@@ -61,7 +61,8 @@ async function processRequest(request:AgentRequest,policy:AgentPolicy,deps:Agent
   const project=getProjectForRun(request.run_id),messages=messagesFor(request.id,request.run_id).filter(m=>m.actor==="client");
   const requestText=messages.map(m=>m.body).join("\n");
   try {
-    const cached=request.assessment_id ? getAssessment(request.assessment_id,request.run_id) : null;
+    const saved=request.assessment_id ? getAssessment(request.assessment_id,request.run_id) : null;
+    const cached=saved?.input?.automation===true && saved.scopeRevisionId===project.scopeRevisionId && projectHash(saved.input.project)===policy.projectHash ? saved : null;
     const record=cached ?? await deps.assess({project,comment:{id:request.source_id,message:request.text},
       replies:messages.slice(1).map(m=>({id:m.id,message:m.body})),automation:true},request.run_id);
     const fresh=current(request,policy);
@@ -109,7 +110,7 @@ async function dispatch(deps:AgentDependencies,comments:FigmaComment[]|null) {
     const request=requestById(item.request_id,item.run_id),policy=activeAgentPolicy(item.run_id),body=JSON.parse(item.body);
     if(!request || !policy || request.state==="dismissed" || policy.version!==body.policyVersion || request.version!==body.requestVersion) {
       db.prepare("UPDATE agent_outbox SET state = 'cancelled', updated_at = ? WHERE id = ?").run(now(),item.id);
-      if(request && policy)exceptionFor(request,"A pending message was cancelled because the policy or request changed. Review delivery before sending again.");
+      if(request && policy)attentionFor(request,"A pending message was cancelled because the policy or request changed. Review delivery before sending again.");
       continue;
     }
     if(item.kind==="figma") {
@@ -120,20 +121,23 @@ async function dispatch(deps:AgentDependencies,comments:FigmaComment[]|null) {
         if(delivered) {db.prepare("UPDATE agent_outbox SET state = 'sent', provider_id = ?, error = NULL, updated_at = ? WHERE id = ?").run(delivered.id,now(),item.id);continue;}
         // Absence in a single read is not proof of non-delivery. Do not resend.
         db.prepare("UPDATE agent_outbox SET state = 'review', error = 'Delivery uncertain; inspect Figma before sending manually', updated_at = ? WHERE id = ?").run(now(),item.id);
-        exceptionFor(request,"Figma reply delivery is uncertain. The quote remains in the portal; inspect the thread before any manual reply.");continue;
+        attentionFor(request,"Figma reply delivery is uncertain. The quote remains in the portal; inspect the thread before any manual reply.");continue;
       }
+      if(Date.now()<Number(runtimeValue("figma-next-send-at")||0))continue;
+      setRuntimeValue("figma-next-send-at",String(Date.now()+30_000));
       db.prepare("UPDATE agent_outbox SET state = 'sending', attempts = attempts + 1, updated_at = ? WHERE id = ?").run(now(),item.id);
       try {
         const sent=await deps.postComment(getProjectForRun(item.run_id).figmaFileKey,request.source_id,body.text);
         db.prepare("UPDATE agent_outbox SET state = 'sent', provider_id = ?, updated_at = ? WHERE id = ?").run(sent.id,now(),item.id);
       } catch(error) {
         const denied=error instanceof FigmaRequestError && [400,401,403,404,429].includes(error.status);
+        if(error instanceof FigmaRequestError && error.status===429)setRuntimeValue("figma-next-send-at",String(Date.now()+error.retryAfterSeconds*1000));
         db.prepare("UPDATE agent_outbox SET state = ?, error = ?, updated_at = ? WHERE id = ?").run(denied?"review":"uncertain",denied?"Figma rejected the reply; check permission or rate limit":"Reply acknowledgement missing",now(),item.id);
-        if(denied)exceptionFor(request,"Figma rejected the reply. Check comment-write permission and rate limits. The portal contains the quote.");
+        if(denied)attentionFor(request,"Figma rejected the reply. Check comment-write permission and rate limits. The portal contains the quote.");
       }
     } else if(item.kind==="reminder") {
       if(!policy.paypalReminders)continue;
-      if(item.state==="uncertain") {db.prepare("UPDATE agent_outbox SET state = 'review' WHERE id = ?").run(item.id);exceptionFor(request,"PayPal reminder delivery is uncertain. Check the invoice before sending any further reminder.");continue;}
+      if(item.state==="uncertain") {db.prepare("UPDATE agent_outbox SET state = 'review' WHERE id = ?").run(item.id);attentionFor(request,"PayPal reminder delivery is uncertain. Check the invoice before sending any further reminder.");continue;}
       const order=request.order_id ? getChangeOrder(request.order_id) : null;
       if(!order?.paypalInvoiceId || order.paypalInvoiceId!==body.invoiceId || order.revision!==request.quote_revision)continue;
       try {
@@ -141,16 +145,16 @@ async function dispatch(deps:AgentDependencies,comments:FigmaComment[]|null) {
         if(!current(request,policy))continue;
         if(refreshed.status!=="payment_due" || refreshed.paymentStatus!=="payment_due") {db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE id = ?").run(item.id);continue;}
         db.prepare("UPDATE agent_outbox SET state = 'sending', attempts = attempts + 1, updated_at = ? WHERE id = ?").run(now(),item.id);
-        await deps.remindInvoice(order.paypalInvoiceId);
+        await deps.remindInvoice(order.paypalInvoiceId,()=>!!current(request,policy));
         db.prepare("UPDATE agent_outbox SET state = 'sent', updated_at = ? WHERE id = ?").run(now(),item.id);
         appendMessage(request,"agent","A PayPal sandbox invoice reminder was sent.");
-      } catch {db.prepare("UPDATE agent_outbox SET state = 'uncertain', error = 'Reminder acknowledgement missing', updated_at = ? WHERE id = ?").run(now(),item.id);}
+      } catch {db.prepare("UPDATE agent_outbox SET state = ?, error = 'Reminder acknowledgement missing or authority changed', updated_at = ? WHERE id = ?").run(current(request,policy)?"uncertain":"cancelled",now(),item.id);}
     }
   }
 }
 async function trackPayments(enabled:AgentPolicy[],deps:AgentDependencies) {
   for(const policy of enabled) {
-    const requests=db.prepare("SELECT * FROM agent_requests WHERE run_id = ? AND state = 'quoted' AND order_id IS NOT NULL").all(policy.runId) as unknown as AgentRequest[];
+    const requests=db.prepare("SELECT * FROM agent_requests WHERE run_id = ? AND state IN ('quoted','exception') AND order_id IS NOT NULL").all(policy.runId) as unknown as AgentRequest[];
     for(const request of requests) {
       let order=getChangeOrder(request.order_id!);
       if(!order || order.revision!==request.quote_revision) {exceptionFor(request,"The published quote changed. Review its revision before further client actions.");continue;}
@@ -158,17 +162,17 @@ async function trackPayments(enabled:AgentPolicy[],deps:AgentDependencies) {
         const key=`payment-check:${order.id}`;
         if(Date.now()-Number(runtimeValue(key)||0)<5*60_000)continue;
         setRuntimeValue(key,String(Date.now()));
-        try {order=await deps.refreshPaymentStatus(order.id);}catch {exceptionFor(request,"Payment reconciliation failed. Check the existing invoice; no replacement was created.");continue;}
+        try {order=await deps.refreshPaymentStatus(order.id);}catch {attentionFor(request,"Payment reconciliation failed. Check the existing invoice; no replacement was created.");continue;}
         if(!current(request,policy))continue;
       }
       if(order.status==="paid") {
         transaction(()=>{
-          db.prepare("UPDATE agent_requests SET state = 'paid', updated_at = ? WHERE id = ?").run(now(),request.id);
-          queueMessage(request,policy,`PayPal confirms payment for approved revision ${order!.revision}. Your designer can now begin the agreed work.`,`paid-${order!.revision}`);
+          if(request.state==="quoted")db.prepare("UPDATE agent_requests SET state = 'paid', updated_at = ? WHERE id = ?").run(now(),request.id);
+          queueMessage(request,policy,`PayPal confirms payment for approved revision ${order!.revision}. Your designer can now begin the agreed work.`,`paid-${order!.id}-${order!.revision}`);
         });
       } else if(order.status==="approved" || order.status==="creating_invoice") {
-        exceptionFor(request,"Client approval is saved, but invoice setup needs recovery. Use the existing order's invoice recovery action.");
-      } else if(policy.paypalReminders && order.paypalInvoiceId && order.status==="payment_due" && order.paymentStatus==="payment_due") {
+        if(!isInvoiceInFlight(order.id))attentionFor(request,"Client approval is saved, but invoice setup needs recovery. Use the existing order's invoice recovery action.");
+      } else if(request.state==="quoted" && policy.paypalReminders && order.paypalInvoiceId && order.status==="payment_due" && order.paymentStatus==="payment_due") {
         const approval=db.prepare("SELECT created_at FROM approvals WHERE change_order_id = ? AND change_order_revision = ?").get(order.id,order.revision) as any;
         const age=Date.now()-Date.parse(approval?.created_at??now());
         const reminders=db.prepare("SELECT * FROM agent_outbox WHERE request_id = ? AND kind = 'reminder' ORDER BY created_at DESC").all(request.id) as any[];
@@ -198,6 +202,7 @@ async function cycle(deps:AgentDependencies) {
   for(const request of queued) {const policy=activeAgentPolicy(request.run_id);if(policy){await processRequest(request,policy,deps);break;}}
   await trackPayments(policies(),deps);
   await dispatch(deps,comments);
+  setRuntimeValue("worker-error","");
 }
 export function runAgentCycle(overrides:Partial<AgentDependencies>={}) {
   if(running)return running;

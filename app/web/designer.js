@@ -39,9 +39,9 @@ async function load() {
     agentUI=mountAgent({request,project,comments,onReview:async r=>{
       reviewingRequest=r.id;selected=r.source==='figma'?r.source_id:null;assessment=null;
       if(r.assessment_id){try{const a=await request('/api/assessments/'+r.assessment_id);if(a.result.classification==='new_work')assessment=a;}catch{}}
-      let order=null;if(r.order_id){const o=await request('/api/change-orders/'+r.order_id);if(['draft','awaiting_client_approval','needs_re_review'].includes(o.status))order=o;}
+      let order=null;if(r.order_id){const o=await request('/api/change-orders/'+r.order_id);if(['draft','awaiting_client_approval','needs_re_review'].includes(o.status))order=o;else{reviewingRequest=null;notice('This request already has an approved or invoiced quote. Ask the client to send new work as a separate portal request so the existing invoice stays attached.',true);$('orders').scrollIntoView({block:'start'});return;}}
       $('manual-workflow').open=true;showProposal(order);
-      if(!order&&!assessment){$('title').value='Reviewed client request';$('deliverables').value=r.text;}
+      if(!order&&!assessment){$('title').value='Reviewed client request';$('deliverables').value=r.text;$('price-mode').value='custom';$('amount').value='';pricing();}
       notice('Review this exception and confirm its exact terms. Your confirmed quote will appear in the existing client portal.');
     }});await agentUI.refresh().catch(()=>notice('Agent status is unavailable. The existing proposal and payment controls remain available.',true));
     if (session.renewalCredential) { $('resume-access').hidden = false; $('designer-resume').value = 'resume=' + session.renewalCredential; }
@@ -60,6 +60,7 @@ async function loadComments() {
   const result = await request('/api/comments'); comments = result.comments;
   $('comments').innerHTML = comments.filter(c => !c.parentId).map(c => `<button class="comment ${c.id===selected?'selected':''}" data-comment="${esc(c.id)}"><strong>${esc(c.message)}</strong><small>${esc(c.userHandle || 'Comment author')} · ${comments.filter(r=>r.parentId===c.id).length} replies</small></button>`).join('') || '<div class="empty">No comments yet. In the demo Figma file, add “Can you add the mobile checkout?”, then refresh.</div>';
   $('comments').querySelectorAll('[data-comment]').forEach(button => button.onclick = () => {
+    reviewingRequest=null;
     selected = button.dataset.comment; assessment = null; $('assessment').innerHTML = ''; $('proposal').hidden = true;
     $('comments').querySelectorAll('button').forEach(b => b.classList.toggle('selected', b===button)); $('assess').disabled = false;
   });
@@ -90,7 +91,7 @@ async function loadOrders() {
     const url = safeInvoice(o.invoiceUrl);
     return `<article class="card"><div class="row between"><h3>${esc(o.title)}</h3><span class="badge ${o.stale?'warn':''}">${esc(label(o.paymentStatus || o.status))}</span></div><small>Revision ${o.revision}${o.scopeRevisionId?' · '+esc(o.scopeRevisionId):''}</small>${o.stale?'<div class="notice">The brief changed. Review this proposal and issue a new link.</div>':''}${itemRows(o.lineItems,o.currency)}<p><strong>${money(o.totalMinor,o.currency)}</strong>${o.amountDueMinor!==null?' · '+money(o.amountDueMinor)+' due':''}</p><div class="row">${['draft','needs_re_review','awaiting_client_approval'].includes(o.status)?`<button class="secondary" data-edit="${esc(o.id)}">Review terms</button>`:''}${session.grantId&&o.scopeRevisionId&&!o.stale?`<button class="secondary" data-client="${esc(o.id)}">Client review link</button>`:''}${['approved','creating_invoice'].includes(o.status)?`<button data-invoice="${esc(o.id)}">Prepare PayPal invoice</button>`:''}${url?`<a class="button" href="${esc(url)}" target="_blank" rel="noreferrer">PayPal invoice</a>`:''}${o.paypalInvoiceId?`<button class="secondary" data-check="${esc(o.id)}">Check payment</button>`:''}</div>${o.lastCheckedAt?`<small>Checked ${esc(new Date(o.lastCheckedAt).toLocaleString())}</small>`:''}</article>`;
   }).join('') || '<p class="muted">Your approved changes and payment status will appear here.</p>';
-  $('orders').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { assessment = null; showProposal(orders.find(o=>o.id===b.dataset.edit)); });
+  $('orders').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { reviewingRequest=null; assessment = null; showProposal(orders.find(o=>o.id===b.dataset.edit)); });
   $('orders').querySelectorAll('[data-client]').forEach(b => b.onclick = () => busy(b, async()=> {
     const link = await request('/api/change-orders/'+b.dataset.client+'/client-access','POST');
     $('approval-link').value = link.approvalUrl; $('open-review').href = link.approvalUrl; $('share').hidden = false;
@@ -105,6 +106,7 @@ $('connect-button').onclick = e => busy(e.currentTarget, () => connect($('invita
 $('refresh-comments').onclick = e => busy(e.currentTarget, loadComments);
 $('refresh-orders').onclick = e => busy(e.currentTarget, loadOrders);
 $('assess').onclick = e => busy(e.currentTarget, async () => {
+  reviewingRequest=null;
   notice('Reading the request against the agreed brief…');
   assessment = await request('/api/assessments', 'POST', { commentId: selected, clarification: $('clarification').value, designContext, imageDataUrl, figmaFileKey: fileKey });
   const r = assessment.result;

@@ -58,3 +58,8 @@ test('clarifications queue once; changes after a quote become an exception witho
  assert.equal(orders.getChangeOrder(pub.order.id).revision,1);
  assert.equal(db.prepare('SELECT state FROM agent_requests WHERE id=?').get(pub.r.id).state,'exception');
 });
+test('replacement portal access revokes the previous credential without changing quotes',()=>{
+ const a=setup(),{order}=publish(a.client),replacement=portal.createPortalAccess(a.owner);
+ assert.equal(portal.getPortalSession(a.issued.credential),null);
+ const next=portal.getPortalSession(replacement.credential);assert.equal(portal.portalView(next).requests[0].order.id,order.id);
+});

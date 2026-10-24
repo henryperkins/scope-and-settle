@@ -17,8 +17,9 @@ export async function getAccessToken(): Promise<string> {
   return tokenCache.token;
 }
 
-async function api(path: string, init: RequestInit = {}): Promise<{ status: number; body: any }> {
+async function api(path: string, init: RequestInit = {}, authorized?:()=>boolean): Promise<{ status: number; body: any }> {
   const token = await getAccessToken();
+  if(authorized && !authorized())throw new Error("Provider action cancelled because its authority changed");
   const res = await fetch(`${paypalBase}${path}`, {
     ...init,
     redirect: "error", signal: AbortSignal.timeout(20_000),
@@ -98,10 +99,10 @@ export async function sendInvoice(invoiceId: string): Promise<string | null> {
 }
 
 /** Explicitly enabled reminder policy only. This never records a payment. */
-export async function remindInvoice(invoiceId:string):Promise<void> {
+export async function remindInvoice(invoiceId:string,authorized?:()=>boolean):Promise<void> {
   const {status}=await api(`/v2/invoicing/invoices/${encodeURIComponent(invoiceId)}/remind`,{
     method:"POST",body:JSON.stringify({send_to_invoicer:false}),
-  });
+  },authorized);
   if(status!==202 && status!==200 && status!==204)throw new Error(`PayPal reminder was not acknowledged (HTTP ${status})`);
 }
 

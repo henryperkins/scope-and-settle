@@ -90,6 +90,9 @@ export function evaluateAutoQuote(project: ProjectView, result: AssessmentResult
   const coverage=result.automation;
   if (!coverage?.allRequestsCovered || coverage.unpricedComponents.length || coverage.coverage.length!==result.rates.length) return no("Full pricing coverage needs review.");
   if (new Set(coverage.coverage.map(c=>c.deliverableIndex)).size!==result.rates.length) return no("Deliverable coverage is ambiguous.");
+  let uncovered=requestText;
+  for(const component of coverage.coverage) uncovered=uncovered.replace(component.requestQuote,"");
+  if(uncovered.trim())return no("Part of the client request is missing from pricing coverage; review all additions and constraints.");
   const items:LineItem[]=[];
   for (let i=0;i<result.rates.length;i++) {
     const requested=result.rates[i], rate=project.rateCard.find(r=>r.id===requested.rateCardId);

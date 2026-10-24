@@ -203,6 +203,7 @@ export function isTombstonedInvoice(invoiceId: string): boolean {
 // One server process owns this SQLite database. Coalesce concurrent UI actions;
 // the persistent operation and unique invoice number cover process restarts.
 const inFlightInvoices = new Map<string, Promise<ChangeOrderView>>();
+export const isInvoiceInFlight=(orderId:string)=>inFlightInvoices.has(orderId);
 export function ensureInvoice(orderId: string): Promise<ChangeOrderView> {
   const running = inFlightInvoices.get(orderId);
   if (running) return running;

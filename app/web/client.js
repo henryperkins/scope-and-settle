@@ -15,19 +15,22 @@ function renderQuote(r) {
 }
 async function load(){
  if(!credential||loading)return;loading=true;
+ const forCredential=credential;
  try {
-  const view=await request('/api/portal');$('client-connect').hidden=true;$('client-workspace').hidden=false;$('client-project').textContent=view.projectName;
+  const view=await request('/api/portal');if(credential!==forCredential)return;$('client-connect').hidden=true;$('client-workspace').hidden=false;$('client-project').textContent=view.projectName;
   $('client-request-form').hidden=!view.acceptingRequests;$('client-paused').hidden=view.acceptingRequests;$('client-expiry').textContent='Private access ends '+new Date(view.expiresAt).toLocaleString()+'.';
   const markup=view.requests.map(r=>`<section><span class="badge ${r.state==='exception'?'warn':''}">${esc(stateLabel(r.state))}</span><h2>${esc(r.text)}</h2><div class="conversation">${r.messages.map(m=>`<div class="message ${m.actor==='client'?'from-client':''}"><small>${m.actor==='client'?'You':m.actor==='designer'?'Your designer':'Scope & Settle'}</small><p>${esc(m.body)}</p></div>`).join('')}</div>${renderQuote(r)}${r.state!=='dismissed'?`<details ${r.state==='needs_clarification'?'open':''}><summary>Reply or clarify this request</summary><form data-reply="${esc(r.id)}"><label for="reply-${esc(r.id)}">Your reply</label><textarea id="reply-${esc(r.id)}" maxlength="4000" required></textarea><button type="submit">Send reply</button><small>Changes after a quote go back to your designer; they do not silently change its price.</small></form></details>`:''}</section>`).join('')||'<p class="empty">Your requests and quotes will appear here.</p>';
   // Do not erase a client's text or checked consent during background polling.
   if(markup!==lastMarkup && !document.querySelector('#client-requests :focus')) {
+   const drafts=new Map(Array.from(document.querySelectorAll('[data-reply]'),form=>[form.dataset.reply,form.querySelector('textarea').value]));
    $('client-requests').innerHTML=markup;lastMarkup=markup;
+   document.querySelectorAll('[data-reply]').forEach(form=>{form.querySelector('textarea').value=drafts.get(form.dataset.reply)||'';});
    document.querySelectorAll('[data-reply]').forEach(form=>{let key=crypto.randomUUID();form.onsubmit=e=>{e.preventDefault();void busy(form.querySelector('button'),async()=>{await request('/api/portal/requests/'+form.dataset.reply+'/reply','POST',{text:form.querySelector('textarea').value,key});key=crypto.randomUUID();form.querySelector('textarea').value='';document.activeElement?.blur();await loadAfterAction();notice('Reply received.');});};});
    document.querySelectorAll('[data-approve]').forEach(form=>form.onsubmit=e=>{e.preventDefault();void busy(form.querySelector('button'),()=>approve(form.dataset.approve,Number(form.dataset.revision),form.querySelector('[name="consent"]').checked));});
    document.querySelectorAll('[data-recover]').forEach(b=>b.onclick=()=>busy(b,()=>approve(b.dataset.recover,Number(b.dataset.revision),true)));
    document.querySelectorAll('[data-payment]').forEach(b=>b.onclick=()=>busy(b,async()=>{await request('/api/portal/requests/'+b.dataset.payment+'/payment-status','POST',{});document.activeElement?.blur();await loadAfterAction();notice('Payment checked with PayPal.');}));
   }
- }catch(error){if(error.status===401){$('client-workspace').hidden=true;$('client-connect').hidden=false;}throw error;}finally{loading=false;}
+ }catch(error){if(credential!==forCredential)return;if(error.status===401){$('client-workspace').hidden=true;$('client-connect').hidden=false;}throw error;}finally{loading=false;}
 }
 async function loadAfterAction(){lastMarkup='';await load();}
 async function approve(id,revision,consent){const result=await request('/api/portal/requests/'+id+'/approve','POST',{revision,consent});document.activeElement?.blur();await loadAfterAction();notice(result.invoiceError||'Approval saved. Open PayPal to complete the sandbox payment.',!!result.invoiceError);}

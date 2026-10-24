@@ -146,10 +146,10 @@ export const server = createServer(async (req, res) => {
       const {ownerGrantId,ownerSessionHash,...policy}=saveAgentPolicy(session,await readBody(req));return json(res,200,policy);
     }
     if(path==="/api/agent/portal-access" && req.method==="POST")return json(res,201,createPortalAccess(session));
-    const agentAction=path.match(/^\/api\/agent\/requests\/([^/]+)\/(retry|dismiss|publish)$/);
+    const agentAction=path.match(/^\/api\/agent\/requests\/([^/]+)\/(retry|dismiss|publish|acknowledge)$/);
     if(agentAction && req.method==="POST") {
       if(agentAction[2]==="publish") {const b=await readBody(req);return json(res,200,publishReviewedQuote(session,agentAction[1],b.orderId,b.revision,b.consent));}
-      return json(res,200,handleAgentRequest(session,agentAction[1],agentAction[2] as "retry"|"dismiss"));
+      return json(res,200,handleAgentRequest(session,agentAction[1],agentAction[2] as "retry"|"dismiss"|"acknowledge"));
     }
     if (path === "/api/project" && req.method === "GET") {
       return json(res, 200, getProjectForRun(session.runId));

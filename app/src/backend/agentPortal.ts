@@ -4,7 +4,7 @@ import { config } from "./env.js";
 import { credentialHash, newCredential } from "./judgeAccess.js";
 import { getSession, type Session } from "./sessions.js";
 import { getAgentPolicy, policyAuthority, activeAgentPolicy } from "./agentPolicy.js";
-import { createRequest, requestById, listRequests, messagesFor, appendMessage, exceptionFor, now, type AgentRequest } from "./agentStore.js";
+import { createRequest, requestById, listRequests, messagesFor, appendMessage, exceptionFor, attentionFor, now, type AgentRequest } from "./agentStore.js";
 import { getChangeOrder, approveChangeOrder, ensureInvoice, refreshPaymentStatus } from "./orders.js";
 
 export interface PortalSession { id:string; runId:string; expiresAt:string }
@@ -88,7 +88,7 @@ export async function approvePortalQuote(session:PortalSession,id:string,revisio
   const request=requestFor(session,id),published=publishedOrder(request);
   if (consent!==true) throw new Error("Explicit client consent is required");
   if (!published || !Number.isSafeInteger(revision) || published.revision!==revision) throw new Error("This quote is not the published current revision");
-  if (request.state==="exception" || request.state==="dismissed") throw new Error("This quote needs designer review before approval");
+  if ((request.state==="exception" || request.state==="dismissed") && published.status==="awaiting_client_approval") throw new Error("This quote needs designer review before approval");
   const approved=approveChangeOrder(published.id,{changeOrderId:published.id,changeOrderRevision:revision});
   try { return {order:await ensureInvoice(approved.id)}; }
   catch { return {order:getChangeOrder(approved.id),invoiceError:"Approval saved. Invoice delivery needs recovery; retry payment setup to reuse the same invoice."}; }
@@ -98,11 +98,14 @@ export async function refreshPortalPayment(session:PortalSession,id:string) {
   if (!order) throw new Error("Published quote not found");
   return refreshPaymentStatus(order.id);
 }
-export function handleAgentRequest(session:Session,id:string,action:"retry"|"dismiss") {
+export function handleAgentRequest(session:Session,id:string,action:"retry"|"dismiss"|"acknowledge") {
   requireDesigner(session);
   const request=requestById(id,session.runId);
   if (!request) throw new Error("Request not found");
-  if (action==="dismiss") {
+  if(action==="acknowledge") {
+    attentionFor(request,null);
+    db.prepare("UPDATE agent_outbox SET state = 'handled' WHERE request_id = ? AND state IN ('review','uncertain')").run(id);
+  } else if (action==="dismiss") {
     db.prepare("UPDATE agent_requests SET state = 'dismissed', version = version + 1, exception = NULL, updated_at = ? WHERE id = ?").run(now(),id);
     db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state != 'sent'").run(id);
     appendMessage(request,"designer","Your designer is handling this request directly.");
@@ -118,6 +121,7 @@ export function publishReviewedQuote(session:Session,id:string,orderId:string,re
   requireDesigner(session);
   const request=requestById(id,session.runId),order=getChangeOrder(orderId);
   if(!request || !order || order.runId!==session.runId)throw new Error("Request or quote not found");
+  if(request.order_id && request.order_id!==orderId)throw new Error("An existing quote cannot be replaced by another order. New work requires a separate request.");
   if(consent!==true || order.revision!==revision || order.status!=="awaiting_client_approval" || order.stale)throw new Error("Explicit designer consent to the submitted current revision is required");
   if(db.prepare("SELECT id FROM agent_requests WHERE order_id = ? AND id != ?").get(orderId,id))throw new Error("This quote already belongs to another request");
   return transaction(()=>{

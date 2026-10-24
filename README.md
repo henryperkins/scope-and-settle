@@ -1,15 +1,16 @@
 # Scope & Settle
 
-Turn a Figma comment into a clear agreement and a PayPal sandbox invoice.
+Handle client change requests within designer-approved rates and limits, then settle them with PayPal.
 
-A freelance designer selects a client request. AI compares it with an agreed brief, cites the relevant clauses, and proposes **included**, **new work**, or **needs clarification**. The designer reviews additional deliverables and prices; the client approves that exact revision. PayPal then provides the invoice and authoritative payment status. **Work begins after payment.**
+A freelance designer approves a rate selection, per-quote limit and cumulative allowance once. A hosted agent receives requests from a private client portal or watches designated client authors in Figma. AI compares each request with the brief and maps every priced deliverable to an approved rate. Code checks that coverage and the limits before delivering a quote automatically. Unclear or unsupported work becomes a clarification or designer exception. The client explicitly approves the exact revision; PayPal then provides the sandbox invoice and authoritative payment status. **Work begins after payment.**
 
 This is a hackathon prototype with synthetic project content, one configured Figma file, one sandbox merchant/buyer pair, and USD pricing. It does not control Figma editing access. Demo links grant roles rather than verified personal identities.
 
-Watch the [2:49 working demonstration on YouTube](https://www.youtube.com/watch?v=AF8HFogZvsY), with 1080p playback and English captions, then follow the [judging walkthrough](JUDGING.md).
+The [2:49 demonstration on YouTube](https://www.youtube.com/watch?v=AF8HFogZvsY) shows the verified 0.2.1 designer-reviewed payment workflow. It predates automatic quoting and is not evidence of the new agent. Follow the [judging walkthrough](JUDGING.md) for the current interfaces; [agent verification](docs/CLIENT-AGENT-VERIFICATION-2026-10-23.md) distinguishes fixture checks, live checks and remaining limitations.
 
 ## Current evidence
 
+- The automatic-quoting implementation passed **78 tests, 0 failed, 0 skipped** on Windows after review fixes. A local browser walkthrough delivered a $250 quote with no designer intervention after policy setup, required client consent, and opened the fixture invoice path. These checks use simulated providers, not a new live payment. Release qualification is recorded separately in the agent verification document.
 - Release 0.2.1 passed **52 tests, 0 failed, 0 skipped** on Windows and in the clean-source Linux image build. A fresh source export repeated all 52 passes on October 23. These checks use isolated SQLite and simulated providers; they cover authorization, revisions, invoice recovery, reconciliation, webhook verification, reset/budget persistence, durable judging access, native bridge messages and plugin packaging.
 - Baseten's selected DeepSeek model runs with maximum reasoning. The final six fixtures and three fresh paraphrases passed, with 524–1,436 ms latency. Two earlier 5/6 runs and their failures remain documented.
 - The actual Figma desktop comment and exported frame produced a live assessment, a designer-reviewed $250 proposal, separate client approval, and a real PayPal sandbox invoice.
@@ -22,7 +23,7 @@ See [the completed payment and Figma verification](docs/PAYMENT-LOOP-2026-10-22.
 
 ## Local setup
 
-Requirements: **Node.js 24**, **pnpm 10.34.5**, Figma desktop, a Figma personal access token with `file_comments:read`, a PayPal sandbox REST app with business and personal sandbox accounts, and a Baseten key with access to `deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast`.
+Requirements: **Node.js 24**, **pnpm 10.34.5**, Figma desktop for native frame export, a Figma personal access token with `file_comments:read` (also `file_comments:write` if enabling thread replies), a PayPal sandbox REST app with business and personal sandbox accounts, and a Baseten key with access to `deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast`.
 
 1. Clone the public source: `git clone https://github.com/henryperkins/scope-and-settle.git`, then `cd scope-and-settle`. Copy `.env.example` to `.env.local` in this repository root (`Copy-Item .env.example .env.local` in PowerShell, or `cp .env.example .env.local` in a POSIX shell).
 2. Before the first server start, fill `FIGMA_PERSONAL_ACCESS_TOKEN` and `FIGMA_FILE_KEY` for a synthetic file your token can read. Import [the editable checkout SVG](fixtures/figma-checkout.svg), wrap it in a frame, and add **“Can you add the mobile checkout?”** as an actual comment on that frame. See [Figma recovery/setup](docs/FIGMA-JUDGING-FILE.md). Fill the sandbox REST app's `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`, the business merchant email, and a **different personal sandbox buyer** email. Obtain both sandbox accounts from your PayPal developer dashboard; a merchant cannot pay its own invoice. Add your own `BASETEN_API_KEY`. Keep `PAYPAL_ENVIRONMENT=sandbox`, the pinned model, and `AI_REASONING_EFFORT=max`. Keys stay server-side; OpenAI and generic key variables are never used. The first start saves the configured file into SQLite, so changing the environment later does not migrate existing runs.
@@ -31,7 +32,7 @@ Requirements: **Node.js 24**, **pnpm 10.34.5**, Figma desktop, a Figma personal 
    ```sh
    cd app
    pnpm install --frozen-lockfile
-   npm test        # builds backend and plugin; 52 tests use simulated providers
+   npm test        # builds backend and plugin; isolated provider-fixture tests
    npm start
    ```
 
@@ -50,6 +51,18 @@ The local setup can retrieve authoritative payment status with **Check payment**
 For a build-only check, credentials can remain blank: installation, compilation and the fixture suite make no paid inference or payment requests. Provider-dependent actions need your configuration. A green build does not prove your provider accounts work. Judges can use the [hosted path](JUDGING.md) with the separately supplied access and buyer credentials instead.
 
 ## Use the demo
+
+For automatic quoting:
+
+1. Open **Rates, limits and client access** in the designer workspace. Approve the $250 mobile-layout rate, a $250 per-quote cap, $500 cumulative allowance and quantity 1. These are editable synthetic examples; the agent is disabled until you check authorization and choose **Approve & enable agent**.
+2. Copy the generated private client portal link and open it as the client. No Figma account is needed for this path. Ask **“Can you add the mobile checkout?”**. The worker runs while the plugin is closed; expect a quote or an honest clarification/exception after live AI completes.
+3. Inspect the $250 quote and revision. Check the client's consent and choose **Approve revision 1 & prepare PayPal invoice**. Complete sandbox checkout, then refresh payment. The same order appears in the designer workspace and plugin.
+4. Only exceptions need designer action. **Review exception** opens manual terms review and publishes the confirmed revision back into the same client portal. **Retry within policy** reuses a saved assessment when possible. **I'll handle this directly** stops automatic handling of that request.
+5. Optionally select verified Figma client authors and enable thread replies. New client threads are polled about once a minute; older comments are not retroactively quoted. A client author can belong to only one active run. Public threads never receive private portal links.
+
+The cumulative allowance counts delivered quotes, including unpaid quotes. Pausing prevents new assessments and messages; existing published quotes remain available for explicit client approval. Natural session expiry does not stop authorized work, but parent revocation, access expiry, reset or a changed brief stops the delegation. Development invitations delegate for at most 24 hours; durable judging grants last until their parent expiry. Provider outages and uncertain delivery appear as exceptions; unattended does not mean maintenance-free.
+
+For a designer-reviewed assessment with an actual selected frame, expand **Assess a request or review terms yourself**:
 
 1. Select the actual Figma comment and optionally attach one selected frame.
 2. Assess it against the supplied brief. Included work produces no billable proposal. For uncertainty, post the drafted question manually in Figma, paste the reply, and reassess.
@@ -98,8 +111,8 @@ For a reviewed plugin ZIP, commit the release inputs, set `PUBLIC_BASE_URL`, bui
 ## Implementation
 
 - `app/plugin`: Figma selection, PNG export and session storage.
-- `app/web`: shared designer UI and separate client review page.
-- `app/src/backend`: Node HTTP server, SQLite, role sessions, evidence, AI, PayPal and webhooks.
+- `app/web`: designer policy/exception UI, private client portal and exact-revision client review.
+- `app/src/backend`: Node HTTP server, SQLite, durable worker/outbox, policy authority, evidence, AI, PayPal and webhooks.
 - `fixtures`: six synthetic scope-judgment cases.
 - `docs/PRODUCT-SPEC.md`: adopted product decisions and acceptance criteria for this build.
 

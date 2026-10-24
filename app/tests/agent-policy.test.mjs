@@ -47,6 +47,10 @@ test('unpriced extra deliverables, questions, invented terms and duplicate rates
     {automation:{...result().automation,coverage:[{requestQuote:'invented request',deliverableIndex:0,rateCardId:'mobile_checkout',quantity:1}]}},
   ]) assert.equal(evaluateAutoQuote(project,{...result(),...changes},p,0).allowed,false,JSON.stringify(changes));
 });
+test('coverage cannot omit a client addition or delivery constraint outside its cited substring',()=>{
+  const p=getAgentPolicy(owner.runId);
+  assert.equal(evaluate(project,result(),p,0,requestText+' Also design an original logo and deliver everything tomorrow.').allowed,false);
+});
 
 test('policy bounds, pause, expiry and changed scope fail closed', () => {
   for (const changes of [{maxQuoteMinor:0},{maxTotalMinor:24999},{maxQuantity:0},{allowedRateIds:['bogus']},{maxQuoteMinor:1.5}])

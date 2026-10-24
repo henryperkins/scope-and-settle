@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS agent_requests (
   text TEXT NOT NULL, state TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   policy_version INTEGER, assessment_id TEXT, order_id TEXT, quote_revision INTEGER,
   quoted_minor INTEGER NOT NULL DEFAULT 0, clarification_count INTEGER NOT NULL DEFAULT 0,
-  exception TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  exception TEXT, delivery_exception TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
   UNIQUE(run_id, source, source_id)
 );
 CREATE TABLE IF NOT EXISTS agent_messages (
@@ -37,13 +37,14 @@ CREATE TABLE IF NOT EXISTS agent_runtime (
   key TEXT PRIMARY KEY, value TEXT NOT NULL
 );
 `);
+if (!(db.prepare("PRAGMA table_info(agent_requests)").all() as {name:string}[]).some(c=>c.name==="delivery_exception")) db.exec("ALTER TABLE agent_requests ADD COLUMN delivery_exception TEXT");
 
 export const now = () => new Date().toISOString();
 export interface AgentRequest {
   id: string; run_id: string; source: "portal" | "figma"; source_id: string; text: string;
   state: string; version: number; policy_version: number | null; assessment_id: string | null;
   order_id: string | null; quote_revision: number | null; quoted_minor: number;
-  clarification_count: number; exception: string | null; created_at: string; updated_at: string;
+  clarification_count: number; exception: string | null; delivery_exception:string|null; created_at: string; updated_at: string;
 }
 export function requestById(id: string, runId: string): AgentRequest | null {
   return db.prepare("SELECT * FROM agent_requests WHERE id = ? AND run_id = ?").get(id, runId) as unknown as AgentRequest ?? null;
@@ -74,6 +75,9 @@ export function createRequest(runId: string, source: AgentRequest["source"], sou
 export function exceptionFor(request: AgentRequest, message: string): void {
   db.prepare("UPDATE agent_requests SET state = 'exception', exception = ?, updated_at = ? WHERE id = ? AND run_id = ?")
     .run(message.slice(0,500),now(),request.id,request.run_id);
+}
+export function attentionFor(request:AgentRequest,message:string|null):void {
+  db.prepare("UPDATE agent_requests SET delivery_exception = ?, updated_at = ? WHERE id = ? AND run_id = ?").run(message?.slice(0,500)??null,now(),request.id,request.run_id);
 }
 export function quotedTotal(runId: string): number {
   return Number((db.prepare("SELECT COALESCE(SUM(quoted_minor),0) n FROM agent_requests WHERE run_id = ?").get(runId) as any).n);
