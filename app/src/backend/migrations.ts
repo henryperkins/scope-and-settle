@@ -151,6 +151,7 @@ const additions: readonly [string, string][] = [
   ["change_orders", "scope_snapshot_json TEXT"],
   ["change_orders", "assessment_id TEXT"],
   ["agent_requests", "delivery_exception TEXT"],
+
 ];
 function createBaseline(db: DatabaseSync): void {
   db.exec(baselineSql);
@@ -299,6 +300,23 @@ export const migrations: readonly Migration[] = [
  ALTER TABLE payment_observations ADD COLUMN invoice_record_id TEXT;
  CREATE INDEX observations_by_invoice_record ON payment_observations(invoice_record_id,id);
  `);adoptLegacyInvoices(db);}},
+ {id:14,name:'immutable-approved-delivery-runs',up(db){db.exec(`
+ CREATE TABLE delivery_runs(id TEXT PRIMARY KEY,milestone_id TEXT NOT NULL UNIQUE,project_id TEXT NOT NULL,run_id TEXT NOT NULL,order_id TEXT NOT NULL,revision INTEGER NOT NULL,operation_id TEXT NOT NULL UNIQUE,brief_json TEXT NOT NULL,brief_hash TEXT NOT NULL,state TEXT NOT NULL,created_at TEXT NOT NULL);
+ CREATE TABLE delivery_snapshots(id TEXT PRIMARY KEY,delivery_run_id TEXT NOT NULL,project_id TEXT NOT NULL,run_id TEXT NOT NULL,hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,png BLOB NOT NULL,created_at TEXT NOT NULL,UNIQUE(delivery_run_id,hash));
+ CREATE TRIGGER immutable_delivery_brief BEFORE UPDATE OF milestone_id,project_id,run_id,order_id,revision,operation_id,brief_json,brief_hash ON delivery_runs BEGIN SELECT RAISE(ABORT,'Immutable delivery brief'); END;
+ CREATE TRIGGER immutable_delivery_snapshot BEFORE UPDATE ON delivery_snapshots BEGIN SELECT RAISE(ABORT,'Immutable delivery snapshot'); END;
+ `);}},
+ {id:15,name:'exact-delivery-review-and-acceptance',up(db){db.exec(`
+ CREATE TABLE delivery_reviews(id TEXT PRIMARY KEY,milestone_id TEXT NOT NULL,project_id TEXT NOT NULL,run_id TEXT NOT NULL,order_id TEXT NOT NULL,order_revision INTEGER NOT NULL,review_revision INTEGER NOT NULL,snapshot_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL,criteria_json TEXT NOT NULL,state TEXT NOT NULL,submitted_by TEXT NOT NULL,submitted_at TEXT NOT NULL,UNIQUE(milestone_id,review_revision));
+ CREATE TABLE delivery_review_heads(milestone_id TEXT PRIMARY KEY,review_id TEXT NOT NULL,revision INTEGER NOT NULL);
+ CREATE TABLE delivery_events(id TEXT PRIMARY KEY,review_id TEXT NOT NULL,kind TEXT NOT NULL,actor_id TEXT NOT NULL,body_json TEXT NOT NULL,created_at TEXT NOT NULL);
+ CREATE TABLE delivery_acceptances(id TEXT PRIMARY KEY,review_id TEXT NOT NULL UNIQUE,milestone_id TEXT NOT NULL,order_id TEXT NOT NULL,order_revision INTEGER NOT NULL,review_revision INTEGER NOT NULL,snapshot_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL,accepted_by TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(milestone_id,order_revision));
+ CREATE TRIGGER immutable_delivery_review BEFORE UPDATE OF milestone_id,project_id,run_id,order_id,order_revision,review_revision,snapshot_id,snapshot_hash,criteria_json,submitted_by,submitted_at ON delivery_reviews BEGIN SELECT RAISE(ABORT,'Immutable delivery review'); END;
+ CREATE TRIGGER append_only_delivery_events_update BEFORE UPDATE ON delivery_events BEGIN SELECT RAISE(ABORT,'Append-only delivery events'); END;
+ CREATE TRIGGER append_only_delivery_events_delete BEFORE DELETE ON delivery_events BEGIN SELECT RAISE(ABORT,'Append-only retained delivery events'); END;
+ CREATE TRIGGER immutable_delivery_acceptance BEFORE UPDATE ON delivery_acceptances BEGIN SELECT RAISE(ABORT,'Immutable delivery acceptance'); END;
+ CREATE TRIGGER retained_delivery_acceptance BEFORE DELETE ON delivery_acceptances BEGIN SELECT RAISE(ABORT,'Retained delivery acceptance'); END;
+ `);}},
 ];
 
 /** Each migration and its ledger entry commit together. Never swallow DDL failures. */

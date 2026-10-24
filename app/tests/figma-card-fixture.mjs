@@ -1,5 +1,6 @@
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
+import {deliveryPng} from './delivery-fixture.mjs';
 
 export const cardView = (overrides = {}) => ({
   schemaVersion: 1, fileKey: 'test-file', projectId: 'demo', runId: 'run-one', orderId: 'order-one', revision: 1,
@@ -27,6 +28,7 @@ export async function pluginFixture({saved, fileKey = 'test-file'} = {}) {
   function make(type, id = 'node-' + ++serial) {
     const node = {id, type, name: type, removed: false, parent: null, x: 0, y: 0, width: 440, height: 120,
       ...storage(id), resize(width, height) { this.width = width; this.height = height; },
+      async exportAsync(){return Buffer.from(deliveryPng().slice(22),'base64');},
       remove() { this.removed = true; nodes.delete(this.id); if (this.parent) this.parent.children = this.parent.children.filter(n => n !== this); },
     };
     if (type !== 'TEXT') {
@@ -47,6 +49,7 @@ export async function pluginFixture({saved, fileKey = 'test-file'} = {}) {
     async loadFontAsync() { if (fontHook) await fontHook(); if (fontFailure) throw new Error('synthetic font failure'); },
     async getNodeByIdAsync(id) { if (nodeHook) await nodeHook(); return nodes.get(id) ?? null; },
     createFrame() { writes++; const node = make('FRAME'); raw.currentPage.appendChild(node); return node; },
+    createPage() { writes++; const node=make('PAGE');node.selection=[];node.loadAsync=async()=>{};root.appendChild(node);return node; },
     createText() { writes++; const node = make('TEXT'); raw.currentPage.appendChild(node); return node; },
   };
   const figma = new Proxy(raw, {get(target, key) { if (!(key in target)) throw new Error('Unexpected Plugin API: ' + String(key)); return target[key]; }});

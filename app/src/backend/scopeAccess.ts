@@ -12,3 +12,6 @@ export function scopeParentActive(id:string|null,projectId:string,runId:string):
  return false;
 }
 export function validScopeGrant(row:any):boolean {const g=persistedGrant(row);return row.role==='client'&&g.kind==='scope'&&Number.isSafeInteger(g.revision)&&!!db.prepare('SELECT id FROM scope_snapshots WHERE id=? AND project_id=? AND run_id=? AND version=?').get(g.resourceId,row.project_id??'demo',row.run_id,g.revision)&&scopeParentActive(row.scope_parent_id,row.project_id??'demo',row.run_id);}
+export function validDeliveryGrant(row:any):boolean {
+ const g=persistedGrant(row);return row.role==='client'&&g.kind==='delivery'&&Number.isSafeInteger(g.revision)&&!!db.prepare(`SELECT r.id FROM delivery_reviews r JOIN delivery_review_heads h ON h.review_id=r.id AND h.revision=r.review_revision JOIN change_orders o ON o.id=r.order_id AND o.revision=r.order_revision WHERE r.id=? AND r.project_id=? AND r.run_id=? AND r.review_revision=? AND r.state<>'superseded'`).get(g.resourceId,row.project_id??'demo',row.run_id,g.revision)&&scopeParentActive(row.scope_parent_id,row.project_id??'demo',row.run_id);
+}

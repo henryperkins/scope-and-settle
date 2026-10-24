@@ -5,6 +5,9 @@ import {pluginFixture, cardView} from './figma-card-fixture.mjs';
 const success = result => { assert.equal(result?.type, 'status-card-result', 'The real plugin must handle the card command'); assert.equal(result.ok, true, result.message); return result.nodeId; };
 const failure = result => { assert.equal(result?.type, 'status-card-result'); assert.equal(result.ok, false); return result; };
 const money = {currency: 'USD', totalMinor: 25000, amountDueMinor: 0, paidMinor: 25000, refundedMinor: 0};
+test('T16 the native card renders independent recorded delivery acceptance without implying full payment',async()=>{
+ const f=await pluginFixture(),id=success(await f.upsert(cardView({deliveryState:'accepted',paymentState:'partial'})));assert.match(f.text(f.nodes.get(id)),/Delivery: Accepted/);assert.match(f.text(f.nodes.get(id)),/Payment: partial/);
+});
 
 test('T12b repeated and concurrent commands update one scoped card without touching selection or unrelated children', async () => {
   const f = await pluginFixture(), selection = f.page.selection;

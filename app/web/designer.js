@@ -1,3 +1,4 @@
+import {deliveryControls,mountDelivery} from './delivery.js';
 import {installmentControls,bindInstallments} from './milestones.js';
 import {mountReviewedActions} from './reviewed-actions.js';
 import { api, sessionApi, esc, money, label, notice, busy, itemRows, safeInvoice, canPay, financialLabel, financialNotice, scopeVersions, milestoneMarkup, balanceCaption } from './common.js';
@@ -10,9 +11,9 @@ import {mountStatusCards} from './status-cards.js';
 const $ = id => document.getElementById(id);
 const inPlugin = window.parent !== window;
 let session, project, comments = [], selected, assessment, editing, imageDataUrl, fileKey, designContext = '', selectionContext = '', preservedItems = [];
-let agentUI,inboxUI,reviewedUI,connectorUI,cardUI,reviewingRequest=null,operationId;
+let deliveryUI,agentUI,inboxUI,reviewedUI,connectorUI,cardUI,reviewingRequest=null,operationId;
 let evidenceEpoch=0,exportCounter=0,nativeGeneration=0,pendingExport=null,evidenceDraft=null,evidenceSnapshot=null;
-function clearEvidence(){cardUI?.invalidate();evidenceEpoch++;pendingExport=null;evidenceDraft=null;evidenceSnapshot=null;imageDataUrl=undefined;designContext='';$('frame').hidden=true;$('frame').src='';$('remove-frame').hidden=true;$('evidence-review').hidden=true;$('evidence-status').textContent='';$('evidence-relevance').checked=false;$('evidence-reason').value='';}
+function clearEvidence(){deliveryUI?.invalidate();cardUI?.invalidate();evidenceEpoch++;pendingExport=null;evidenceDraft=null;evidenceSnapshot=null;imageDataUrl=undefined;designContext='';$('frame').hidden=true;$('frame').src='';$('remove-frame').hidden=true;$('evidence-review').hidden=true;$('evidence-status').textContent='';$('evidence-relevance').checked=false;$('evidence-reason').value='';}
 function evidenceTrace(){const e=assessment?.designEvidence;return e?`<div class="notice"><strong>Design evidence</strong><p>File ${esc(e.fileKey)} · Nodes ${e.nodeIds.map(esc).join(', ')} · Request version ${e.sourceVersion}</p><p>Captured ${esc(new Date(e.capturedAt).toLocaleString())} · ${esc(e.freshness)} · Figma version ${esc(e.providerVersion??'unavailable')}</p><p>Node identity ${esc(e.verification)} at ${esc(e.verifiedAt)}. ${e.pixelProvenance==='client_supplied'?'Plugin pixels are client supplied; rendering and exact pixel version are not independently verified.':'Metadata only; no image supplied.'}</p>${e.relevance?`<p>Reviewer relevance: ${esc(e.relevance.reason)}</p>`:''}<p>Snapshot ${esc(e.id)}</p>${(assessment.result.designObservations??[]).map(observation=>`<p>${esc(observation)}</p>`).join('')}</div>`:'<p class="muted">No visual evidence selected. This assessment uses the authoritative request and agreement.</p>';}
 function beginEvidence(type){if(!selected||!project)throw new Error('Select the request before capturing supporting evidence.');clearEvidence();const requestKey=evidenceEpoch+':'+selected,exportId=String(++exportCounter);pendingExport={exportId,requestKey,epoch:evidenceEpoch,commentId:selected,generation:nativeGeneration};post({type,expectedFileKey:project.figmaFileKey,exportId,requestKey,generation:nativeGeneration});}
 
@@ -28,7 +29,7 @@ function saveSession(value) {
   }
 }
 const request = sessionApi(() => session, saveSession, () => {
-  agentUI?.destroy();inboxUI?.destroy();reviewedUI?.destroy();connectorUI?.destroy();cardUI?.destroy();
+  deliveryUI?.destroy();agentUI?.destroy();inboxUI?.destroy();reviewedUI?.destroy();connectorUI?.destroy();cardUI?.destroy();
   saveSession(null); $('workspace').hidden = true; $('connect').hidden = false;
   $('orders').innerHTML = ''; $('assessment').innerHTML = ''; $('share').hidden = true;
 });
@@ -48,6 +49,7 @@ async function load() {
     cardUI?.destroy();
     cardUI=mountStatusCards({request,inPlugin,post,getContext:()=>({session,project,fileKey,generation:nativeGeneration,evidenceEpoch})});
     await cardUI.refresh();
+    deliveryUI?.destroy();deliveryUI=mountDelivery({request,inPlugin,post,getContext:()=>({session,project,fileKey,generation:nativeGeneration,evidenceEpoch})});
     $('connect').hidden = true; $('workspace').hidden = false;
     $('brief').innerHTML = project.scopeClauses.map(c => `<blockquote>${esc(c.text)}<br><small>${esc(c.id)}</small></blockquote>`).join('') + `<small>${esc(project.scopeRevisionId)}</small>`;
     await loadScope();
@@ -141,9 +143,9 @@ async function loadOrders() {
   const orders = await request('/api/change-orders');
   $('orders').innerHTML = orders.map(o => {
     const url = safeInvoice(o.invoiceUrl);
-    return `<article class="card"><div class="row between"><h3>${esc(o.title)}</h3><span class="badge ${o.stale?'warn':''}">${esc(financialLabel(o))}</span></div>${financialNotice(o)}<small>Revision ${o.revision}${o.scopeRevisionId?' · '+esc(o.scopeRevisionId):''} · ${esc(scopeVersions(o.scopeContext))}</small>${o.stale?'<div class="notice">The brief changed. Review this proposal and issue a new link.</div>':''}${sourceNotice(o)}${itemRows(o.lineItems,o.currency)}<p><strong>${money(o.totalMinor,o.currency)}</strong>${balanceCaption(o)}</p>${milestoneMarkup(o)}${installmentControls(o)}<div class="row">${['draft','needs_re_review','awaiting_client_approval'].includes(o.status)?`<button class="secondary" data-edit="${esc(o.id)}">Review terms</button>`:''}${session.grantId&&o.scopeRevisionId&&!o.stale?`<button class="secondary" data-client="${esc(o.id)}">Client review link</button>`:''}${['approved','creating_invoice'].includes(o.status)&&!o.installments?.some(m=>!m.legacy)?`<button data-invoice="${esc(o.id)}">Prepare PayPal invoice</button>`:''}${url&&(canPay(o)||o.financialState?.paymentState==='paid')?`<a class="button" href="${esc(url)}" target="_blank" rel="noreferrer">PayPal invoice</a>`:''}${o.paypalInvoiceId||o.installments?.some(m=>m.paypalInvoiceId)?`<button class="secondary" data-check="${esc(o.id)}">Check payment</button>`:''}${inPlugin?`<button class="secondary" data-status-card="${esc(o.id)}">Create / refresh Figma status card</button>`:''}</div>${o.lastCheckedAt?`<small>Checked ${esc(new Date(o.lastCheckedAt).toLocaleString())}</small>`:''}${abandonControl(o)}</article>`;
+    return `<article class="card"><div class="row between"><h3>${esc(o.title)}</h3><span class="badge ${o.stale?'warn':''}">${esc(financialLabel(o))}</span></div>${financialNotice(o)}<small>Revision ${o.revision}${o.scopeRevisionId?' · '+esc(o.scopeRevisionId):''} · ${esc(scopeVersions(o.scopeContext))}</small>${o.stale?'<div class="notice">The brief changed. Review this proposal and issue a new link.</div>':''}${sourceNotice(o)}${itemRows(o.lineItems,o.currency)}<p><strong>${money(o.totalMinor,o.currency)}</strong>${balanceCaption(o)}</p>${milestoneMarkup(o)}${installmentControls(o)}${deliveryControls(o)}<div class="row">${['draft','needs_re_review','awaiting_client_approval'].includes(o.status)?`<button class="secondary" data-edit="${esc(o.id)}">Review terms</button>`:''}${session.grantId&&o.scopeRevisionId&&!o.stale?`<button class="secondary" data-client="${esc(o.id)}">Client review link</button>`:''}${['approved','creating_invoice'].includes(o.status)&&!o.installments?.some(m=>!m.legacy)?`<button data-invoice="${esc(o.id)}">Prepare PayPal invoice</button>`:''}${url&&(canPay(o)||o.financialState?.paymentState==='paid')?`<a class="button" href="${esc(url)}" target="_blank" rel="noreferrer">PayPal invoice</a>`:''}${o.paypalInvoiceId||o.installments?.some(m=>m.paypalInvoiceId)?`<button class="secondary" data-check="${esc(o.id)}">Check payment</button>`:''}${inPlugin?`<button class="secondary" data-status-card="${esc(o.id)}">Create / refresh Figma status card</button>`:''}</div>${o.lastCheckedAt?`<small>Checked ${esc(new Date(o.lastCheckedAt).toLocaleString())}</small>`:''}${abandonControl(o)}</article>`;
   }).join('') || '<p class="muted">Your approved changes and payment status will appear here.</p>';
-  bindInstallments($('orders'),orders,request,loadOrders);
+  bindInstallments($('orders'),orders,request,loadOrders);deliveryUI?.bind($('orders'),orders);
   $('orders').querySelectorAll('[data-status-card]').forEach(b=>b.onclick=()=>busy(b,()=>cardUI.upsert(orders.find(o=>o.id===b.dataset.statusCard))));
   $('orders').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { reviewingRequest=null; assessment = null; showProposal(orders.find(o=>o.id===b.dataset.edit)); });
   $('orders').querySelectorAll('[data-client]').forEach(b => b.onclick = () => busy(b, async()=> {
@@ -228,10 +230,11 @@ $('confirm-evidence').onclick=e=>busy(e.currentTarget,async()=>{
  evidenceSnapshot=saved;$('evidence-status').textContent=saved.verification==='verified'?'Evidence selected for this request. Captured '+new Date(saved.capturedAt).toLocaleString()+'. Node identity verified; plugin pixels remain client supplied.':'Evidence unavailable: '+saved.unavailableReason;
  if(saved.verification!=='verified')evidenceSnapshot=null;
 });
-window.addEventListener('pagehide',()=>cardUI?.invalidate());
+window.addEventListener('pagehide',()=>{cardUI?.invalidate();deliveryUI?.invalidate();});
 window.addEventListener('message',async event=>{
  if(!isFigmaPluginMessage(event))return;const m=event.data?.pluginMessage;if(!m)return;
  if(m.type==='status-card-result'){cardUI?.message(m);return;}
+ if(m.type==='delivery-result'){deliveryUI?.message(m);return;}
  if(m.type==='session'&&m.session){clearEvidence();session=m.session;await load();}
  if(m.type==='context'||m.type==='selection'){if(m.type==='selection'||fileKey!==m.fileKey)clearEvidence();fileKey=m.fileKey;nativeGeneration=Number.isSafeInteger(m.generation)?m.generation:0;selectionContext=JSON.stringify(m.selection);checkFile();}
  if(m.type==='frame'){

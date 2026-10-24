@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { db, currentRunId, transaction } from "./db.js";
 import { activeGrant } from "./judgeAccess.js";
-import {persistedGrant,validScopeGrant} from './scopeAccess.js';
+import {persistedGrant,validScopeGrant,validDeliveryGrant} from './scopeAccess.js';
 
 export type Role = "designer" | "client";
 
@@ -15,7 +15,7 @@ export interface Session {
   expiresAt: string;
   canEditScope: boolean;
   grantId: string | null;
-  grantKind: 'project'|'change_order'|'scope';
+  grantKind: 'project'|'change_order'|'scope'|'delivery';
   resourceId: string;
   resourceRevision: number|null;
   scopeParentId: string|null;
@@ -30,7 +30,7 @@ export function createSession(input: {
   ttlMinutes?: number;
   runId?: string;
   grantId?: string;
-  grantKind?: 'project'|'change_order'|'scope';
+  grantKind?: 'project'|'change_order'|'scope'|'delivery';
   resourceId?: string;
   resourceRevision?: number;
   scopeParentId?: string;
@@ -42,6 +42,7 @@ export function createSession(input: {
   const grant = input.grantId ? activeGrant(input.grantId) : null;
   const kind=input.grantKind??(input.role==='designer'?'project':'change_order'),resourceId=input.resourceId??(input.role==='designer'?input.projectId:input.changeOrderId??''),resourceRevision=input.resourceRevision??input.changeOrderRevision??null;
   if(kind==='scope'&&!validScopeGrant({role:input.role,grant_kind:kind,resource_id:resourceId,resource_revision:resourceRevision,scope_parent_id:input.scopeParentId,project_id:input.projectId,run_id:runId}))throw new Error('Invalid scope grant or expired parent');
+  if(kind==='delivery'&&!validDeliveryGrant({role:input.role,grant_kind:kind,resource_id:resourceId,resource_revision:resourceRevision,scope_parent_id:input.scopeParentId,project_id:input.projectId,run_id:runId}))throw new Error('Invalid delivery grant or expired parent');
   if(grant&&(persistedGrant(grant).kind!==kind||persistedGrant(grant).resourceId!==resourceId||persistedGrant(grant).revision!==resourceRevision||grant.scope_parent_id!==(input.scopeParentId??null)))throw new Error('Invalid renewal grant scope');
   if (input.grantId && (!grant || grant.run_id !== runId || grant.role !== input.role ||
       grant.change_order_id !== (input.changeOrderId ?? null) || grant.change_order_revision !== (input.changeOrderRevision ?? null))) throw new Error("Invalid renewal grant scope");
@@ -67,7 +68,7 @@ export function getSession(token: string | undefined | null): Session | null {
   if (!r || r.revoked) return null;
   if (new Date(r.expires_at).getTime() <= Date.now()) return null;
   const resource=persistedGrant(r);
-  if(resource.kind==='scope'&&!validScopeGrant(r))return null;
+  if(resource.kind==='scope'&&!validScopeGrant(r)||resource.kind==='delivery'&&!validDeliveryGrant(r))return null;
   if (r.grant_id) {
     const grant = activeGrant(r.grant_id);
     if (!grant || grant.role !== r.role || grant.run_id !== r.run_id ||
@@ -96,8 +97,8 @@ export function redeemInvitation(token: string): Session | null {
       .get(token, new Date().toISOString()) as any;
     if (!invite) return null;
     const resource=persistedGrant(invite);
-    if(resource.kind==='scope'&&!validScopeGrant(invite))return null;
-    if (invite.role === "client"&&resource.kind!=='scope') {
+    if(resource.kind==='scope'&&!validScopeGrant(invite)||resource.kind==='delivery'&&!validDeliveryGrant(invite))return null;
+    if (invite.role === "client"&&!['scope','delivery'].includes(resource.kind)) {
       const order = db.prepare("SELECT * FROM change_orders WHERE id = ? AND run_id = ? AND revision = ?")
         .get(invite.change_order_id, invite.run_id, invite.change_order_revision) as any;
       if (!order || order.status !== "awaiting_client_approval") return null;

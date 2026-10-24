@@ -1,5 +1,6 @@
 // Scope & Settle — document access stays in Figma's main thread.
 import {handleStatusCardMessage} from './status-card';
+import {handleDeliveryMessage} from './delivery';
 figma.showUI(__html__, { width: 440, height: 720, title: "Scope & Settle" });
 let selectionGeneration=0;
 function selectionSummary(nodes: readonly SceneNode[] = figma.currentPage.selection) {
@@ -11,6 +12,7 @@ function selectionSummary(nodes: readonly SceneNode[] = figma.currentPage.select
   }));
 }
 figma.ui.onmessage=async(msg:{type?:string;session?:unknown;expectedFileKey?:string;exportId?:string;requestKey?:string;generation?:number;[key:string]:unknown})=>{
+  if(msg.type==='delivery-context'||msg.type==='generate-delivery'){await handleDeliveryMessage(msg,()=>selectionGeneration);return;}
   if(msg.type==='status-card-context'||msg.type==='upsert-status-card'){await handleStatusCardMessage(msg,()=>selectionGeneration);return;}
   if(msg.type==='save-session')await figma.clientStorage.setAsync('designer-session',msg.session);
   if(msg.type==='get-session')figma.ui.postMessage({type:'session',session:await figma.clientStorage.getAsync('designer-session')});

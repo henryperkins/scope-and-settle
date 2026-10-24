@@ -279,16 +279,18 @@ Implementation decisions and compatibility requirements: [Release B execution su
 
 Subsystem interfaces and invoice/delivery compatibility: [Release C execution supplement](2026-10-23-release-c-execution.md).
 
+Local status (October 24, 2026): T14–T16 implementation and synthetic/browser checks are complete; final full build/test is 513/513. Real sandbox installment checkout, native output/readback and independent designer gates remain pending. See [local qualification](../../verification/agent-integrations-c-through-t16-2026-10-24.md). T17 is not started.
+
 ### T14 — Add approved milestone schedules and installment invoices
 
 **Depends on:** Release B.
 **Files:** create `app/src/backend/milestones.ts`, `app/tests/milestones.test.mjs`; modify `db.ts`, `orders.ts`, `paypal.ts`, shared types, and proposal/client review interfaces.
 **Interfaces:** `MilestoneTerms = { id: string; title: string; amountMinor: number; dueTrigger: "proposal_approval" | "delivery_acceptance"; acceptanceCriteria: string[] }`; `MilestoneSchedule = { milestones: MilestoneTerms[]; workStartPaymentMilestoneIds: string[] }`; `setMilestoneSchedule(ctx, orderId, expectedRevision, schedule: MilestoneSchedule): ChangeOrderView`; `ensureMilestoneInvoice(ctx, milestoneId): Promise<MilestoneView>`. Work-start payment references must identify proposal-approval installments in the same schedule; delivery-acceptance installments cannot be prerequisites for starting their own work.
 
-- [ ] Test a $250 order split into $100 due on proposal approval and $150 due on delivery acceptance; set the $100 installment as the work-start prerequisite. Assert the schedule sums exactly to the approved total, work can start after that deposit, and the balance cannot be invoiced early.
-- [ ] Include milestone/payment terms in the immutable proposal snapshot and client consent. Changing a schedule creates a new revision and invalidates old approval links.
-- [ ] Create one recoverable invoice operation per milestone with a unique provider reference; migrate a legacy invoice as a single legacy installment without creating another provider invoice.
-- [ ] Track per-installment and aggregate amounts separately. Use explicit installment invoices for this release; partial-payment configuration can be a later access-verified option. Do not describe these flows as escrow.
+- [x] Test a $250 order split into $100 due on proposal approval and $150 due on delivery acceptance; set the $100 installment as the work-start prerequisite. Assert the schedule sums exactly to the approved total, work can start after that deposit, and the balance cannot be invoiced early.
+- [x] Include milestone/payment terms in the immutable proposal snapshot and client consent. Changing a schedule creates a new revision and invalidates old approval links.
+- [x] Create one recoverable invoice operation per milestone with a unique provider reference; migrate a legacy invoice as a single legacy installment without creating another provider invoice.
+- [x] Track per-installment and aggregate amounts separately. Use explicit installment invoices for this release; partial-payment configuration can be a later access-verified option. Do not describe these flows as escrow.
 
 **Verify:** `node --test tests/milestones.test.mjs tests/orders.test.mjs` after build and a sandbox installment flow. **Done:** duplicate attempts create one invoice per installment and total obligations remain exactly the approved amount.
 
@@ -298,11 +300,11 @@ Subsystem interfaces and invoice/delivery compatibility: [Release C execution su
 **Files:** create `app/src/backend/delivery.ts`, `app/tests/delivery.test.mjs`; modify `app/plugin/code.ts`, designer UI, shared types, and `docs/agent-instructions/scope-and-settle.md`.
 **Interfaces:** `prepareDeliveryBrief(ctx, milestoneId: string): Promise<DeliveryBrief>`; `startApprovedWork(ctx, milestoneId: string): Promise<DeliveryRun>`. Define the brief with immutable scope/revision references, relevant nodes, acceptance criteria, paid-condition observation, and allowed work area. A run stores generated node IDs and its operation ID. Refresh the invoices referenced by the approved `workStartPaymentMilestoneIds` before authorizing start; do not require a delivery-acceptance balance invoice to be paid before the work it funds is reviewed.
 
-- [ ] Test an unpaid deposit, a reversed payment, changed scope, repeated start, and generated output outside the allowed work area; require review where the payment condition is no longer satisfied.
-- [ ] Add an explicit designer “Start approved work” action that generates a brief/checklist from approved facts. Draft new content on a dedicated page/area and preserve original design nodes.
-- [ ] Implement standard canvas output through the existing Plugin API. Add native Specs or supported-client MCP generation only after the relevant beta/access check passes; the standard brief remains usable without those features.
-- [ ] Read back generated node IDs and export a review image. Label generated work as draft until the designer reviews it; generation completion does not mark a milestone accepted.
-- [ ] If implementation is part of the engagement, attach existing Code Connect mappings and repository references to the brief. A coding-agent branch/PR and runtime validation are a separately scoped delivery action.
+- [x] Test an unpaid deposit, a reversed payment, changed scope, repeated start, and generated output outside the allowed work area; require review where the payment condition is no longer satisfied.
+- [x] Add an explicit designer “Start approved work” action that generates a brief/checklist from approved facts. Draft new content on a dedicated page/area and preserve original design nodes.
+- [x] Implement standard canvas output through the existing Plugin API. Add native Specs or supported-client MCP generation only after the relevant beta/access check passes; the standard brief remains usable without those features.
+- [x] Read back generated node IDs and export a review image. Label generated work as draft until the designer reviews it; generation completion does not mark a milestone accepted.
+- [x] If implementation is part of the engagement, attach existing Code Connect mappings and repository references to the brief. A coding-agent branch/PR and runtime validation are a separately scoped delivery action.
 
 **Verify:** build, `node --test tests/delivery.test.mjs`, native generation/read-back, and designer review against the acceptance checklist. **Done:** paid approved work has a traceable, repeatable starting artifact with no automatic acceptance claim.
 
@@ -312,10 +314,10 @@ Subsystem interfaces and invoice/delivery compatibility: [Release C execution su
 **Files:** modify `delivery.ts`, `milestones.ts`, `reviewedActions.ts`, `server.ts`, shared types, and `app/web/review.js`; create `app/tests/delivery-acceptance.test.mjs`.
 **Interfaces:** `submitDelivery(ctx, milestoneId, snapshotId): DeliveryReview`; `acceptDelivery(ctx, reviewId, expectedRevision): DeliveryAcceptance`; `requestDeliveryChanges(ctx, reviewId, comment): DeliveryReview`. Issue a client `delivery` grant bound to that review and revision. Acceptance is tied to the delivered snapshot and agreed criteria; an ordinary proposal review grant cannot accept a replacement delivery.
 
-- [ ] Test wrong-client acceptance, replaced delivery snapshots, a stale review link, concurrent acceptance, rejected delivery, and a late payment reversal after acceptance.
-- [ ] Present the exact delivery snapshot and checklist to the client; preserve requested changes and acceptance as append-only events.
-- [ ] Make a balance invoice eligible only after its approved due trigger occurs. Route execution through the same human authorization and recoverable invoice operation used elsewhere.
-- [ ] Keep delivery acceptance and payment state independent. A Figma “ready for dev” event can suggest review but cannot accept work or invoice it by itself.
+- [x] Test wrong-client acceptance, replaced delivery snapshots, a stale review link, concurrent acceptance, rejected delivery, and a late payment reversal after acceptance.
+- [x] Present the exact delivery snapshot and checklist to the client; preserve requested changes and acceptance as append-only events.
+- [x] Make a balance invoice eligible only after its approved due trigger occurs. Route execution through the same human authorization and recoverable invoice operation used elsewhere.
+- [x] Keep delivery acceptance and payment state independent. A Figma “ready for dev” event can suggest review but cannot accept work or invoice it by itself.
 
 **Verify:** `node --test tests/delivery-acceptance.test.mjs tests/milestones.test.mjs` after build and a real sandbox deposit -> review -> acceptance -> balance payment walkthrough. **Done:** the paid total, delivered version, acceptance, and outstanding balance agree across interfaces.
 

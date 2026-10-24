@@ -41,7 +41,7 @@ export function getStatusCard(ctx: ActorContext, orderId: string, revision: numb
     title: canvasText(order.title), deliverables: order.deliverables.map(canvasText),
     scope: {revisionId: order.scopeRevisionId, snapshotId: order.scopeContext?.scopeSnapshotId ?? null, version: order.scopeContext?.scopeVersion ?? null, rateVersion: order.scopeContext?.rateVersion ?? null, approved: order.approvalStatus === 'approved'},
     approvalState: (order.status as string) === 'cancelled' ? 'cancelled' : order.approvalStatus,
-    invoiceState: payment.invoiceState, paymentState: payment.paymentState, deliveryState: 'not_recorded',
+    invoiceState: payment.invoiceState, paymentState: payment.paymentState, deliveryState: order.delivery?.state??'not_recorded',
     paymentObservedAt: payment.observedAt, appReadAt: new Date().toISOString(), projectionVersion: readClock = Math.max(Date.now(), readClock + 1),
     displayPolicy,
     money: displayPolicy.showAmounts ? {currency: order.currency, totalMinor: order.totalMinor, amountDueMinor: payment.amountDueMinor, paidMinor: payment.paidMinor, refundedMinor: payment.refundedMinor} : null,

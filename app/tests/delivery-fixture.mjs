@@ -1,0 +1,7 @@
+import {deflateSync} from 'node:zlib';
+import {milestoneFixture} from './milestone-fixture.mjs';
+function crc(b){let c=0xffffffff;for(const x of b){c^=x;for(let i=0;i<8;i++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;}
+function chunk(name,data){const tag=Buffer.from(name),b=Buffer.alloc(data.length+12);b.writeUInt32BE(data.length);tag.copy(b,4);data.copy(b,8);b.writeUInt32BE(crc(Buffer.concat([tag,data])),b.length-4);return b;}
+export function deliveryPng(pixel=0){const h=Buffer.alloc(13);h.writeUInt32BE(1);h.writeUInt32BE(1,4);h[8]=8;h[9]=6;return 'data:image/png;base64,'+Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',h),chunk('IDAT',deflateSync(Buffer.from([0,pixel,0,0,255]))),chunk('IEND',Buffer.alloc(0))]).toString('base64');}
+export function outputFor(run,overrides={}){return {fileKey:run.brief.allowedArea.fileKey,operationId:run.operationId,pageId:'draft-page',areaId:'draft-area',nodeIds:['draft-area','draft-label'],nodes:[{id:'draft-area',parentId:'draft-page',type:'FRAME'},{id:'draft-label',parentId:'draft-area',type:'TEXT'}],imageDataUrl:deliveryPng(),capturedAt:new Date().toISOString(),...overrides};}
+export async function deliveryFixture(){const f=await milestoneFixture();f.delivery=await f.app.load('delivery').catch(e=>{if(e.code==='ERR_MODULE_NOT_FOUND')return {};throw e;});f.order=f.schedule();await f.approve();f.deposit=f.order.installments[0];f.target=f.order.installments[1];f.pay=()=>f.markPaid(f.deposit.paypalInvoiceId);return f;}

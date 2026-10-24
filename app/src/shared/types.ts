@@ -6,7 +6,7 @@ export interface StatusCardView {
   fileKey: string; projectId: string; runId: string; orderId: string; revision: number;
   title: string; deliverables: string[];
   scope: {revisionId: string | null; snapshotId: string | null; version: number | null; rateVersion: number | null; approved: boolean};
-  approvalState: string; invoiceState: string; paymentState: string; deliveryState: 'not_recorded';
+  approvalState: string; invoiceState: string; paymentState: string; deliveryState: string;
   paymentObservedAt: string | null; appReadAt: string; projectionVersion: number;
   displayPolicy: {version: number; showAmounts: boolean};
   money: {currency: string; totalMinor: number; amountDueMinor: number | null; paidMinor: number | null; refundedMinor: number | null} | null;
@@ -15,7 +15,7 @@ export interface StatusCardView {
 
 export type ResourceGrant =
   | Readonly<{ kind: "project"; resourceId: string; revision: null }>
-  | Readonly<{ kind: "change_order" | "scope"; resourceId: string; revision: number }>;
+  | Readonly<{ kind: "change_order" | "scope" | "delivery"; resourceId: string; revision: number }>;
 
 /** Structural contract only. Services require server-minted, private provenance. */
 export interface ActorContext {
@@ -106,6 +106,7 @@ export interface LineItem {
 }
 
 export interface ChangeOrderView {
+  delivery?:{state:string;reviews:{reviewId:string;revision:number;milestoneId:string;snapshotHash:string;state:string;acceptedAt:string|null}[]};
   milestoneSchedule?: MilestoneSchedule;
   installments?: MilestoneView[];
   installmentSummary?: InstallmentSummary;
@@ -141,6 +142,14 @@ export interface MilestoneTerms {id:string;title:string;amountMinor:number;dueTr
 export interface MilestoneSchedule {milestones:MilestoneTerms[];workStartPaymentMilestoneIds:string[]}
 export interface MilestoneView extends Omit<MilestoneTerms,'id'> {id:string;localId:string;orderId:string;revision:number;invoiceRecordId:string;legacy:boolean;paypalInvoiceId:string|null;invoiceUrl:string|null;financialState:FinancialState|null;state:string}
 export interface InstallmentSummary {approvedTotalMinor:number;invoicedMinor:number;payableDueMinor:number|null;futureUnbilledMinor:number;grossPaidMinor:number|null;refundedMinor:number|null;netPaidMinor:number|null;unknownRecordIds:string[];allObligationsPaid:boolean;workStartSatisfied:boolean}
+export interface DeliveryBrief {
+ schemaVersion:1;projectId:string;runId:string;orderId:string;revision:number;milestoneId:string;operationId:string;title:string;deliverables:string[];lineItems:LineItem[];approvedTermsHash:string;scopeContext:ScopeContextReference;
+ requestReferences:{sourceId:string;sourceVersion:number;rootId:string}[];evidenceReferences:{id:string;hash:string;fileKey:string;nodeIds:string[];verification:string;pixelProvenance:string}[];relevantNodeIds:string[];acceptanceCriteria:string[];
+ paymentCondition:{requiredMilestoneIds:string[];observations:{invoiceRecordId:string;observationId:number;amountMinor:number;observedAt:string}[]};
+ allowedArea:{fileKey:string;operationId:string;pageName:string;mode:'dedicated_draft_page'};repositoryReferences:string[];optionalCapabilities:{specs:false;mcpGeneration:false;codeLayers:false;codeConnect:false};createdAt:string;
+}
+export interface DeliverySnapshot {id:string;deliveryRunId:string;hash:string;imageHash:string;fileKey:string;pageId:string;areaId:string;nodeIds:string[];nodes:{id:string;parentId:string;type:string}[];capturedAt:string;receivedAt:string;pixelProvenance:'client_supplied';nodeProvenance:'client_plugin_claim';accepted:false;width:number;height:number}
+export interface DeliveryRun {deliveryReview?:{id:string;revision:number;snapshotHash:string;state:string}|null;id:string;operationId:string;milestoneId:string;orderId:string;revision:number;state:string;brief:DeliveryBrief;briefHash:string;latestSnapshot:DeliverySnapshot|null;financialReviewRequired:boolean;createdAt:string}
 
 export interface ScopeProvenance {kind:string;createdBy:string|null;sourceReference:string|null;sourceTime:string|null;capturedAt:string}
 export interface ScopeSnapshot {id:string;projectId:string;runId:string;version:number;legacyRevision:string|null;clauses:ScopeClause[];contentHash:string;provenance:ScopeProvenance}

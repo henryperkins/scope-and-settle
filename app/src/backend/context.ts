@@ -20,7 +20,7 @@ function activeSession(token: string | undefined): Session {
   try { project = getProjectForRun(session.runId); }
   catch { throw new ScopedAccessError(401, "This demo was reset; reconnect to your new run"); }
   if (project.id !== session.projectId) throw new ScopedAccessError(403, "Session does not grant access to this project");
-  if (session.role === "client" && (session.grantKind!=='scope'&&session.grantKind!=='change_order' || !session.resourceId || !Number.isSafeInteger(session.resourceRevision) || session.resourceRevision! < 1)) {
+  if (session.role === "client" && (!['scope','change_order','delivery'].includes(session.grantKind) || !session.resourceId || !Number.isSafeInteger(session.resourceRevision) || session.resourceRevision! < 1)) {
     throw new ScopedAccessError(403, "Session requires an exact proposal revision");
   }
   return session;
@@ -28,7 +28,7 @@ function activeSession(token: string | undefined): Session {
 export function contextFromSessionToken(token: string | undefined): ActorContext {
   const session = activeSession(token);
   const grant: ResourceGrant = session.role === "designer" ? {kind:"project",resourceId:session.projectId,revision:null} :
-    {kind:session.grantKind==='scope'?'scope':'change_order',resourceId:session.resourceId,revision:session.resourceRevision!};
+    {kind:session.grantKind==='delivery'?'delivery':session.grantKind==='scope'?'scope':'change_order',resourceId:session.resourceId,revision:session.resourceRevision!};
   const ctx: ActorContext = Object.freeze({ projectId:session.projectId, runId:session.runId, role:session.role,
     actorId:session.grantId ? `demo:grant:${session.grantId}` : `demo:session:${credentialHash(session.token)}`, grant:Object.freeze(grant) });
   authority.set(ctx, Object.freeze({...session}));

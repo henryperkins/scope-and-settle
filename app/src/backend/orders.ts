@@ -7,6 +7,7 @@ import { ScopedAccessError } from "./context.js";
 import type { ChangeOrderView, LineItem } from "../shared/types.js";
 import { approvedProviderItems, compatibilityStatus, deriveFinancialState, invoiceTermProblems, validateItemizedInvoiceTerms, type ApprovedInvoiceTerms } from "./paymentState.js";
 import {ensureDefaultSchedule,copySchedule,installmentData,hasExplicitSchedule} from './milestoneStore.js';
+import {deliverySummary} from './deliverySummary.js';
 import {ensureDueInstallments,refreshInvoiceRecord,installmentInFlight} from './milestones.js';
 
 function rowToView(r: any): ChangeOrderView {
@@ -45,6 +46,7 @@ function rowToView(r: any): ChangeOrderView {
     lastCheckedAt: obs?.checked_at ?? null,
     createdAt: r.created_at,
     ...(installments??{}),
+    delivery:deliverySummary(r.id,r.revision),
   };
 }
 

@@ -50,7 +50,7 @@ export function mountStatusCards({request, getContext, post, inPlugin}) {
       post({type: 'upsert-status-card', invocationId, epoch: capturedEpoch, orderId: order.id, view});
     });
     if (!alive || epoch !== capturedEpoch || signature() !== expected || !outcome) return null;
-    say(outcome.ok ? 'Cached status card updated. Provider observation: ' + (view.paymentObservedAt ?? 'unavailable') + '. Delivery is not recorded.' : outcome.message);
+    say(outcome.ok ? 'Cached status card updated. Provider observation: ' + (view.paymentObservedAt ?? 'unavailable') + '. Delivery: ' + view.deliveryState.replaceAll('_',' ') + '.' : outcome.message);
     return outcome;
   }
   function message(value) {

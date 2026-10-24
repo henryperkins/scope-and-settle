@@ -51,7 +51,7 @@ function requestFor(session:PortalSession,id:string) {
 type PublishedOrder = Pick<import("../shared/types.js").ChangeOrderView,
   "id" | "revision" | "title" | "deliverables" | "lineItems" | "totalMinor" | "currency" | "status" |
   "invoiceUrl" | "paymentStatus" | "scopeRevisionId" | "amountDueMinor" | "lastCheckedAt" |
-  "approvalStatus" | "financialState" | "paypalInvoiceId" | "scopeContext" | "milestoneSchedule" | "installmentSummary" | "installments">;
+  "approvalStatus" | "financialState" | "paypalInvoiceId" | "scopeContext" | "milestoneSchedule" | "installmentSummary" | "installments" | "delivery">;
 
 export function publishedOrder(request:AgentRequest,orderId?:string,revision?:number): PublishedOrder | null {
   const refs=linkedOrders(request);
@@ -62,7 +62,7 @@ export function publishedOrder(request:AgentRequest,orderId?:string,revision?:nu
   return {id:order.id,revision:order.revision,title:order.title,deliverables:order.deliverables,lineItems:order.lineItems,
     totalMinor:order.totalMinor,currency:order.currency,status:order.status,invoiceUrl:order.invoiceUrl,paymentStatus:order.paymentStatus,
     scopeRevisionId:order.scopeRevisionId,amountDueMinor:order.amountDueMinor,lastCheckedAt:order.lastCheckedAt,
-    milestoneSchedule:order.milestoneSchedule,installmentSummary:order.installmentSummary,installments:order.installments,approvalStatus:order.approvalStatus,financialState:order.financialState,paypalInvoiceId:order.paypalInvoiceId,scopeContext:order.scopeContext?{...order.scopeContext,commitments:[]}:null};
+    delivery:order.delivery,milestoneSchedule:order.milestoneSchedule,installmentSummary:order.installmentSummary,installments:order.installments,approvalStatus:order.approvalStatus,financialState:order.financialState,paypalInvoiceId:order.paypalInvoiceId,scopeContext:order.scopeContext?{...order.scopeContext,commitments:[]}:null};
 }
 export function portalView(session:PortalSession) {
   const valid=requirePortal(session),project=getProjectForRun(session.runId);

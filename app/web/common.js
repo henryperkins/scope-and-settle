@@ -17,7 +17,7 @@ export function milestoneMarkup(order){
  if(!order.milestoneSchedule)return '';
  const s=order.milestoneSchedule,summary=order.installmentSummary;
  const amount=n=>n===null||n===undefined?'Needs review':money(n,order.currency);
- return `<div class="milestones"><h3>Approved payment schedule</h3>${s.milestones.map(t=>{
+ return `<div class="milestones">${order.delivery&&order.delivery.state!=='not_recorded'?`<p>Delivery: ${esc(order.delivery.state.replaceAll('_',' '))}. Payment status remains separate.</p>`:''}<h3>Approved payment schedule</h3>${s.milestones.map(t=>{
   const m=order.installments?.find(x=>x.localId===t.id),url=safeInvoice(m?.invoiceUrl),f=m?.financialState;
   return `<section><strong>${esc(t.title)} · ${amount(t.amountMinor)}</strong><p>Due on ${t.dueTrigger==='proposal_approval'?'proposal approval':'delivery acceptance'}${s.workStartPaymentMilestoneIds.includes(t.id)?' · Work-start payment prerequisite':''}.</p><ul>${t.acceptanceCriteria.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>${m?`<p>${esc(f?financialLabel(m):'Not invoiced')}${f?.observedAt?' · Checked '+esc(new Date(f.observedAt).toLocaleString()):''}</p>`:''}${url&&(canPay(m)||f?.paymentState==='paid')?`<a class="button" href="${esc(url)}" target="_blank" rel="noreferrer">${f?.paymentState==='paid'?'View receipt for':'Pay'} ${esc(t.title)}</a>`:''}</section>`;
  }).join('')}<p>Work begins after the listed work-start payment prerequisites are confirmed. Delivery acceptance releases only its agreed installment.</p>${summary&&order.approvalStatus==='approved'?`<p>Paid (net): ${amount(summary.netPaidMinor)} · Payable now: ${amount(summary.payableDueMinor)} · Not yet invoiced: ${amount(summary.futureUnbilledMinor)} · Refunded: ${amount(summary.refundedMinor)}</p>`:''}</div>`;

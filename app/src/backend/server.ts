@@ -1,6 +1,7 @@
 import {prepareReviewedAction,getReviewedAction,confirmReviewedAction} from './reviewedActions.js';
 import {prepareMilestoneAction,confirmMilestoneAction,getMilestoneAction} from './installmentActions.js';
 import {setMilestoneSchedule} from './milestones.js';
+import {prepareDeliveryBrief,startApprovedWork,getDeliveryRun,orderDeliveries,recordDeliveryOutput,getDeliverySnapshot,submitDelivery,issueDeliveryAccess,getDeliveryReview,requestDeliveryChanges,acceptDelivery,refreshDeliveryPayment} from './delivery.js';
 import {linkedOrders} from "./requestLinks.js";
 import {assessRequest,assessStoredRequest,assessmentItems,setItemPrice,resolveDuplicate,abandonProposal} from "./requestItems.js";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -68,7 +69,7 @@ export const server = createServer(async (req, res) => {
   if (path === MCP_PATH) return handleMcpRequest(req, res);
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
-    const publicFiles: Record<string, string> = {"/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
+    const publicFiles: Record<string, string> = {"/delivery":"delivery-review.html","/assets/delivery-review.js":"delivery-review.js","/assets/delivery.js":"delivery.js","/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
       "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
@@ -156,12 +157,30 @@ export const server = createServer(async (req, res) => {
     };
     const scopedOrder = path.match(/^\/api\/change-orders\/([^/]+)(?:\/(submit|approve|invoice|payment-status|client-access))?$/);
     const scopedSnapshot=path.match(/^\/api\/scope\/snapshots\/([^/]+)(?:\/(acknowledge|client-access))?$/);
+    const deliveryReviewRoute=path.match(/^\/api\/delivery-reviews\/([^/]+)(?:\/(accept|changes|payment-status|client-access))?$/);
     if(scopedSnapshot)getScopeSnapshot(ctx,scopedSnapshot[1]);
     if (scopedOrder) getScopedOrder(ctx, scopedOrder[1]);
-    const clientAction = (scopedSnapshot&&((!scopedSnapshot[2]&&req.method==='GET')||(scopedSnapshot[2]==='acknowledge'&&req.method==='POST'))) || (path === "/api/session" && req.method === "GET") || (scopedOrder && ((req.method === "GET" && (!scopedOrder[2] || scopedOrder[2] === "payment-status")) ||
+    const clientAction = (deliveryReviewRoute&&((req.method==='GET'&&(!deliveryReviewRoute[2]||deliveryReviewRoute[2]==='payment-status'))||(req.method==='POST'&&['accept','changes'].includes(deliveryReviewRoute[2])))) || (scopedSnapshot&&((!scopedSnapshot[2]&&req.method==='GET')||(scopedSnapshot[2]==='acknowledge'&&req.method==='POST'))) || (path === "/api/session" && req.method === "GET") || (scopedOrder && ((req.method === "GET" && (!scopedOrder[2] || scopedOrder[2] === "payment-status")) ||
       (req.method === "POST" && scopedOrder[2] === "approve")));
     if (session.role !== "designer" && !clientAction) return json(res, 403, { error: "Requires designer role" });
     if (path === "/api/session" && req.method === "GET") return json(res, 200, session);
+    if(deliveryReviewRoute){
+      const id=deliveryReviewRoute[1],action=deliveryReviewRoute[2];
+      if(req.method==='GET'&&!action)return json(res,200,getDeliveryReview(ctx,id));
+      if(req.method==='GET'&&action==='payment-status')return json(res,200,await refreshDeliveryPayment(ctx,id));
+      if(req.method==='POST'&&action==='client-access'){await scopedBody();return json(res,201,issueDeliveryAccess(ctx,id));}
+      if(req.method==='POST'&&['accept','changes'].includes(action)){
+        if(req.headers.origin!==new URL(config.publicUrl).origin)throw new ScopedAccessError(403,'Review and confirm this delivery in the client application');
+        const b=await scopedBody(),view=getDeliveryReview(ctx,id);
+        if(action==='changes'){
+          if(!b||Object.keys(b).some(k=>!['comment','expectedRevision','snapshotHash'].includes(k))||b.expectedRevision!==view.revision||b.snapshotHash!==view.snapshot.hash)throw new ScopedAccessError(409,'Select the exact displayed review revision and snapshot');
+          return json(res,200,requestDeliveryChanges(ctx,id,b.comment));
+        }
+        if(!b||Object.keys(b).some(k=>!['consent','expectedRevision','snapshotHash'].includes(k))||b.consent!==true)throw new ScopedAccessError(400,'Explicit consent to the delivered snapshot, criteria and agreed balance is required');
+        if(b.snapshotHash!==view.snapshot.hash)throw new ScopedAccessError(409,'Confirm the exact displayed delivery snapshot');
+        return json(res,200,await acceptDelivery(ctx,id,b.expectedRevision));
+      }
+    }
     if(path==='/api/project/card-display'&&req.method==='GET')return json(res,200,getCardDisplaySettings(ctx));
     if(path==='/api/project/card-display'&&req.method==='POST'){
       if(req.headers.origin!==new URL(config.publicUrl).origin)throw new ScopedAccessError(403,'Manage canvas monetary display in the authenticated browser application');
@@ -182,6 +201,23 @@ export const server = createServer(async (req, res) => {
       if(!body||typeof body!=='object'||Object.keys(body).some(k=>k!=='consent')||body.consent!==true)throw new ScopedAccessError(400,'Explicit consent is required to revoke this connector credential');
       return json(res,200,revokeConnectorCredential(ctx,decodeURIComponent(connectorRoute[1])));
     }
+    const workRoute=path.match(/^\/api\/milestones\/([^/]+)\/(delivery-brief|start-work|submit-delivery)$/);
+    if(workRoute&&req.method==='POST'&&workRoute[2]==='submit-delivery'){
+      const b=await scopedBody();if(!b||Object.keys(b).some(k=>!['snapshotId','consent'].includes(k))||b.consent!==true||typeof b.snapshotId!=='string')throw new ScopedAccessError(400,'Review the exact draft snapshot and explicitly submit it');
+      const review=submitDelivery(ctx,workRoute[1],b.snapshotId);return json(res,201,{review,...issueDeliveryAccess(ctx,review.id)});
+    }
+    if(workRoute&&req.method==='GET'&&workRoute[2]==='delivery-brief')return json(res,200,await prepareDeliveryBrief(ctx,workRoute[1]));
+    if(workRoute&&req.method==='POST'&&workRoute[2]==='start-work'){
+      const b=await scopedBody();if(!b||Object.keys(b).some(k=>k!=='consent')||b.consent!==true)throw new ScopedAccessError(400,'Explicit designer consent to start approved work is required');
+      return json(res,201,await startApprovedWork(ctx,workRoute[1]));
+    }
+    const orderDeliveryRoute=path.match(/^\/api\/change-orders\/([^/]+)\/deliveries$/);
+    if(orderDeliveryRoute&&req.method==='GET')return json(res,200,orderDeliveries(ctx,orderDeliveryRoute[1]));
+    const runRoute=path.match(/^\/api\/delivery-runs\/([^/]+)(?:\/(output))?$/);
+    if(runRoute&&req.method==='GET'&&!runRoute[2])return json(res,200,getDeliveryRun(ctx,runRoute[1]));
+    if(runRoute&&req.method==='POST'&&runRoute[2]==='output')return json(res,201,recordDeliveryOutput(ctx,runRoute[1],await scopedBody()));
+    const snapshotRoute=path.match(/^\/api\/delivery-snapshots\/([^/]+)$/);
+    if(snapshotRoute&&req.method==='GET')return json(res,200,getDeliverySnapshot(ctx,snapshotRoute[1]));
     const scheduleRoute=path.match(/^\/api\/change-orders\/([^/]+)\/milestone-schedule$/);
     if(scheduleRoute&&req.method==='POST'){
       const b=await scopedBody();
