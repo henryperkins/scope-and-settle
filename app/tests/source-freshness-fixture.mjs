@@ -75,8 +75,8 @@ export async function fixture({listen=true}={}){
    const s=db.prepare('SELECT * FROM request_sources WHERE run_id=? AND root_id=?').get(ctx.runId,rootId);
    return s?{id:s.id,version:s.version,contentHash:s.content_hash,versions:count('SELECT COUNT(*) n FROM request_source_versions WHERE source_id=?',s.id)}:null;
   },
-  /** Durable source-keyed freshness record, or null when absent (or before the T11a migration). */
-  fence(sourceId){try{return db.prepare('SELECT * FROM request_source_freshness WHERE source_id=?').get(sourceId)??null;}catch{return null;}},
+  /** Durable source-keyed freshness record, or null when no trusted observation exists. */
+  fence(sourceId){return db.prepare('SELECT * FROM request_source_freshness WHERE source_id=?').get(sourceId)??null;},
   cachedSource(rootId){const h=f.head(rootId);return {source:'figma',fileKey:'test-file',rootId,messages:JSON.parse(db.prepare('SELECT messages_json FROM request_source_versions WHERE source_id=? AND version=?').get(h.id,h.version).messages_json)};},
   project(){return m.db.getProjectForRun(ctx.runId);},
   reservations(orderId){return db.prepare('SELECT state FROM proposal_item_reservations WHERE order_id=? ORDER BY id').all(orderId).map(r=>r.state);},

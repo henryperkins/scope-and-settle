@@ -194,7 +194,7 @@ export async function createProductionEvaluator({load, evidenceMode}) {
         // Repeated unavailable cases query the existing fence without attempting recovery.
         const known=db.prepare('SELECT id FROM request_sources WHERE run_id=?').get(runId);
         if(!known)modules.requestSources.captureRequestSource(runId,source);
-        modules.requestSources.recordSourceUnavailable(runId,'root','source_missing');
+        modules.requestSources.recordSourceUnavailable(runId,'root','source_missing',modules.requestSources.observationMark());
         let blocked=false;try{modules.requestSources.captureRequestSource(runId,source);}catch(error){if(error instanceof modules.requestSources.SourceUnavailableError)blocked=true;else throw error;}
         assert(blocked,'Known source unavailability did not fence evaluation');return {outcome:'blocked',dispatched:false,guardVerified:true,runId,items:[]};
       }

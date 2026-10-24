@@ -10,6 +10,78 @@ import {fixture} from './source-freshness-fixture.mjs';
 const UNAVAILABLE=/unavailable/i;
 const isBounds=variant=>['long','replies','bounds-file'].includes(variant);
 
+function holdNextRead(f){
+ let release,entered;const pending=new Promise(resolve=>release=resolve),started=new Promise(resolve=>entered=resolve);
+ f.readHook=()=>{f.readHook=null;entered();return pending;};return {started,release:()=>release()};
+}
+for(const recover of [true,false])test(`C1 old missing read cannot overwrite newer ${recover?'recovery':'unchanged successful observation'}`,async()=>{
+ const f=await fixture();let held,oldRead;
+ try{
+  f.enable();const root=f.root('c1-ordering','Mobile checkout ordering request'),a=await f.assessThread(root.id);
+  const draft=await f.draft([a.assessment.items[0].id],'c1-ordering-draft',a.assessment.id);assert.equal(draft.status,201);
+  const submitted=await f.submit(draft.body.id),client=await f.redeem(submitted.approvalUrl),before=f.head(root.id),history=f.db.prepare('SELECT * FROM proposal_revisions ORDER BY rowid').all();
+  f.remove(root.id);if(recover)assert.equal((await f.http('/api/inbox/refresh','POST',{commentId:root.id})).status,400);
+  held=holdNextRead(f);oldRead=f.http('/api/inbox/refresh','POST',{commentId:root.id});await held.started;
+  f.comments=[root];const newer=await f.http('/api/inbox/refresh','POST',{commentId:root.id});assert.equal(newer.status,200,JSON.stringify(newer.body));
+  const current=f.head(root.id),counts=f.counts();held.release();const older=await oldRead;
+  assert.equal(older.status,409,'stale missing read must be rejected');assert.equal(f.sources.sourceUnavailable(before.id),false);
+  assert.deepEqual(f.head(root.id),current);assert.equal(f.inbox.listRequestInbox(f.ctx).find(r=>r.rootId===root.id).availability,'available');
+  assert.equal(current.version,before.version+(recover?1:0));assert.deepEqual(f.counts(),counts);assert.deepEqual(f.db.prepare('SELECT * FROM proposal_revisions ORDER BY rowid').all(),history);
+  if(recover){const refused=await f.http('/api/change-orders/'+draft.body.id+'/approve','POST',{},client);assert.equal(refused.status,409);assert.equal(f.orders.getChangeOrder(draft.body.id).approvalStatus,'awaiting_client_approval');}
+ }finally{held?.release();if(oldRead)await oldRead.catch(()=>{});await f.close();}
+});
+
+test('C1 old successful read cannot roll back a newer source or inbox projection',async()=>{
+ const f=await fixture();let held,oldRead;
+ try{
+  f.enable();const root=f.root('c1-success','Mobile checkout alpha');await f.assessThread(root.id);
+  held=holdNextRead(f);oldRead=f.http('/api/inbox/refresh','POST',{commentId:root.id});await held.started;
+  f.comment(root.id).message='Mobile checkout bravo';const newer=await f.http('/api/inbox/refresh','POST',{commentId:root.id});assert.equal(newer.status,200);
+  const current=f.head(root.id),counts=f.counts();held.release();assert.equal((await oldRead).status,409);
+  assert.deepEqual(f.head(root.id),current);assert.equal(f.inbox.listRequestInbox(f.ctx).find(r=>r.rootId===root.id).text,'Mobile checkout bravo');assert.deepEqual(f.counts(),counts);
+ }finally{held?.release();if(oldRead)await oldRead.catch(()=>{});await f.close();}
+});
+
+test('C1 direct manual same-byte recovery advances version without reviving pending approval',async()=>{
+ const f=await fixture();try{
+  const root=f.root('c1-manual','Mobile checkout manual recovery'),a=await f.http('/api/assessments','POST',{commentId:root.id});assert.equal(a.status,201);
+  const draft=await f.draft([a.body.items[0].id],'c1-manual-draft',a.body.id);assert.equal(draft.status,201);
+  const submitted=await f.submit(draft.body.id),client=await f.redeem(submitted.approvalUrl),before=f.head(root.id),counts=f.counts();
+  f.remove(root.id);await assert.rejects(f.sources.refreshFigmaSource(f.ctx.runId,root.id,()=>f.m.context.requireDesignerContext(f.ctx)),e=>e.status===400);
+  assert.equal(f.sources.sourceUnavailable(before.id),true);f.comments=[root];
+  const recovered=await f.sources.refreshFigmaSource(f.ctx.runId,root.id,()=>f.m.context.requireDesignerContext(f.ctx));
+  assert.equal(recovered.reference.version,before.version+1);assert.equal(recovered.reference.contentHash,before.contentHash);assert.equal(f.sources.sourceUnavailable(before.id),false);
+  assert.equal((await f.http('/api/change-orders/'+draft.body.id+'/approve','POST',{},client)).status,409);assert.deepEqual(f.counts(),counts);
+ }finally{await f.close();}
+});
+
+test('C1 stale file refresh preserves a newer manual recovery and still commits its healthy peer',async()=>{
+ const f=await fixture();let held,oldRead;
+ try{
+  f.enable();const root=f.root('c1-file-root','Mobile checkout restored');await f.assessThread(root.id);f.root('c1-file-peer','Carousel peer');f.remove(root.id);
+  await f.event('c1-file-peer');held=holdNextRead(f);oldRead=f.jobs.runInboxJobs(new Date(),'figma_refresh');await held.started;
+  f.comments.push(root);assert.equal((await f.http('/api/inbox/refresh','POST',{commentId:root.id})).status,200);
+  const current=f.head(root.id);held.release();await oldRead;
+  assert.equal(f.sources.sourceUnavailable(current.id),false);assert.deepEqual(f.head(root.id),current);
+  assert.equal(f.inbox.listRequestInbox(f.ctx).find(r=>r.rootId===root.id).availability,'available');assert.ok(f.head('c1-file-peer'));
+ }finally{held?.release();if(oldRead)await oldRead.catch(()=>{});await f.close();}
+});
+
+for(const enabled of [true,false])test(`C1 legacy changed-source recovery ${enabled?'retains existing consent':'cannot queue work after policy pause'}`,async()=>{
+ const f=await fixture();try{
+  f.m.agentPolicy.saveAgentPolicy(f.session,{enabled:true,consent:true,allowedRateIds:['mobile_checkout'],maxQuoteMinor:25000,maxTotalMinor:50000,maxQuantity:1,figmaClientIds:['client']});
+  const root=f.root('c1-legacy','Mobile checkout alpha'),request=f.store.createRequest(f.ctx.runId,'figma',root.id,root.message);
+  assert.equal((await f.http('/api/inbox/refresh','POST',{commentId:root.id})).status,200);
+  f.db.prepare("UPDATE agent_requests SET state='needs_clarification' WHERE id=?").run(request.id);f.remove(root.id);
+  assert.equal((await f.http('/api/inbox/refresh','POST',{commentId:root.id})).status,400);
+  if(!enabled)f.m.agentPolicy.saveAgentPolicy(f.session,{enabled:false});
+  const policy=f.m.agentPolicy.getAgentPolicy(f.ctx.runId),budget=f.db.prepare('SELECT * FROM ai_calls ORDER BY id').all(),calls=f.calls;
+  f.comments=[{...root,message:'Mobile checkout bravo'}];assert.equal((await f.http('/api/inbox/refresh','POST',{commentId:root.id})).status,200);
+  assert.equal(f.store.requestById(request.id,f.ctx.runId).state,enabled?'queued':'needs_clarification');assert.deepEqual(f.m.agentPolicy.getAgentPolicy(f.ctx.runId),policy);
+  assert.deepEqual(f.db.prepare('SELECT * FROM ai_calls ORDER BY id').all(),budget);assert.equal(f.calls,calls);assert.equal(f.count('SELECT count(*) n FROM connector_budget_reservations'),0);
+ }finally{await f.close();}
+});
+
 for(const variant of ['long','replies','missing-root','missing-parent'])test(`T11a row 1 ${variant}: a manually assessed root without an inbox row is fenced and cannot reserve or draft`,async()=>{
  const f=await fixture();
  try{
@@ -370,7 +442,7 @@ test('T11a row 7: approved commitments, invoices, payment reconciliation and dis
   assert.equal((await f.http('/api/change-orders/'+kept.id+'/invoice','POST')).status,200);
   assert.equal(f.provider.counts().creates,creates);
   // Approved work is never abandoned or released.
-  assert.notEqual((await f.http('/api/change-orders/'+kept.id+'/abandon','POST',{reason:'Attempted release while unavailable'})).status,200);
+  assert.equal((await f.http('/api/change-orders/'+kept.id+'/abandon','POST',{reason:'Attempted release while unavailable'})).status,409);
   assert.deepEqual(history(),before);
   assert.equal(f.writes,1);
   assert.equal(f.fence(head.id)?.state,'unavailable');

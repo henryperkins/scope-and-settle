@@ -6,7 +6,7 @@ import {requireDesignerContext,sessionForContext,ScopedAccessError,type ActorCon
 import {activeGrant,credentialHash} from './judgeAccess.js';
 import {activeAgentPolicy,policyAuthority,type AgentPolicy} from './agentPolicy.js';
 import {fetchComments,FigmaRequestError} from './figma.js';
-import {canonicalFigmaSource,acquireRequestSource,observationMark,recordMissingSource,recordSourceUnavailable,sourceFreshness,sourceUnavailable,requireSourceCurrent,withinCanonicalBounds,SourceUnavailableError,type RequestSource} from './requestSources.js';
+import {canonicalFigmaSource,acquireRequestSource,observationMark,recordMissingSource,recordSourceUnavailable,requireObservationCurrent,sourceFreshness,sourceUnavailable,requireSourceCurrent,withinCanonicalBounds,SourceUnavailableError,SourceObservationSupersededError,type RequestSource} from './requestSources.js';
 import {prepareAssessmentWork,assessmentWorkOutcome,executeAssessmentWork,type AssessmentWorkReference} from './assessmentWork.js';
 import {createRequest,requestById,messagesFor,now,type AgentRequest} from './agentStore.js';
 import {assessmentItems} from './requestItems.js';
@@ -51,20 +51,23 @@ function validateThreadProjection(runId:string,resolved:ReturnType<typeof canoni
  if(!existing&&Number(db.prepare('SELECT COUNT(*) n FROM agent_requests WHERE run_id=?').get(runId)?.n)>=100)throw new ThreadProjectionError('request_limit');
 }
 function sourceErrorKey(runId:string,rootId:string){return `inbox-source-error:${runId}:${rootId}`;}
-function recordThreadUnavailable(runId:string,rootId:string,category:'source_bounds'|'request_limit'){
+function recordThreadUnavailable(runId:string,rootId:string,category:'source_bounds'|'request_limit',mark:number){
+ requireObservationCurrent(runId,rootId,mark);
+ if(category==='source_bounds')recordSourceUnavailable(runId,rootId,'source_bounds',mark);
  const value=JSON.stringify({commentId:rootId,error_category:category,observedAt:now()});
  db.prepare('INSERT INTO agent_runtime(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(sourceErrorKey(runId,rootId),value);
  db.prepare("UPDATE request_inbox SET availability='unavailable',updated_at=? WHERE run_id=? AND request_id IN(SELECT id FROM agent_requests WHERE run_id=? AND source='figma' AND source_id=?)").run(now(),runId,runId,rootId);
  // Out-of-bounds bytes of a known source are a persistent fence; a request cap is not evidence about source bytes.
- if(category==='source_bounds')recordSourceUnavailable(runId,rootId,'source_bounds');
 }
 /** Fences every known canonical root of an authorized run/file, including manually assessed roots without inbox rows. */
-function observeKnownRoots(runId:string,comments:FigmaComment[]){
+function observeKnownRoots(runId:string,comments:FigmaComment[],mark:number){
  const project=getProjectForRun(runId);
  for(const source of db.prepare("SELECT root_id FROM request_sources WHERE project_id=? AND run_id=? AND source='figma' AND file_key=?").all(project.id,runId,config.figmaFileKey) as {root_id:string}[]){
   const root=comments.find(c=>c.id===source.root_id);
-  if(!root||root.parentId)recordSourceUnavailable(runId,source.root_id,'source_missing');
-  else if(!withinCanonicalBounds(canonicalFigmaSource(config.figmaFileKey,root.id,comments).source.messages))recordSourceUnavailable(runId,source.root_id,'source_bounds');
+  try{
+   if(!root||root.parentId)recordSourceUnavailable(runId,source.root_id,'source_missing',mark);
+   else if(!withinCanonicalBounds(canonicalFigmaSource(config.figmaFileKey,root.id,comments).source.messages))recordSourceUnavailable(runId,source.root_id,'source_bounds',mark);
+  }catch(error){if(!(error instanceof SourceObservationSupersededError))throw error;}
  }
 }
 function projectThread(runId:string,resolved:ReturnType<typeof canonicalFigmaSource>,owner:'inbox'|'legacy',settingsVersion:number|null,mark:number){return transaction(()=>{
@@ -90,10 +93,10 @@ function projectThread(runId:string,resolved:ReturnType<typeof canonicalFigmaSou
 export async function refreshRequestThread(ctx:ActorContext,commentId:string){
  requireDesignerContext(ctx);if(typeof commentId!=='string'||!commentId||commentId.length>200)throw new ScopedAccessError(400,'Comment ID required');
  const project=getProjectForRun(ctx.runId),mark=observationMark(),comments=await fetchComments(project.figmaFileKey);requireDesignerContext(ctx);
- let resolved;try{resolved=canonicalFigmaSource(project.figmaFileKey,commentId,comments);}catch(error){recordMissingSource(ctx.runId,commentId,comments);db.prepare("UPDATE request_inbox SET availability='unavailable',updated_at=? WHERE run_id=? AND request_id IN(SELECT id FROM agent_requests WHERE run_id=? AND source='figma' AND source_id=?)").run(now(),ctx.runId,ctx.runId,commentId);throw error;}
+ let resolved;try{resolved=canonicalFigmaSource(project.figmaFileKey,commentId,comments);}catch(error){recordMissingSource(ctx.runId,commentId,comments,mark);db.prepare("UPDATE request_inbox SET availability='unavailable',updated_at=? WHERE run_id=? AND request_id IN(SELECT id FROM agent_requests WHERE run_id=? AND source='figma' AND source_id=?)").run(now(),ctx.runId,ctx.runId,commentId);throw error;}
  // The fence is committed outside the rejected projection transaction before the rejection propagates.
  try{projectThread(ctx.runId,resolved,'inbox',null,mark);}
- catch(error){if(error instanceof ThreadProjectionError&&error.category==='source_bounds'){recordThreadUnavailable(ctx.runId,resolved.root.id,'source_bounds');throw new ScopedAccessError(400,'Invalid request source: the authoritative thread exceeds canonical bounds');}throw error;}
+ catch(error){if(error instanceof ThreadProjectionError&&error.category==='source_bounds'){recordThreadUnavailable(ctx.runId,resolved.root.id,'source_bounds',mark);throw new ScopedAccessError(400,'Invalid request source: the authoritative thread exceeds canonical bounds');}throw error;}
  return listRequestInbox(ctx).find(r=>r.rootId===resolved.root.id)!;
 }
 export function listRequestInbox(ctx:ActorContext,filter?:string){requireDesignerContext(ctx);
@@ -123,10 +126,10 @@ function assessmentAuthority(r:AgentRequest,s:InboxSettings,guard:()=>void=()=>{
 };}
 async function refreshScheduledSource(r:AgentRequest,s:InboxSettings,auth:()=>void,expected:AssessmentWorkReference){
  auth();const mark=observationMark(),comments=await fetchComments(getProjectForRun(r.run_id).figmaFileKey);auth();
- let resolved;try{resolved=canonicalFigmaSource(config.figmaFileKey,r.source_id,comments);}catch(error){recordMissingSource(r.run_id,r.source_id,comments);throw error;}
+ let resolved;try{resolved=canonicalFigmaSource(config.figmaFileKey,r.source_id,comments);}catch(error){recordMissingSource(r.run_id,r.source_id,comments,mark);throw error;}
  const selected=route(resolved.root);
  if(!selected||selected.runId!==r.run_id||selected.version!==s.version)throw new InternalJobFailure('author_route_changed');
- try{projectThread(r.run_id,resolved,'inbox',s.version,mark);}catch(error){if(error instanceof ThreadProjectionError&&error.category==='source_bounds')recordThreadUnavailable(r.run_id,resolved.root.id,'source_bounds');throw error;}
+ try{projectThread(r.run_id,resolved,'inbox',s.version,mark);}catch(error){if(error instanceof ThreadProjectionError&&error.category==='source_bounds')recordThreadUnavailable(r.run_id,resolved.root.id,'source_bounds',mark);throw error;}
  requireSourceCurrent(r.run_id,expected.source);auth();
  return resolved.source;
 }
@@ -164,14 +167,15 @@ export async function refreshInboxFile(associationId:string,generation:number,gu
    });}catch(error){
     // A newer unavailable observation during this read keeps that one source fenced; peers still commit.
     if(error instanceof SourceUnavailableError){db.prepare("UPDATE figma_event_receipts SET state='source_unavailable' WHERE id=?").run(receipt.id);continue;}
+    if(error instanceof SourceObservationSupersededError){db.prepare("UPDATE figma_event_receipts SET state='source_superseded' WHERE id=?").run(receipt.id);continue;}
     if(!(error instanceof ThreadProjectionError))throw error;
     // Only known source bounds/cap failures are local to a thread. Real storage and authority failures still abort.
-    recordThreadUnavailable(s.runId,resolved.root.id,error.category);
+    try{recordThreadUnavailable(s.runId,resolved.root.id,error.category,mark);}catch(stale){if(!(stale instanceof SourceObservationSupersededError))throw stale;db.prepare("UPDATE figma_event_receipts SET state='source_superseded' WHERE id=?").run(receipt.id);continue;}
     db.prepare('UPDATE figma_event_receipts SET state=? WHERE id=?').run(error.category,receipt.id);
    }
   }
-  for(const s of activeInboxSettings())if(accepted.some(before=>before.runId===s.runId&&before.version===s.version))observeKnownRoots(s.runId,comments);
-  for(const row of db.prepare('SELECT i.*,r.source_id root_id FROM request_inbox i JOIN agent_requests r ON r.id=i.request_id').all() as any[]){if(!activeInboxSettings().some(s=>s.runId===row.run_id))continue;const root=comments.find(c=>c.id===row.root_id),limited=!!db.prepare('SELECT key FROM agent_runtime WHERE key=?').get(sourceErrorKey(row.run_id,row.root_id));db.prepare('UPDATE request_inbox SET availability=?,updated_at=? WHERE request_id=?').run(!root||limited||sourceUnavailable(row.source_id)?'unavailable':root.resolvedAt?'resolved':'available',now(),row.request_id);}
+  for(const s of activeInboxSettings())if(accepted.some(before=>before.runId===s.runId&&before.version===s.version))observeKnownRoots(s.runId,comments,mark);
+  for(const row of db.prepare('SELECT i.*,r.source_id root_id FROM request_inbox i JOIN agent_requests r ON r.id=i.request_id').all() as any[]){if(!activeInboxSettings().some(s=>s.runId===row.run_id))continue;try{requireObservationCurrent(row.run_id,row.root_id,mark);}catch(error){if(error instanceof SourceObservationSupersededError)continue;throw error;}const root=comments.find(c=>c.id===row.root_id),limited=!!db.prepare('SELECT key FROM agent_runtime WHERE key=?').get(sourceErrorKey(row.run_id,row.root_id));db.prepare('UPDATE request_inbox SET availability=?,updated_at=? WHERE request_id=?').run(!root||limited||sourceUnavailable(row.source_id)?'unavailable':root.resolvedAt?'resolved':'available',now(),row.request_id);}
   if(!missing)db.prepare('UPDATE figma_refresh_state SET completed_generation=MAX(completed_generation,?),updated_at=? WHERE association_id=?').run(generation,now(),associationId);
  });
  if(missing)throw new InternalJobFailure('comment_unavailable',true);

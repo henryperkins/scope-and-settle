@@ -349,6 +349,6 @@ export function resolveDuplicate(ctx: ActorContext, itemId: string, decision:'sa
   });
 }
 export function abandonProposal(ctx:ActorContext,orderId:string,reason:string){requireDesignerContext(ctx);return transaction(()=>{
- const o=getChangeOrder(orderId);if(!o||o.runId!==ctx.runId||!bounded(reason))throw new Error('Scoped proposal and abandonment reason required');if(o.approvalStatus==='approved'||o.paypalInvoiceId)throw new Error('Approved committed work cannot be abandoned by cancelling finance');
+ const o=getChangeOrder(orderId);if(!o||o.runId!==ctx.runId||!bounded(reason))throw new Error('Scoped proposal and abandonment reason required');if(o.approvalStatus==='approved'||o.paypalInvoiceId)throw new ScopedAccessError(409,'Approved committed work cannot be abandoned by cancelling finance');
  db.prepare("UPDATE proposal_item_reservations SET state='released',reason=? WHERE order_id=? AND state='reserved'").run(reason,orderId);db.prepare("UPDATE change_orders SET status='cancelled' WHERE id=?").run(orderId);return {orderId};
 });}
