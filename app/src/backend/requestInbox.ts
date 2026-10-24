@@ -2,6 +2,7 @@ import {inboxSettings as settings,settingsAuthority,activeInboxSettings,figmaAss
 export {activeInboxSettings,figmaAssociationId,webhookConfigured} from './inboxAuthority.js';
 import {db,transaction,getProjectForRun} from './db.js';
 import {config} from './env.js';
+import {contentHash} from './scopePersistence.js';
 import {requireDesignerContext,sessionForContext,ScopedAccessError,type ActorContext} from './context.js';
 import {activeGrant,credentialHash} from './judgeAccess.js';
 import {activeAgentPolicy,policyAuthority,type AgentPolicy} from './agentPolicy.js';
@@ -117,14 +118,15 @@ export function listRequestInbox(ctx:ActorContext,filter?:string){requireDesigne
   return {id:r.id,requestVersion:r.version,sourceKind:r.source,rootId:r.source_id,text:r.text,stage,source:source?{id:source.id,version:source.version,contentHash:source.content_hash}:null,availability:source&&sourceUnavailable(source.id)?'unavailable':row?.availability??(r.source==='portal'?'available':'not_refreshed'),execution:{state:r.state,owner:row?.execution_owner??'legacy',job,attempt:attempt??null,error:r.exception??r.delivery_exception},unresolvedItems:unresolved.length,assessmentId:r.assessment_id,orders:orders.map(link=>{const order=getChangeOrder(link.order_id);return {...link,approvalState:order&&order.approvalStatus!=='approved'&&String(order.status)==='cancelled'?'abandoned':order?.approvalStatus??'unavailable',financialState:order?.financialState?.paymentState??'not_started'};}),messages:meta?[meta.root,...meta.replies].map((m:FigmaComment)=>({id:m.id,message:m.message,userId:m.userId,createdAt:m.createdAt,parentId:m.parentId,resolvedAt:m.resolvedAt})):messagesFor(r.id,r.run_id).map(m=>({id:m.source_id??m.id,message:m.body})),observedAt:meta?.observedAt??null};
  }).filter(r=>!filter||(filter==='recovery'?(r.availability!=='available'||r.execution.job?.state==='failed'||!!r.execution.error):r.stage===filter));
 }
-interface AssessPayload {version:1;requestId:string;settingsVersion:number;requestVersion:number;work:AssessmentWorkReference}
+type LegacyWork=Omit<AssessmentWorkReference,"logicalKey">;
+interface AssessPayload {version:1|2;requestId:string;settingsVersion:number;requestVersion:number;work:AssessmentWorkReference|LegacyWork}
 function sourceFor(r:AgentRequest):RequestSource{const row=db.prepare('SELECT source_id,source_version FROM request_inbox WHERE request_id=? AND run_id=?').get(r.id,r.run_id) as any;const v=row&&db.prepare('SELECT messages_json FROM request_source_versions WHERE source_id=? AND version=?').get(row.source_id,row.source_version) as any;if(!v)throw new InternalJobFailure('source_unavailable');return {source:'figma',fileKey:getProjectForRun(r.run_id).figmaFileKey,rootId:r.source_id,messages:JSON.parse(v.messages_json)};}
 function assessmentAuthority(r:AgentRequest,s:InboxSettings,guard:()=>void=()=>{}){return ()=>{
  guard();const live=settings(r.run_id),fresh=requestById(r.id,r.run_id),row=db.prepare('SELECT * FROM request_inbox WHERE request_id=?').get(r.id) as any;
  if(!webhookConfigured()||!live||live.version!==s.version||!live.intake||!live.autoAssess||!settingsAuthority(r.run_id,live)||!fresh||fresh.version!==r.version||fresh.state==='dismissed'||row?.execution_owner!=='inbox'||row.availability!=='available'||sourceUnavailable(row.source_id))throw new InternalJobFailure('assessment_authority_changed');
  const root=JSON.parse(row.metadata_json).root as FigmaComment,selected=route(root);if(!selected||selected.runId!==r.run_id||selected.version!==s.version)throw new InternalJobFailure('author_route_changed');
 };}
-async function refreshScheduledSource(r:AgentRequest,s:InboxSettings,auth:()=>void,expected:AssessmentWorkReference){
+async function refreshScheduledSource(r:AgentRequest,s:InboxSettings,auth:()=>void,expected:AssessmentWorkReference|LegacyWork){
  auth();const mark=observationMark(),comments=await fetchComments(getProjectForRun(r.run_id).figmaFileKey);auth();
  let resolved;try{resolved=canonicalFigmaSource(config.figmaFileKey,r.source_id,comments);}catch(error){recordMissingSource(r.run_id,r.source_id,comments,mark);throw error;}
  const selected=route(resolved.root);
@@ -143,8 +145,18 @@ function scheduleAssessment(r:AgentRequest,s:InboxSettings){
  const source=sourceFor(r),input={project:getProjectForRun(r.run_id),comment:source.messages[0],replies:source.messages.slice(1),automation:true,itemized:true};
  const work=prepareAssessmentWork(r.run_id,source,input,auth),outcome=assessmentWorkOutcome(r.run_id,work,auth);
  if(['rejected','uncertain'].includes(outcome.state)){db.prepare('UPDATE agent_requests SET exception=? WHERE id=?').run(`Paid assessment outcome is ${outcome.state}; automatic retry is unavailable. Review the durable attempt.`,r.id);return;}
- const p:AssessPayload={version:1,requestId:r.id,settingsVersion:s.version,requestVersion:r.version,work};
- enqueueJob({key:`inbox:assess:${r.run_id}:${work.fingerprint}:settings:${s.version}`,kind:'scope_assess',projectId:input.project.id,runId:r.run_id,payload:p,dueAt:now()});
+ const p:AssessPayload={version:2,requestId:r.id,settingsVersion:s.version,requestVersion:r.version,work};
+ const key=`inbox:assess:${r.run_id}:${work.fingerprint}:settings:${s.version}`;
+ const existing=db.prepare("SELECT payload_json FROM jobs WHERE job_key=? AND kind='scope_assess' AND project_id=? AND run_id=?").get(key,input.project.id,r.run_id) as any;
+ if(existing){
+  const saved=JSON.parse(existing.payload_json);validateAssessmentJob(saved);
+  if(saved.version===1){
+   const {logicalKey,...legacy}=work;
+   if(saved.requestId!==p.requestId||saved.settingsVersion!==p.settingsVersion||saved.requestVersion!==p.requestVersion||contentHash(saved.work)!==contentHash(legacy))throw new InternalJobFailure('assessment_superseded');
+   return; // Exact existing v1 job retains its immutable payload, key and history.
+  }
+ }
+ enqueueJob({key,kind:'scope_assess',projectId:input.project.id,runId:r.run_id,payload:p,dueAt:now()});
 }
 export async function refreshInboxFile(associationId:string,generation:number,guard:()=>void){
  guard();if(associationId!==figmaAssociationId||!webhookConfigured())throw new InternalJobFailure('association_unavailable');
@@ -185,24 +197,29 @@ function validateAssessmentJob(p:any){
  const hash=(value:unknown)=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
  const positive=(value:unknown)=>Number.isSafeInteger(value)&&Number(value)>0;
  const w=p?.work,s=w?.source,i=w?.inference;
- const valid=fields(p,['version','requestId','settingsVersion','requestVersion','work'])&&p.version===1&&typeof p.requestId==='string'&&!!p.requestId.trim()&&p.requestId.length<=200&&positive(p.settingsVersion)&&positive(p.requestVersion)&&
-  fields(w,['fingerprint','source','contextFingerprint','evidenceHash','inference'])&&hash(w.fingerprint)&&hash(w.contextFingerprint)&&w.evidenceHash===null&&
+ const valid=fields(p,['version','requestId','settingsVersion','requestVersion','work'])&&(p.version===1||p.version===2)&&typeof p.requestId==='string'&&!!p.requestId.trim()&&p.requestId.length<=200&&positive(p.settingsVersion)&&positive(p.requestVersion)&&
+  fields(w,p.version===1?['fingerprint','source','contextFingerprint','evidenceHash','inference']:['fingerprint','logicalKey','source','contextFingerprint','evidenceHash','inference'])&&(p.version===1||hash(w.logicalKey))&&hash(w.fingerprint)&&hash(w.contextFingerprint)&&w.evidenceHash===null&&
   fields(s,['id','version','contentHash'])&&typeof s.id==='string'&&!!s.id&&s.id.length<=200&&positive(s.version)&&hash(s.contentHash)&&
   fields(i,['provider','model','reasoning','promptVersion','promptImplementation','schema','temperature','maxOutputTokens','contextTokens','baseUrl','mode','itemized'])&&
   ['provider','model','reasoning','promptVersion','baseUrl'].every(k=>typeof i[k]==='string'&&!!i[k]&&i[k].length<=256)&&hash(i.promptImplementation)&&hash(i.schema)&&Number.isFinite(i.temperature)&&positive(i.maxOutputTokens)&&positive(i.contextTokens)&&i.mode==='automatic'&&i.itemized===true;
  if(!valid||JSON.stringify(p).length>10000)throw new Error('Invalid assessment job payload');
 }
+function validatedQueuedWork(p:AssessPayload,fresh:AssessmentWorkReference):AssessmentWorkReference {
+ const {logicalKey,...legacy}=fresh;
+ if(contentHash(p.work)!==contentHash(p.version===1?legacy:fresh))throw new InternalJobFailure('assessment_superseded');
+ return fresh;
+}
 registerJobHandler('scope_assess',{
  validate:validateAssessmentJob,
  resource:p=>p.work.fingerprint,
- retry(job,p){const r=requestById(p.requestId,job.run_id),s=settings(job.run_id);if(!r||!s||r.version!==p.requestVersion||s.version!==p.settingsVersion||getProjectForRun(job.run_id).id!==job.project_id)throw new Error('Request or consent changed');const auth=assessmentAuthority(r,s);auth();const source=sourceFor(r),input={project:getProjectForRun(r.run_id),comment:source.messages[0],replies:source.messages.slice(1),automation:true,itemized:true};if(prepareAssessmentWork(job.run_id,source,input,auth).fingerprint!==p.work.fingerprint)throw new Error('Assessment work was superseded');const outcome=assessmentWorkOutcome(job.run_id,p.work,auth);if(!outcome.newAttemptPermitted&&outcome.state!=='succeeded')throw new Error('Paid attempt is terminal or already started; review required');},
+ retry(job,p){const r=requestById(p.requestId,job.run_id),s=settings(job.run_id);if(!r||!s||r.version!==p.requestVersion||s.version!==p.settingsVersion||getProjectForRun(job.run_id).id!==job.project_id)throw new Error('Request or consent changed');const auth=assessmentAuthority(r,s);auth();const source=sourceFor(r),input={project:getProjectForRun(r.run_id),comment:source.messages[0],replies:source.messages.slice(1),automation:true,itemized:true};const work=validatedQueuedWork(p,prepareAssessmentWork(job.run_id,source,input,auth));const outcome=assessmentWorkOutcome(job.run_id,work,auth);if(!outcome.newAttemptPermitted&&outcome.state!=='succeeded')throw new Error('Paid attempt is terminal or already started; review required');},
  async execute(job,p:AssessPayload,guard){
   const r=requestById(p.requestId,job.run_id),s=settings(job.run_id);if(!r||!s||s.version!==p.settingsVersion||r.version!==p.requestVersion||getProjectForRun(job.run_id).id!==job.project_id)throw new InternalJobFailure('assessment_superseded');
   const auth=assessmentAuthority(r,s,guard),source=await refreshScheduledSource(r,s,auth,p.work),input={project:getProjectForRun(r.run_id),comment:source.messages[0],replies:source.messages.slice(1),automation:true,itemized:true};auth();requireSourceCurrent(job.run_id,p.work.source);
-  const fresh=prepareAssessmentWork(job.run_id,source,input,auth);if(fresh.fingerprint!==p.work.fingerprint)throw new InternalJobFailure('assessment_superseded');
-  const outcome=assessmentWorkOutcome(job.run_id,p.work,auth);if(['rejected','uncertain'].includes(outcome.state))throw new InternalJobFailure('assessment_terminal');
+  const fresh=validatedQueuedWork(p,prepareAssessmentWork(job.run_id,source,input,auth));
+  const outcome=assessmentWorkOutcome(job.run_id,fresh,auth);if(['rejected','uncertain'].includes(outcome.state))throw new InternalJobFailure('assessment_terminal');
   if(outcome.state==='not_started'&&Number(db.prepare('SELECT COUNT(*) n FROM assessment_attempts WHERE run_id=?').get(job.run_id)?.n)>=s.maxAssessments)throw new InternalJobFailure('assessment_limit');
-  const record=await executeAssessmentWork(job.run_id,p.work,source,input,auth);auth();await refreshScheduledSource(r,s,auth,p.work);auth();
+  const record=await executeAssessmentWork(job.run_id,fresh,source,input,auth);auth();await refreshScheduledSource(r,s,auth,p.work);auth();
   transaction(()=>{auth();db.prepare("UPDATE agent_requests SET assessment_id=?,state=CASE WHEN state IN ('quoted','paid','included','dismissed') THEN state ELSE 'assessed' END,exception=NULL,updated_at=? WHERE id=?").run(record.id,now(),r.id);});
  }
 });

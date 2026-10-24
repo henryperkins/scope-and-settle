@@ -20,6 +20,45 @@ const dataset = (count = 3) => ({schemaVersion: 1, split: 'baseline', descriptio
 const contract = {schemaVersion: 1, sourceIdentity: 'a'.repeat(64), inference: {manual: {provider: 'baseten', model: 'deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast', reasoning: 'max', promptVersion: 'scope-assessment-items-v4', itemized: true, mode: 'manual', schema: 'b'.repeat(64), promptImplementation: 'c'.repeat(64)}}};
 const result = message => ({outcome: 'succeeded', dispatched: true, items: [{requestQuote: message, rawClassification: 'new_work', billable: true, rateIds: ['mobile_checkout'], totalMinor: 25000, eligibilityChecked: true}], usage: {inputTokens: 100, outputTokens: 100}});
 
+test('C1 evaluator case key omits only implementation identity and validates the complete input',()=>{
+ const key=required('evaluationCaseKey'),i=input(),inference=contract.inference.manual;
+ assert.equal(key(i,inference),key({...i}, {...inference,promptImplementation:'d'.repeat(64)}));
+ assert.equal(key(i,inference),key(Object.fromEntries(Object.entries(i).reverse()),inference));
+ for(const field of ['model','promptVersion','schema','mode'])assert.notEqual(key(i,inference),key(i,{...inference,[field]:inference[field]+'-changed'}));
+ assert.notEqual(key(i,inference),key(input('Different request'),inference));
+ assert.throws(()=>key({...i,unexpected:true},inference),/input/i);
+});
+
+test('C1 evaluator blocks bound uncertainty across real implementation upgrades but never reuses another runtime success',async()=>{
+ for(const uncertain of [true,false]) {
+  const original=globalThis.fetch,firstApp=await isolatedApp();let calls=0,runtime,next;
+  globalThis.fetch=async(_url,options)=>{
+   calls++;if(uncertain)throw new TypeError('lost response');
+   const c=JSON.parse(JSON.parse(options.body).messages[1].content[0].text),clause=c.project.scopeClauses[0];
+   return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({items:[{requestedDeliverable:'Mobile checkout',requestQuote:c.comment.message,classification:'new_work',evidence:[{kind:'scope_clause',snapshotId:c.scopeContext.scopeSnapshotId,clauseId:clause.id,quote:clause.text}],rates:[{rateCardId:'mobile_checkout',quantity:1}],questions:[],existingCommitment:null}],explanation:'Fixture',designObservations:[]})}}],usage:{prompt_tokens:100,completion_tokens:100}});
+  };
+  try {
+   runtime=await required('createProductionEvaluator')({load:firstApp.load,evidenceMode:'synthetic_provider_fixture'});
+   const a=await runtime.execute(input(),{}),before=runtime.db.prepare('SELECT * FROM ai_calls').all(),{DATA_DIR}=await firstApp.load('env');
+   assert.equal(a.outcome,uncertain?'uncertain':'succeeded');await runtime.close();
+   const upgraded=await isolatedApp();process.env.SCOPE_SETTLE_DATA_DIR=DATA_DIR;
+   const file=join(upgraded.app,'dist/backend/assessment.js'),bytes=await readFile(file,'utf8');
+   assert.match(bytes,/export async function assess\(input, runId = currentRunId\(\), assertAuthorized, hooks\) \{/);
+   await writeFile(file,bytes.replace('export async function assess(input, runId = currentRunId(), assertAuthorized, hooks) {','export async function assess(input, runId = currentRunId(), assertAuthorized, hooks) {\nvoid "synthetic implementation upgrade";'));
+   next=await required('createProductionEvaluator')({load:upgraded.load,evidenceMode:'synthetic_provider_fixture'});
+   const b=await next.execute(input(),{});
+   assert.equal(b.outcome,uncertain?'uncertain':'succeeded');assert.equal(calls,uncertain?1:2);
+   assert.notEqual(b.runId,a.runId);assert.equal(b.dispatched,!uncertain);
+   if(uncertain){
+    assert.deepEqual(next.db.prepare('SELECT * FROM ai_calls').all(),before);
+    next.db.prepare('DELETE FROM evaluation_work_bindings').run();await next.close();
+    const live=await required('createProductionEvaluator')({load:upgraded.load,evidenceMode:'live_provider'});
+    try {await assert.rejects(live.execute(input('A separate case'),{}),/legacy|unbound|review/i);assert.equal(calls,1);assert.deepEqual(live.db.prepare('SELECT * FROM ai_calls').all(),before);}finally{await live.close();}
+   } else assert.equal(b.reused,false);
+  } finally {globalThis.fetch=original;await next?.close();await runtime?.close();next?.db.close();runtime?.db.close();}
+ }
+});
+
 test('T13 arguments reject unknown/duplicate flags and unsafe labels before runtime loading; default mode is validation only', () => {
   const parse = required('parseEvaluationArgs');
   const args = parse(['--fixtures', 'fixtures.json', '--output-label', 'release-b']);

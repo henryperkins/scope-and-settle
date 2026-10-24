@@ -27,10 +27,11 @@ export async function fixture({listen=true}={}){
    const copy=structuredClone(comments);if(readHook)await readHook();return Response.json({comments:copy});
   }
   if(u.pathname.endsWith('/chat/completions')){
-   calls++;const c=JSON.parse(JSON.parse(init.body).messages[1].content[0].text);
+   calls++;const wire=JSON.parse(init.body),c=JSON.parse(wire.messages[1].content[0].text),automatic=!!wire.response_format.json_schema.schema.properties.automation;
    const evidence=[{kind:'scope_clause',snapshotId:c.scopeContext.scopeSnapshotId,clauseId:c.project.scopeClauses[0].id,quote:c.project.scopeClauses[0].text}];
-   const items=[c.comment,...c.replies].map(x=>({requestedDeliverable:x.message,requestQuote:x.message,classification:'new_work',evidence,rates:[{rateCardId:'mobile_checkout',quantity:1}],questions:[],existingCommitment:null}));
-   return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({items,explanation:'Synthetic supported additions',designObservations:[]})}}],usage:{prompt_tokens:100,completion_tokens:100}});
+   const items=[c.comment,...c.replies].map(x=>({requestedDeliverable:automatic?c.project.rateCard.find(r=>r.id==='mobile_checkout').description:x.message,requestQuote:x.message,classification:'new_work',evidence,rates:[{rateCardId:'mobile_checkout',quantity:1}],questions:[],existingCommitment:null}));
+   const automation=automatic?{allRequestsCovered:true,unpricedComponents:[],coverage:items.map((item,n)=>({requestQuote:item.requestQuote,deliverableIndex:n,rateCardId:'mobile_checkout',quantity:1}))}:undefined;
+   return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({items,explanation:'Synthetic supported additions',designObservations:[],...(automatic?{automation}:{})})}}],usage:{prompt_tokens:100,completion_tokens:100}});
   }
   if(/\/(remind|cancel)$/.test(u.pathname)){
    writes++;const invoice=provider.invoices.get(u.pathname.split('/').at(-2));

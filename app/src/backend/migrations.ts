@@ -152,6 +152,7 @@ const additions: readonly [string, string][] = [
   ["change_orders", "assessment_id TEXT"],
   ["agent_requests", "delivery_exception TEXT"],
 
+
 ];
 function createBaseline(db: DatabaseSync): void {
   db.exec(baselineSql);
@@ -322,6 +323,12 @@ export const migrations: readonly Migration[] = [
  CREATE INDEX evidence_packets_order ON evidence_packets(project_id,run_id,order_id,created_at);
  CREATE TRIGGER immutable_evidence_packet BEFORE UPDATE ON evidence_packets BEGIN SELECT RAISE(ABORT,'Immutable evidence packet'); END;
  CREATE TRIGGER retained_evidence_packet BEFORE DELETE ON evidence_packets BEGIN SELECT RAISE(ABORT,'Retained evidence packet'); END;
+ `);}},
+ {id:17,name:'unresolved-logical-assessment-work',up(db){db.exec(`
+ ALTER TABLE assessment_attempts ADD COLUMN logical_key TEXT;
+ CREATE UNIQUE INDEX assessment_unresolved_logical ON assessment_attempts(project_id,run_id,logical_key)
+ WHERE logical_key IS NOT NULL AND outcome IN ('prepared','dispatched','rejected','uncertain');
+ CREATE TABLE evaluation_work_bindings(case_key TEXT NOT NULL,run_id TEXT NOT NULL,fingerprint TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(case_key,run_id,fingerprint));
  `);}},
 ];
 

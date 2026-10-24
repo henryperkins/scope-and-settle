@@ -31,6 +31,22 @@ export function parseEvaluationArgs(argv) {
   return out;
 }
 
+function validateEvaluationInput(i) {
+    assert(only(i, ['clauses','rates','comment','replies','commitments','channel','sourceState','mode']) && text(i.comment) && array(i.replies, 30) && i.replies.every(x => text(x)) && ['figma','portal'].includes(i.channel) && ['available','unavailable'].includes(i.sourceState) && ['manual','automatic'].includes(i.mode), 'Invalid case input');
+    assert(i.sourceState !== 'unavailable' || i.channel === 'figma', 'Unavailable observation requires a Figma source');
+    assert(array(i.clauses, 50) && i.clauses.length && i.clauses.every(x => only(x,['id','text']) && text(x.id, 100) && text(x.text)), 'Invalid clauses');
+    assert(array(i.rates, 50) && i.rates.every(x => only(x,['id','description','unitAmountMinor']) && text(x.id,100) && text(x.description) && Number.isSafeInteger(x.unitAmountMinor) && x.unitAmountMinor > 0 && x.unitAmountMinor <= 100000000), 'Invalid rates');
+    for (const rows of [i.clauses, i.rates]) assert(new Set(rows.map(x => x.id)).size === rows.length, 'Duplicate clause/rate identity');
+    assert(array(i.commitments, 20) && i.commitments.every(x => only(x,['title','deliverables']) && text(x.title,200) && array(x.deliverables,20) && x.deliverables.length && x.deliverables.every(d => text(d))), 'Invalid commitments');
+}
+const canonical=value=>Array.isArray(value)?value.map(canonical):plain(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
+/** CLI-owned semantic safety identity; success caching still uses the full inference/run identity. */
+export function evaluationCaseKey(input,inference) {
+ validateEvaluationInput(input);assert(plain(inference)&&hex(inference.promptImplementation),'Invalid evaluation inference identity');
+ const {promptImplementation,...logicalInference}=inference;
+ return hash(canonical({input,inference:logicalInference}));
+}
+
 export function validateEvaluationFixtures(value) {
   assert(only(value, ['schemaVersion','split','description','cases']) && value.schemaVersion === 1 && ['baseline','held_out'].includes(value.split) && text(value.description) && array(value.cases, 200) && value.cases.length, 'Invalid fixture dataset');
   const ids = new Set();
@@ -39,12 +55,7 @@ export function validateEvaluationFixtures(value) {
     assert(!ids.has(entry.id), 'Duplicate fixture case ID'); ids.add(entry.id);
     assert(entry.tags === undefined || array(entry.tags, 20) && entry.tags.every(x => text(x, 80)), 'Invalid case tags');
     const i = entry.input, e = entry.expected;
-    assert(only(i, ['clauses','rates','comment','replies','commitments','channel','sourceState','mode']) && text(i.comment) && array(i.replies, 30) && i.replies.every(x => text(x)) && ['figma','portal'].includes(i.channel) && ['available','unavailable'].includes(i.sourceState) && ['manual','automatic'].includes(i.mode), 'Invalid case input');
-    assert(i.sourceState !== 'unavailable' || i.channel === 'figma', 'Unavailable observation requires a Figma source');
-    assert(array(i.clauses, 50) && i.clauses.length && i.clauses.every(x => only(x,['id','text']) && text(x.id, 100) && text(x.text)), 'Invalid clauses');
-    assert(array(i.rates, 50) && i.rates.every(x => only(x,['id','description','unitAmountMinor']) && text(x.id,100) && text(x.description) && Number.isSafeInteger(x.unitAmountMinor) && x.unitAmountMinor > 0 && x.unitAmountMinor <= 100000000), 'Invalid rates');
-    for (const rows of [i.clauses, i.rates]) assert(new Set(rows.map(x => x.id)).size === rows.length, 'Duplicate clause/rate identity');
-    assert(array(i.commitments, 20) && i.commitments.every(x => only(x,['title','deliverables']) && text(x.title,200) && array(x.deliverables,20) && x.deliverables.length && x.deliverables.every(d => text(d))), 'Invalid commitments');
+    validateEvaluationInput(i);
     assert(only(e,['outcome','items']) && ['assessed','blocked'].includes(e.outcome) && array(e.items,20), 'Invalid expected outcome');
     assert(e.outcome === 'blocked' ? i.sourceState === 'unavailable' && e.items.length === 0 : e.items.length > 0 && i.sourceState === 'available', 'Expected outcome contradicts source availability');
     for (const item of e.items) {
@@ -176,6 +187,13 @@ export async function createProductionEvaluator({load, evidenceMode}) {
     const inference = Object.fromEntries(['manual','automatic'].map(mode=>[mode,a.assessmentInferenceIdentity({itemized:true,automation:mode==='automatic'})]));
     async function executeOne(input, hooks = {}) {
       guard();
+      const caseKey=evaluationCaseKey(input,inference[input.mode]);
+      if(evidenceMode==='live_provider') {
+        const unbound=db.prepare(`SELECT a.id FROM assessment_attempts a JOIN judge_runs r ON r.run_id=a.run_id
+          WHERE r.judge_access_id='synthetic-evaluation-no-access' AND a.outcome IN ('prepared','dispatched','uncertain','rejected')
+          AND NOT EXISTS(SELECT 1 FROM evaluation_work_bindings b WHERE b.run_id=a.run_id AND b.fingerprint=a.fingerprint) LIMIT 1`).get();
+        assert(!unbound,'Unbound legacy evaluator attempts require operator review before live inference');
+      }
       // Labels/report names cannot create fresh paid work for identical input.
       const runId='evaluation-'+hash({input,inference:inference[input.mode]}), at='2026-01-01T00:00:00.000Z';
       const project={id:'demo',name:'Synthetic evaluation fixture',figmaFileKey:'evaluation-fixture',currency:'USD',scopeRevisionId:'evaluation-'+hash(input.clauses),scopeClauses:input.clauses,rateCard:input.rates};
@@ -200,6 +218,14 @@ export async function createProductionEvaluator({load, evidenceMode}) {
       }
       const request={project,comment:source.messages[0],replies:source.messages.slice(1),itemized:true,automation:input.mode==='automatic'};
       const reference=modules.assessmentWork.prepareAssessmentWork(runId,source,request,guard);
+      const prior=db.prepare(`SELECT a.* FROM evaluation_work_bindings b JOIN assessment_attempts a ON a.run_id=b.run_id AND a.fingerprint=b.fingerprint
+        JOIN judge_runs r ON r.run_id=a.run_id WHERE b.case_key=? AND a.run_id<>? AND r.judge_access_id='synthetic-evaluation-no-access'
+        AND a.outcome IN ('prepared','dispatched','uncertain','rejected') ORDER BY a.created_at,a.id LIMIT 1`).get(caseKey,runId);
+      if(prior)return {outcome:prior.outcome==='rejected'?'rejected':'uncertain',items:[],runId,dispatched:false,reused:false,error:'An unresolved equivalent evaluation case from another implementation requires operator review'};
+      transaction(()=>{
+        assert(db.prepare('SELECT judge_access_id FROM judge_runs WHERE run_id=?').get(runId)?.judge_access_id==='synthetic-evaluation-no-access','Evaluation binding requires an inaccessible synthetic run');
+        db.prepare('INSERT OR IGNORE INTO evaluation_work_bindings(case_key,run_id,fingerprint,created_at) VALUES(?,?,?,?)').run(caseKey,runId,reference.fingerprint,new Date().toISOString());
+      });
       let record, dispatched=false;
       const previousCall=db.prepare("SELECT call_id FROM assessment_attempts WHERE run_id=? AND fingerprint=? AND outcome<>'not_dispatched'").get(runId,reference.fingerprint)?.call_id;
       const costFor=call=>call?{chargedMicroUsd:call.actual_micro_usd??call.reserved_micro_usd,newChargedMicroUsd:previousCall===call.id?0:call.actual_micro_usd??call.reserved_micro_usd,usageKnown:call.input_tokens!==null}:null;

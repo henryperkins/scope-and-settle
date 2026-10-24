@@ -10,7 +10,7 @@ import {designEvidenceById,evidenceForAssessment} from './designEvidence.js';
 import type {DesignEvidenceSnapshot} from '../shared/types.js';
 
 type Outcome='prepared'|'dispatched'|'succeeded'|'rejected'|'uncertain'|'not_dispatched';
-export interface AssessmentWorkReference {fingerprint:string;source:RequestSourceReference;contextFingerprint:string;evidenceHash:string|null;inference:ReturnType<typeof assessmentInferenceIdentity>}
+export interface AssessmentWorkReference {fingerprint:string;logicalKey:string;source:RequestSourceReference;contextFingerprint:string;evidenceHash:string|null;inference:ReturnType<typeof assessmentInferenceIdentity>}
 export interface AssessmentAttempt {id:string;fingerprint:string;outcome:Outcome;callId:string|null;assessmentId:string|null}
 type Infer=(input:AssessmentInput,runId:string,assertAuthorized?:()=>void,hooks?:AssessmentCallHooks)=>Promise<any>;
 /**
@@ -52,18 +52,29 @@ export function prepareAssessmentWork(runId:string,source:RequestSource,input:As
  }
  const inference=assessmentInferenceIdentity(input);
  const semantic={project,runId,source:{...reference,source:source.source,fileKey:source.fileKey,rootId:source.rootId,messages:source.messages.map(m=>({id:m.id,message:m.message.normalize('NFC')}))},scopeSnapshotId:scope.scopeSnapshot.id,rateSnapshotId:scope.rateSnapshot.id,commitmentFingerprint:scope.commitmentFingerprint,lineage:lineage(runId),evidence:evidence?{id:evidence.id,hash:evidence.hash,version:evidence.providerVersion,anchor:evidence.anchorNodeId,relevance:evidence.relevance}:null,inference};
- return {fingerprint:contentHash(semantic),source:reference,contextFingerprint:scope.contextFingerprint,evidenceHash:evidence?.hash??null,inference};
+ const {promptImplementation,...logicalInference}=inference;
+ return {fingerprint:contentHash(semantic),logicalKey:contentHash({...semantic,inference:logicalInference}),source:reference,contextFingerprint:scope.contextFingerprint,evidenceHash:evidence?.hash??null,inference};
 }
 function currentWork(runId:string,expected:AssessmentWorkReference,source:RequestSource,input:AssessmentInput,assertAuthorized:()=>void,evidence:DesignEvidenceSnapshot|null){
  assertAuthorized();requireSourceCurrent(runId,expected.source);
  const fresh=prepareAssessmentWork(runId,source,input,assertAuthorized,evidence);
- if(fresh.fingerprint!==expected.fingerprint)throw new ScopedAccessError(409,'Assessment work was superseded; refresh before assessing');
+ if(contentHash(fresh)!==contentHash(expected))throw new ScopedAccessError(409,'Assessment work was superseded; refresh before assessing');
+}
+/** Missing legacy association is deliberately conservative; never invent metadata for old paid work. */
+function unresolvedWork(runId:string,reference:AssessmentWorkReference) {
+ return db.prepare(`SELECT * FROM assessment_attempts WHERE run_id=?
+ AND outcome IN ('prepared','dispatched','rejected','uncertain')
+ AND (logical_key=? OR (logical_key IS NULL AND source_id=? AND source_version=?))
+ ORDER BY created_at,id LIMIT 1`).get(runId,reference.logicalKey??null,reference.source.id,reference.source.version) as any;
+}
+function requireNoUnresolvedWork(runId:string,reference:AssessmentWorkReference) {
+ if(unresolvedWork(runId,reference))throw new ScopedAccessError(409,'Unresolved logical or legacy assessment attempt requires review before another paid attempt');
 }
 /** Read-only outcome query. A prepared/dispatched attempt without this process's promise is interrupted/uncertain. */
 export function assessmentWorkOutcome(runId:string,reference:AssessmentWorkReference,assertAuthorized:()=>void){
- assertAuthorized();assertRunActive(runId);const row=db.prepare("SELECT * FROM assessment_attempts WHERE run_id=? AND fingerprint=? AND outcome<>'not_dispatched'").get(runId,reference.fingerprint) as any;
+ assertAuthorized();assertRunActive(runId);const row=(db.prepare("SELECT * FROM assessment_attempts WHERE run_id=? AND fingerprint=? AND outcome<>'not_dispatched'").get(runId,reference.fingerprint)??unresolvedWork(runId,reference)) as any;
  if(!row)return {state:'not_started' as const,attempt:null,newAttemptPermitted:true};
- const key=runId+':'+reference.fingerprint;
+ const key=runId+':'+row.fingerprint;
  const state=row.outcome==='prepared'||row.outcome==='dispatched'?(running.has(key)?'in_progress':'uncertain'):row.outcome;
  return {state,attempt:attemptProjection(row),newAttemptPermitted:false};
 }
@@ -104,7 +115,7 @@ export async function executeAssessmentWork(runId:string,expected:AssessmentWork
   throw new ScopedAccessError(409,`Assessment attempt is ${row.outcome==='rejected'?'rejected':'uncertain'}; review its durable outcome before another paid attempt`);
  }
  const id=randomUUID(),at=now();
- transaction(()=>{currentWork(runId,expected,source,input,assertAuthorized,evidence);db.prepare("INSERT INTO assessment_attempts VALUES(?,?,?,?,?,?,'prepared',NULL,NULL,?,?)").run(id,input.project.id,runId,expected.fingerprint,expected.source.id,expected.source.version,at,at);participant?.reserve(id,assessmentReservationMicroUsd());});
+ transaction(()=>{currentWork(runId,expected,source,input,assertAuthorized,evidence);requireNoUnresolvedWork(runId,expected);db.prepare("INSERT INTO assessment_attempts(id,project_id,run_id,fingerprint,logical_key,source_id,source_version,outcome,call_id,assessment_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'prepared',NULL,NULL,?,?)").run(id,input.project.id,runId,expected.fingerprint,expected.logicalKey,expected.source.id,expected.source.version,at,at);participant?.reserve(id,assessmentReservationMicroUsd());});
  let release!:()=>void;const previous=permit;permit=new Promise<void>(resolve=>release=resolve);
  const work=(async()=>{
   let dispatched=false,responseKnown=false;
