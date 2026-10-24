@@ -2,6 +2,7 @@ import {test,mock} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
+import {on} from 'node:events';
 import {fixture} from './source-freshness-fixture.mjs';
 
 // T11b: the connector credential lifecycle, the private operation-bound connector authority, exactly four
@@ -14,12 +15,16 @@ const HEX64=n=>String(n).repeat(64);
 const FAKE_ID='00000000-0000-4000-8000-000000000000';
 const status=code=>error=>error?.status===code;
 const waitFor=async(predicate,ms=5000)=>{const end=Date.now()+ms;while(!predicate()){if(Date.now()>end)throw new Error('timed out waiting');await new Promise(r=>setTimeout(r,5));}};
+async function waitForJoins(count){
+ const events=on(process,'scope-settle:test:assessment-join',{signal:AbortSignal.timeout(5000)});
+ try {for await(const _ of events)if(--count===0)return;}finally{await events.return();}
+}
 const EFFECT_TABLES=['change_orders','approvals','invoice_operations','proposal_item_operations','proposal_item_reservations','designer_item_prices','duplicate_decisions','sessions','invitations','renewal_grants','scope_access_parents','scope_snapshots','rate_card_snapshots','scope_acknowledgements','design_evidence_snapshots','agent_policies','agent_portals','agent_outbox','agent_requests','reviewed_actions','outbound_operations','inbox_settings','connector_credentials','connector_budget_reservations','assessment_attempts','ai_calls','jobs','assessments','request_sources','request_source_versions','request_source_freshness'];
 
 /** The T11a synthetic fixture with the connector flag set explicitly (null leaves it unset, the default). */
-async function setup({enabled=true}={}){
+async function setup({enabled=true,observeAssessmentJoins=false}={}){
  if(enabled===null)delete process.env.MCP_CONNECTOR_ENABLED;else process.env.MCP_CONNECTOR_ENABLED=String(enabled);
- const f=await fixture();
+ const f=await fixture({observeAssessmentJoins});
  const optional=async name=>{try{return await f.app.load(name);}catch(error){if(error.code==='ERR_MODULE_NOT_FOUND')return {};throw error;}};
  f.auth=await optional('mcpAuth');
  for(const name of ['scopeLedger','judging','judgeAccess','designEvidence','assessment','aiBudget'])f.m[name]=await f.app.load(name);
@@ -72,6 +77,33 @@ test('T11b connector is disabled by default: issuance refuses and authentication
   assert.throws(()=>f.op('get_project_scope')(ctx),/disabled/i);
   assert.equal(f.row(connector.id).revoked_at,null);
  }finally{await f.close();}
+});
+
+test('C2 disabled endpoint does not list usable active credentials',async()=>{
+ const f=await setup();try {
+  const {secret,connector}=await f.issued({consent:true,operations:['get_project_scope']});
+  const before=f.row(connector.id);f.m.env.config.mcpConnectorEnabled=false;
+  const listed=await f.http('/api/connectors');assert.equal(listed.status,200);
+  assert.equal(listed.body.enabled,false);assert.equal(listed.body.connectors[0].status,'inactive');
+  assert.throws(()=>f.auth.authenticateConnector('Bearer '+secret),status(403));
+  f.m.env.config.mcpConnectorEnabled=true;
+  assert.deepEqual(f.auth.authenticateConnector('Bearer '+secret).operations,['get_project_scope']);
+  assert.deepEqual(f.row(connector.id),before);
+ } finally {await f.close();}
+});
+
+test('C2 malformed revoke identity returns sanitized 400 after designer origin and consent checks',async()=>{
+ const f=await setup();try {
+  await f.issued();const before=f.effects(),path='/api/connectors/%ZZ/revoke';
+  assert.equal((await f.http(path,'POST',{consent:true},f.session.token,{Origin:'https://wrong.example'})).status,403);
+  assert.equal((await f.http(path,'POST',{consent:false},f.session.token,{Origin:f.base})).status,400);
+  const client=f.m.sessions.createSession({projectId:'demo',role:'client',runId:f.ctx.runId,changeOrderId:'missing',changeOrderRevision:1});
+  const afterSession=f.effects();
+  assert.equal((await f.http(path,'POST',{consent:true},client.token,{Origin:f.base})).status,403);
+  const response=await f.http(path,'POST',{consent:true},f.session.token,{Origin:f.base});
+  assert.equal(response.status,400);assert.equal(response.body.error,'Malformed connector identity');
+  assert.deepEqual(f.effects(),afterSession);assert.deepEqual(f.effects().rows.connector_credentials,before.rows.connector_credentials);
+ } finally {await f.close();}
 });
 
 test('T11b issuance is designer-only, same-origin and explicit; the secret is returned once and only a digest is stored',async()=>{
@@ -385,6 +417,7 @@ test('T11b every human-only service rejects a genuine connector context with no 
    getDesignEvidence:c=>s.designEvidence.getDesignEvidence(c,FAKE_ID),
    saveAgentPolicy:c=>s.agentPolicy.saveAgentPolicy(c,{enabled:true,consent:true,allowedRateIds:['mobile_checkout'],maxQuoteMinor:25000,maxTotalMinor:100000,maxQuantity:1}),
    createPortalAccess:c=>s.agentPortal.createPortalAccess(c),publishReviewedQuote:c=>s.agentPortal.publishReviewedQuote(c,t.thread.id,pending.body.id,1,true),handleAgentRequest:c=>s.agentPortal.handleAgentRequest(c,t.thread.id,'dismiss'),
+   approvePortalQuote:c=>s.agentPortal.approvePortalQuote(c,t.thread.id,1,true,pending.body.id),refreshPortalPayment:c=>s.agentPortal.refreshPortalPayment(c,t.thread.id,pending.body.id,1),
    saveInboxSettings:c=>s.requestInbox.saveInboxSettings(c,{expectedVersion:1,intake:true,autoAssess:true,clientIds:['client'],consent:true}),refreshRequestThread:c=>s.requestInbox.refreshRequestThread(c,'fb'),
    listRequestInbox:c=>s.requestInbox.listRequestInbox(c),retryInboxJob:c=>s.requestInbox.retryInboxJob(c,FAKE_ID),
    prepareReviewedAction:c=>s.reviewedActions.prepareReviewedAction(c,{kind:'post_clarification',requestId:t.thread.id,text:'Connector text',expected:f.displayed(t.thread.id)}),
@@ -393,7 +426,7 @@ test('T11b every human-only service rejects a genuine connector context with no 
    issueConnectorCredential:c=>f.auth.issueConnectorCredential(c,{consent:true}),listConnectorCredentials:c=>f.auth.listConnectorCredentials(c),revokeConnectorCredential:c=>f.auth.revokeConnectorCredential(c,FAKE_ID),
   };
   const before=f.effects();
-  for(const [name,call] of Object.entries(calls))for(const c of contexts)await assert.rejects(async()=>call(c),Error,name+' accepted '+c.operation);
+  for(const [name,call] of Object.entries(calls))for(const c of contexts)await assert.rejects(async()=>call(c),status(['saveAgentPolicy','acknowledgeScope','createClientAccess','resetJudgeRun'].includes(name)?403:401),name+' accepted '+c.operation);
   // Financial and access renewal surfaces never accept the connector secret.
   assert.equal(f.m.judging.renewJudgeSession(secret),null);
   assert.equal(f.m.judging.renewJudgeSession(secret.split('.')[2]),null);
@@ -401,6 +434,16 @@ test('T11b every human-only service rejects a genuine connector context with no 
    assert.equal((await f.http(path,'POST',body,secret,{Origin:f.base})).status,401,path);
   assert.deepEqual(f.effects(),before);
   assert.equal(f.db.prepare('SELECT state FROM reviewed_actions WHERE id=?').get(preview.id).state,'prepared');
+  // Eligible designer publication and real portal authority still approve and read payment.
+  const access=f.portalAccess(),portalSession=f.portalSession(access);
+  f.root('portal-positive','Footer delta screen');const positive=await f.assessThread('portal-positive');
+  const draft=await f.draft([positive.assessment.items[0].id],'portal-positive',positive.assessment.id);assert.equal(draft.status,201);
+  const submitted=await f.submit(draft.body.id);
+  f.portal.publishReviewedQuote(f.session,positive.thread.id,draft.body.id,submitted.order.revision,true);
+  const accepted=await f.portal.approvePortalQuote(portalSession,positive.thread.id,submitted.order.revision,true,draft.body.id);
+  assert.equal(accepted.order.approvalStatus,'approved');
+  const refreshed=await f.portal.refreshPortalPayment(portalSession,positive.thread.id,draft.body.id,submitted.order.revision);
+  assert.equal(refreshed.paypalInvoiceId,accepted.order.paypalInvoiceId);
  }finally{await f.close();}
 });
 
@@ -543,7 +586,7 @@ test('T11b an uncertain connector dispatch stays held conservatively and is neve
 });
 
 test('T11b cache hits and waiters on an owned identical attempt consume nothing, and each waiter revalidates its own authority',async()=>{
- const f=await setup();
+ const f=await setup({observeAssessmentJoins:true});
  try{
   f.root('w1','Gallery alpha screen');f.root('w2','Banner bravo screen');f.root('w3','Carousel charlie screen');
   const a=await f.issued(),b=await f.issued(),c=await f.issued();
@@ -557,8 +600,8 @@ test('T11b cache hits and waiters on an owned identical attempt consume nothing,
   const gate=f.gateModel();
   const owner=f.http('/api/assessments','POST',{commentId:'w2'});
   await gate.reached;
-  const waiterA=assess(a,'w2'),waiterB=assess(b,'w2').then(()=>null,error=>error);
-  await new Promise(r=>setTimeout(r,150));
+  const joins=waitForJoins(2),waiterA=assess(a,'w2'),waiterB=assess(b,'w2').then(()=>null,error=>error);
+  await joins;
   f.auth.revokeConnectorCredential(f.ctx,b.connector.id);
   gate.release();
   assert.equal((await owner).status,201);
@@ -570,8 +613,8 @@ test('T11b cache hits and waiters on an owned identical attempt consume nothing,
   const gate2=f.gateModel();
   const initiator=assess(c,'w3').then(()=>null,error=>error);
   await gate2.reached;
-  const designerWaiter=f.http('/api/assessments','POST',{commentId:'w3'});
-  await new Promise(r=>setTimeout(r,150));
+  const joinedDesigner=waitForJoins(1),designerWaiter=f.http('/api/assessments','POST',{commentId:'w3'});
+  await joinedDesigner;
   f.auth.revokeConnectorCredential(f.ctx,c.connector.id);
   gate2.release();
   assert.equal((await initiator)?.status,401);

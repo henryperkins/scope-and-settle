@@ -212,7 +212,11 @@ export const server = createServer(async (req, res) => {
       const body=await scopedBody();
       if(!connectorRoute[1])return json(res,201,issueConnectorCredential(ctx,body));
       if(!body||typeof body!=='object'||Object.keys(body).some(k=>k!=='consent')||body.consent!==true)throw new ScopedAccessError(400,'Explicit consent is required to revoke this connector credential');
-      return json(res,200,revokeConnectorCredential(ctx,decodeURIComponent(connectorRoute[1])));
+      requireDesignerContext(ctx);
+      let connectorId:string;
+      try {connectorId=decodeURIComponent(connectorRoute[1]);}
+      catch {throw new ScopedAccessError(400,'Malformed connector identity');}
+      return json(res,200,revokeConnectorCredential(ctx,connectorId));
     }
     const workRoute=path.match(/^\/api\/milestones\/([^/]+)\/(delivery-brief|start-work|submit-delivery)$/);
     if(workRoute&&req.method==='POST'&&workRoute[2]==='submit-delivery'){

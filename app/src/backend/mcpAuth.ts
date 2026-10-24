@@ -40,7 +40,7 @@ function requireEnabled(){if(!config.mcpConnectorEnabled)throw new ScopedAccessE
 /** Metadata only: never the secret, the digest, the parent reference or the owner identity. */
 function summary(row:any):ConnectorSummary{
  const record=connectorRecord(row),usage=connectorUsage(row.id);
- const status=row.revoked_at?'revoked':!(Date.parse(row.expires_at)>Date.now())?'expired':record&&connectorEligible(record)?'active':'inactive';
+ const status=row.revoked_at?'revoked':!(Date.parse(row.expires_at)>Date.now())?'expired':config.mcpConnectorEnabled&&record&&connectorEligible(record)?'active':'inactive';
  return {id:row.id,status,operations:record?.operations??[],parentKind:row.parent_kind,issuedAt:row.issued_at,expiresAt:row.expires_at,revokedAt:row.revoked_at??null,
   maxAssessments:row.max_assessments,assessmentsUsed:usage.count,maxCostMicroUsd:row.max_cost_micro_usd,costHeldMicroUsd:usage.heldMicroUsd,costSettledMicroUsd:usage.settledMicroUsd};
 }

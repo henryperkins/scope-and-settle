@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { db, getProject, transaction } from "./db.js";
 import { config } from "./env.js";
+import {ScopedAccessError} from './context.js';
 import { activeAccess, activeGrant, accessByCredential, grantByCredential, createGrant, credentialHash, newCredential } from "./judgeAccess.js";
 import { createSession, type Session } from "./sessions.js";
 import { resetDemoRun } from "./orders.js";
@@ -44,14 +45,14 @@ export function renewJudgeSession(credential: string) {
 export function createClientAccess(session: Session, order: ChangeOrderView) {
   const parent = session.grantId ? activeGrant(session.grantId) : null;
   if (!parent || parent.role !== "designer" || parent.run_id !== order.runId ||
-      (order.approvalStatus!=="approved" && order.approvalStatus!=="awaiting_client_approval")) throw new Error("Requires a submitted proposal and active designer access");
+      (order.approvalStatus!=="approved" && order.approvalStatus!=="awaiting_client_approval")) throw new ScopedAccessError(403,"Requires a submitted proposal and active designer access");
   const grant = createGrant(parent.judge_access_id, parent.run_id, "client", order.id, order.revision);
   return { approvalUrl: `${config.publicUrl}/review#resume=${grant.credential}`, approvalExpiresAt: grant.expiresAt };
 }
 
 export function resetJudgeRun(session: Session) {
   const grant = session.grantId ? activeGrant(session.grantId) : null;
-  if (!grant || grant.role !== "designer") throw new Error("Requires active designer access");
+  if (!grant || grant.role !== "designer") throw new ScopedAccessError(403,"Requires active designer access");
   const access = activeAccess(grant.judge_access_id)!;
   const reset = resetDemoRun(session.runId);
   // Synchronous on this process: the old run closes before any new request can enter.

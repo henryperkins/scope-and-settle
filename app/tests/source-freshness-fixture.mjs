@@ -1,13 +1,22 @@
 import assert from 'node:assert/strict';
 import {once} from 'node:events';
+import {readFile,writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
 import {isolatedApp,providerFixture} from './helpers.mjs';
 
 /**
  * T11a fixture: one isolated application, database and HTTP server with synthetic Figma,
  * model and PayPal adapters. Nothing leaves the process; every provider call is counted.
  */
-export async function fixture({listen=true}={}){
+export async function fixture({listen=true,observeAssessmentJoins=false}={}){
  const nativeFetch=globalThis.fetch,app=await isolatedApp();
+ if(observeAssessmentJoins){
+  // Only the disposable compiled test copy emits this signal at the actual promise join.
+  // No mutable test control or observer is added to the production application.
+  const file=join(app.app,'dist/backend/assessmentWork.js'),bytes=await readFile(file,'utf8');
+  assert.equal(bytes.split('if (existing) {').length,2,'One actual shared-work join boundary');
+  await writeFile(file,bytes.replace('if (existing) {',"if (existing) { process.emit('scope-settle:test:assessment-join');"));
+ }
  Object.assign(process.env,{FIGMA_WEBHOOK_ENABLED:'true',FIGMA_WEBHOOK_ACCESS_VERIFIED:'true',FIGMA_WEBHOOK_ID:'t11a-subscription',
   FIGMA_WEBHOOK_PASSCODE:'t11a-secret-only',FIGMA_WEBHOOK_CONTEXT_TYPE:'file',FIGMA_WEBHOOK_CONTEXT_ID:'test-file',FIGMA_COMMENT_POSTING_ENABLED:'true'});
  const m={};

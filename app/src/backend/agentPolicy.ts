@@ -3,6 +3,7 @@ import { db, getProjectForRun, currentRunId, transaction } from "./db.js";
 import { activeGrant } from "./judgeAccess.js";
 import { credentialHash } from "./judgeAccess.js";
 import { getSession } from "./sessions.js";
+import {ScopedAccessError} from './context.js';
 import type { Session } from "./sessions.js";
 import type { ProjectView, LineItem } from "../shared/types.js";
 import type { AssessmentResult } from "./assessment.js";
@@ -47,7 +48,7 @@ export function saveAgentPolicy(session: Session, input: any): AgentPolicy {
   return transaction(()=>savePolicy(session,input));
 }
 function savePolicy(session: Session, input: any): AgentPolicy {
-  if (session.role !== "designer") throw new Error("Requires designer role");
+  if (session.role !== "designer") throw new ScopedAccessError(403,"Requires designer role");
   if (!getSession(session.token) || !input || typeof input!=="object") throw new Error("Invalid policy or expired designer session");
   const previous=getAgentPolicy(session.runId), project=getProjectForRun(session.runId);
   if (input.enabled === false && previous) {

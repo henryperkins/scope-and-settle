@@ -9,6 +9,7 @@ import { createRequest, requestById, listRequests, messagesFor, appendMessage, e
 import { getChangeOrder, approveChangeOrder, ensureInvoice, refreshPaymentStatus } from "./orders.js";
 import {scopeContextForRun,createScopeParent,scopeAccessLink} from './scopeLedger.js';
 import {activeGrant} from './judgeAccess.js';
+import {ScopedAccessError} from './context.js';
 
 export interface PortalSession { id:string; runId:string; expiresAt:string }
 function portalById(id:string):PortalSession|null {
@@ -22,13 +23,15 @@ export function getPortalSession(credential:string):PortalSession|null {
   return row ? portalById(row.id) : null;
 }
 function requirePortal(session:PortalSession) {
+  if (!session || typeof session.id!=="string" || !session.id || typeof session.runId!=="string") throw new ScopedAccessError(401,"Client portal access expired or revoked");
   const valid=portalById(session.id);
-  if (!valid || valid.runId!==session.runId) throw new Error("Client portal access expired or revoked");
+  if (!valid || valid.runId!==session.runId) throw new ScopedAccessError(401,"Client portal access expired or revoked");
   return valid;
 }
 export function requireDesigner(session:Session) {
   const valid=getSession(session.token);
-  if (!valid || valid.role!=="designer" || valid.runId!==session.runId) throw new Error("Requires active designer role");
+  if (!valid || valid.runId!==session.runId) throw new ScopedAccessError(401,"Requires active designer role");
+  if (valid.role!=="designer") throw new ScopedAccessError(403,"Requires active designer role");
 }
 export function createPortalAccess(session:Session) {
   requireDesigner(session);

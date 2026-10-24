@@ -108,8 +108,8 @@ Each task ends with a direct main-session review, the listed tests and an explic
 
 **Interfaces:** retain `ConnectorSummary.status` and existing route/body contracts. Global disable reports inactive with a clear server-disabled explanation; it does not revoke or broaden a credential. Malformed percent encoding in revoke IDs returns sanitized 400 after normal designer/origin/consent checks.
 
-- [ ] Add `C2 disabled endpoint does not list usable active credentials` and `C2 malformed revoke identity returns 400`. Assert the disabled connector cannot invoke, re-enable preserves its existing allowed operations, malformed input causes no revocation, and cross-run/client/forged contexts remain 401/403/404 as appropriate.
-- [ ] Replace generic forbidden-call `assert.throws` checks with exact status and zero-side-effect assertions. Include portal approval/payment-refresh paths with an eligible real designer/portal positive control. Replace the 150 ms waiter assumption with a promise resolved at the actual join/dispatch boundary.
+- [x] Add `C2 disabled endpoint does not list usable active credentials` and `C2 malformed revoke identity returns 400`. Assert the disabled connector cannot invoke, re-enable preserves its existing allowed operations, malformed input causes no revocation, and cross-run/client/forged contexts remain 401/403/404 as appropriate.
+- [x] Replace generic forbidden-call `assert.throws` checks with exact status and zero-side-effect assertions. Include portal approval/payment-refresh paths with an eligible real designer/portal positive control. Replace the 150 ms waiter assumption with a promise resolved at the actual join/dispatch boundary.
 
   ```js
   assert.equal(disabledSummary.status, 'inactive');
@@ -117,7 +117,7 @@ Each task ends with a direct main-session review, the listed tests and an explic
   assert.deepEqual(credentialsAfterMalformedInput, credentialsBefore);
   assert.equal(forbiddenProviderWrites, 0);
   ```
-- [ ] Build/run `node --test tests/mcp-auth.test.mjs tests/http.test.mjs`; observe the new defect RED before production changes. Correct only the identified seams, rerun GREEN, review and commit the exact paths.
+- [x] Build/run `node --test tests/mcp-auth.test.mjs tests/http.test.mjs`; observe the new defect RED before production changes. Correct only the identified seams, rerun GREEN, review and commit the exact paths.
 
 ### Task 5: Close MCP protocol/error/test-control debt (B10–B11)
 

@@ -2,7 +2,7 @@ import {esc,busy,notice} from './common.js';
 const $=id=>document.getElementById(id);
 const OPERATIONS={get_project_scope:'Read project scope, rates and approved changes',assess_change_request:'Run paid assessments of Figma comments',draft_change_order:'Draft change orders from reviewed items',get_payment_status:'Read approval and payment status',submit_for_client_approval:'Prepare proposal submission for designer review (opt-in)',issue_approved_invoice:'Prepare approved invoice issuance for designer review (opt-in)'};
 const DEFAULT_OPERATIONS=new Set(['get_project_scope','assess_change_request','draft_change_order','get_payment_status']);
-const STATUS={active:'Active',expired:'Expired',revoked:'Revoked',inactive:'Inactive (access ended or run changed)'};
+const STATUS={active:'Active',expired:'Expired',revoked:'Revoked',inactive:'Inactive (server disabled or access ended)'};
 const usd=micro=>'$'+(micro/1e6).toFixed(2);
 /** Designer-only connector credentials: issue (secret shown once), list status and usage, revoke. */
 export function mountConnectors({request}){
