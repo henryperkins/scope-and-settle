@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-24T16:46:33.842Z",
+  "sourceKind": "uncommitted_source_manifest",
+  "sourceIdentity": "e285bae6fedb963e5e1c4ca872a46d51eca3814f675d4952c5e03d7472c9aa34",
+  "source": [
+    {
+      "path": "app/package.json",
+      "sha256": "32c4f95411839302abdf19534eb6f55f5650eadc41836869b6939c55822a1bad"
+    },
+    {
+      "path": "app/pnpm-lock.yaml",
+      "sha256": "ad7ea443d588374189bec41c42cc016741b0b254162edc936c40dd3f5954838b"
+    },
+    {
+      "path": "app/scripts/eval-assessments.mjs",
+      "sha256": "2850de244f29e817ac1b103e8f5823fcd0f272432e0bd56ec8f2c098e0ce627c"
+    },
+    {
+      "path": "app/scripts/evaluate-ai.mjs",
+      "sha256": "bcfac0642abb7d0b9ec54589b91d652192cecf933f1456acb320fa33a4b87f2f"
+    },
+    {
+      "path": "app/scripts/package-plugin.mjs",
+      "sha256": "dfc4a48f75343eb909c7ed2a1e3eb05622a31c0ea98111192d6355881a04a805"
+    },
+    {
+      "path": "app/tsconfig.json",
+      "sha256": "5bac994ade0269b7c54ded69bddcf4f8ea9080682c40e79f56113a04a7d0f960"
+    },
+    {
+      "path": "app/dist/backend/agentPolicy.js",
+      "sha256": "1d555e93edf3525b1b3b75392fc3a890de423d6733d035811d6557e698db17ef"
+    },
+    {
+      "path": "app/dist/backend/agentPortal.js",
+      "sha256": "96c1e7b8a7f6a3d135d3c55940ecb1f14f43ea393e8318b86edbb565f7ab0fff"
+    },
+    {
+      "path": "app/dist/backend/agentStore.js",
+      "sha256": "52ea803c928f0ffa1fd5dd9028c02eece77d0ef161b538b2976cb1250c669d24"
+    },
+    {
+      "path": "app/dist/backend/agentWorker.js",
+      "sha256": "729d94f52778c7c101a083afbcca7a0a2b8eeebe6f77602761a50df6df859a0c"
+    },
+    {
+      "path": "app/dist/backend/aiBudget.js",
+      "sha256": "926cb09e8375021923e7a828dcde1d36f03a5a35b40bd34ff2bff6ef3ddb4aac"
+    },
+    {
+      "path": "app/dist/backend/assessment.js",
+      "sha256": "528f5f6fa18b121117c940f55fd56efbea627c3ab2f0d723fab07d275af9c33e"
+    },
+    {
+      "path": "app/dist/backend/assessmentWork.js",
+      "sha256": "3d905d752bdbabff51cbfcae6018685204e80bfc6488599035ce819ad67fed64"
+    },
+    {
+      "path": "app/dist/backend/baseten.js",
+      "sha256": "cdc114a3bfb7e113f1bd8f76700e0c9939b7819ce3f13e1708548b2597ad1a28"
+    },
+    {
+      "path": "app/dist/backend/capabilities.js",
+      "sha256": "5621ab80dcfce48555fa86f0ad9dd2b49eb4faad25aa651a58443b2beec220b7"
+    },
+    {
+      "path": "app/dist/backend/changeOrderService.js",
+      "sha256": "3f1403a4fec610e734ddaed1cb012e79b6aa583b862a495b5e428c5607ff560e"
+    },
+    {
+      "path": "app/dist/backend/connectorProjections.js",
+      "sha256": "231af3aa9eb9dade1c14063d09c62dc37d643eb5699c8b38d63040cdfe42f368"
+    },
+    {
+      "path": "app/dist/backend/connectorStore.js",
+      "sha256": "52a5c4c3466087c8539ca0e5182fcd08c51e147e61bdd5fd4d6069a4737639c9"
+    },
+    {
+      "path": "app/dist/backend/context.js",
+      "sha256": "9e4716f42a91f60b155d2027bc0ae7eaf447cf5992d1c56e548294440634df2d"
+    },
+    {
+      "path": "app/dist/backend/db.js",
+      "sha256": "466129b194fc52c669a41c19137d7ebcd677955d8160c3874be2e2b721ff3256"
+    },
+    {
+      "path": "app/dist/backend/designEvidence.js",
+      "sha256": "d0c7a8e184fcd65f9486291e3f8e86575e15d6ff5fc96742f442c6e2117a2e2e"
+    },
+    {
+      "path": "app/dist/backend/env.js",
+      "sha256": "a679bbd89739c95afaaa3b940f72aff2f5d7e504edd7c55e4565ca101ef47e16"
+    },
+    {
+      "path": "app/dist/backend/figma.js",
+      "sha256": "7d53f8ea87177333ae29c78167efc1a2d1de06de84c40814cfba209bdd8e76ac"
+    },
+    {
+      "path": "app/dist/backend/figmaWebhooks.js",
+      "sha256": "f2d18c00e25c9ed651490feaa92283a1054b1df4cc75f42e3691ed4ab160bb63"
+    },
+    {
+      "path": "app/dist/backend/inboxAuthority.js",
+      "sha256": "79b36c29aa9f70c78403dd3dce707c36d6d2c7a8ec0d99329f5fadb0a561a8f0"
+    },
+    {
+      "path": "app/dist/backend/jobs.js",
+      "sha256": "5f5514a76a6085bc53373de6d4a94c52c6b4d8f0362dd59a57a94db987b2bb80"
+    },
+    {
+      "path": "app/dist/backend/judgeAccess.js",
+      "sha256": "97e357713e3803e54572cdb8e3c93b61b7745513eca99e624f53fa8aadd5d2cf"
+    },
+    {
+      "path": "app/dist/backend/judging.js",
+      "sha256": "9868aa4a2467ad0926adfd8a5ec86bbde85a6aa719d3302cd962f2d1e334b167"
+    },
+    {
+      "path": "app/dist/backend/mcp.js",
+      "sha256": "a8effb0ff6d1e4892aa61b4136baea5a373d3921cc2f237affe56dd6b49824d1"
+    },
+    {
+      "path": "app/dist/backend/mcpAuth.js",
+      "sha256": "41b3b15270b9d545fc0bb03f17c235c09d0202f170b2825e93adec95542088d2"
+    },
+    {
+      "path": "app/dist/backend/migrations.js",
+      "sha256": "e6888975cd7a749928b438d9e7637b89efc900bad171956302c47326e2b2d31e"
+    },
+    {
+      "path": "app/dist/backend/orders.js",
+      "sha256": "f612b4e9a7aa7f1e3cf286e559a4e92eca1ea192145f8b3da330e174d62d7bc9"
+    },
+    {
+      "path": "app/dist/backend/outboundActions.js",
+      "sha256": "957b1987288cea8b819eb746944227da9335a2e077d3194ba6fcaf4e0b6fbd8a"
+    },
+    {
+      "path": "app/dist/backend/paymentState.js",
+      "sha256": "8627aba5733d0bff16a54ad219156e7658a9a1d1cd2f452f02569efba2209572"
+    },
+    {
+      "path": "app/dist/backend/paypal.js",
+      "sha256": "ffbbc77505f752efb41cccd46c2ad0201f8e381866218309913c4405266d11d5"
+    },
+    {
+      "path": "app/dist/backend/requestInbox.js",
+      "sha256": "b68f37928947724fbeb0b6d3ae48a7c73e83007c133ae469bf4ba79a1bb9570c"
+    },
+    {
+      "path": "app/dist/backend/requestItems.js",
+      "sha256": "e39aff0a498893c6cf91f3b1ac4832409fa07292a10815722cc46667c14f2c0f"
+    },
+    {
+      "path": "app/dist/backend/requestLinks.js",
+      "sha256": "11cc5ecd69e4d3a44b24d27bada197480ed652a7a7fe47309a7d5109bf52540f"
+    },
+    {
+      "path": "app/dist/backend/requestSources.js",
+      "sha256": "af64e2c184c685a0907b119b1faf1bee1201f15721207372da92720bdaf3939f"
+    },
+    {
+      "path": "app/dist/backend/reviewedActions.js",
+      "sha256": "25a9023e1b39422c021684f8aa666ceaea05df7e77e1c9e6044640d34d22f84c"
+    },
+    {
+      "path": "app/dist/backend/runtimeOwner.js",
+      "sha256": "bd8729d551433402a2c340de7bcbac4032c802009192137af4a2c7d7c303157a"
+    },
+    {
+      "path": "app/dist/backend/scopeAccess.js",
+      "sha256": "74f2f9712b14665ec31f267f23bbbe0f6b34f3b0ce53e309431359ec9799f971"
+    },
+    {
+      "path": "app/dist/backend/scopeLedger.js",
+      "sha256": "0601ed252ea91abe8c77b6a6850213889e5a03319f5d662270302926ceaa3982"
+    },
+    {
+      "path": "app/dist/backend/scopePersistence.js",
+      "sha256": "a7581d6d37415bffe01ae6faddffe902a1f61f83a40fa51e70780ed1a707646b"
+    },
+    {
+      "path": "app/dist/backend/server.js",
+      "sha256": "c742e4f8751b997c9530a29b49ff767d78644c51a84a4ea1bd88542ea5dbdcbc"
+    },
+    {
+      "path": "app/dist/backend/sessions.js",
+      "sha256": "95800a7c23f4ad103b8c9b5fa98eea7418ea8a9d11685f25321ccfd46e3407c6"
+    },
+    {
+      "path": "app/dist/backend/statusCards.js",
+      "sha256": "3f3a923f3785022a49ef5d2de75580546a7d5ad5436ca0f2a56a43741db3c2d9"
+    },
+    {
+      "path": "app/dist/backend/webhooks.js",
+      "sha256": "a9739044f1151d9b2d8b29a270a2761a7b3cb4e2f90707961a248412428d4eee"
+    },
+    {
+      "path": "app/dist/shared/statusCardText.js",
+      "sha256": "c6750b77d1455bb05e4d918e03246a8a63f7c52cd653a153f4bf2a5534eb9a60"
+    },
+    {
+      "path": "app/dist/shared/types.js",
+      "sha256": "72d8a2a1e0d62aa30a3b56fc47668219c9adf08d80e59bca810dd5c1f7359496"
+    },
+    {
+      "path": "app/src/backend/agentPolicy.ts",
+      "sha256": "dcf0a5c383124e2f741bd51824f6aa079aa60582f5776f1497048babbf1b0fde"
+    },
+    {
+      "path": "app/src/backend/agentPortal.ts",
+      "sha256": "ec7beab0593f4c654aa3ef4425785a75c576615de39a675c7feac2a87b60a597"
+    },
+    {
+      "path": "app/src/backend/agentStore.ts",
+      "sha256": "3bc687e2b704ff768a745d3916ece352a17f25620c641ba50c66adc48284905a"
+    },
+    {
+      "path": "app/src/backend/agentWorker.ts",
+      "sha256": "fdd54b8263d1a2adf9e4fd70af71cb93575e3cb82b7291b89e3a28a9db718336"
+    },
+    {
+      "path": "app/src/backend/aiBudget.ts",
+      "sha256": "016875b9ce8a1483cb5890199daa9356015b04f79ae6de8dc340a0586ab04bb7"
+    },
+    {
+      "path": "app/src/backend/assessment.ts",
+      "sha256": "8ad18f71ce54d7059bae7ec42cfad543b30ff8c0a4e4ecd847b31f93d46f861d"
+    },
+    {
+      "path": "app/src/backend/assessmentWork.ts",
+      "sha256": "cdf9015395d483d1f94aa3073f111fa13d667c8d6b10a15c9ea8f1f12dcfd548"
+    },
+    {
+      "path": "app/src/backend/baseten.ts",
+      "sha256": "21b25d0d6a40d6cc30a678f87ab488938abd11ed4d98f18d7e6a0186b6eb5bc0"
+    },
+    {
+      "path": "app/src/backend/capabilities.ts",
+      "sha256": "6b62e315ec60e919fee52fcb92bc7e3eb27a14cb0ad6d5d468af02d8497c6905"
+    },
+    {
+      "path": "app/src/backend/changeOrderService.ts",
+      "sha256": "472b86e747d9c55b2eeab1c20ec8faff83b68cc5d38681e1649d81a16c04f235"
+    },
+    {
+      "path": "app/src/backend/connectorProjections.ts",
+      "sha256": "60b35d61becd9a979056873a999b6d2c226f78882258805afe93aceb07e057f4"
+    },
+    {
+      "path": "app/src/backend/connectorStore.ts",
+      "sha256": "5eb46c55d6eff03a10b9eee4cc09d4e2731a1b0fbcdb23493e92d84bc5351bc0"
+    },
+    {
+      "path": "app/src/backend/context.ts",
+      "sha256": "86f9c90d973ac9f413315a9c90002b403ce1b1da8c9252837bc20fda1c0429fd"
+    },
+    {
+      "path": "app/src/backend/db.ts",
+      "sha256": "d61dd42ba25b2486fa30f3d4c6ce5711086bc53d6fcd4a4a2e79d7684e2f637f"
+    },
+    {
+      "path": "app/src/backend/designEvidence.ts",
+      "sha256": "6a1cc2ddd6dad4a56c203e2eb6425861d12ba99df345f3fe3f6fc9ea1a8bc805"
+    },
+    {
+      "path": "app/src/backend/env.ts",
+      "sha256": "68c248899307e6ec9eda32bb706413fbdb41d26d6d9bfffeb953489a74ba1d9d"
+    },
+    {
+      "path": "app/src/backend/figma.ts",
+      "sha256": "f99937742e9bff934404bd234bad775e3f05eadd182be4128c3b9424101a339f"
+    },
+    {
+      "path": "app/src/backend/figmaWebhooks.ts",
+      "sha256": "2a2c36b4cfb134afd085c8f1b8c74442cf0c76031a9985dc338d4efb652f3f3b"
+    },
+    {
+      "path": "app/src/backend/inboxAuthority.ts",
+      "sha256": "b1f20d162da6164a0acb2b72be7adb23af0cd895119dfc50d0fb0c8d8da9570a"
+    },
+    {
+      "path": "app/src/backend/jobs.ts",
+      "sha256": "c7d355e78b25e4c632f621c4d025cc282e07a4b545600dc1d5448e7c67f00d88"
+    },
+    {
+      "path": "app/src/backend/judgeAccess.ts",
+      "sha256": "814cff55a9e0e78b5a888a71fccfab9c761181d0c3a68e214d38630726e7720a"
+    },
+    {
+      "path": "app/src/backend/judging.ts",
+      "sha256": "f3a29c039f7a12ce049431fd0878cf2f9f660ca23f5f6c6ed2f285261e30f834"
+    },
+    {
+      "path": "app/src/backend/mcp.ts",
+      "sha256": "672aaa9b42b8711559418bcd4194dd12c09243d31e83c653fd02f94b6140c960"
+    },
+    {
+      "path": "app/src/backend/mcpAuth.ts",
+      "sha256": "83563d2c17befcd4b25982c70579c5cd211bd8755077aa24f2ddd39217ad2f07"
+    },
+    {
+      "path": "app/src/backend/migrations.ts",
+      "sha256": "b0b4313c4de674f4aa844431e2d1d4325a60d5f6420fada3d769e3b4fcee74ef"
+    },
+    {
+      "path": "app/src/backend/orders.ts",
+      "sha256": "8d6720cbf41df7fa63f1cc9203b89172d44117b1318bd8217aad8d924783ec2f"
+    },
+    {
+      "path": "app/src/backend/outboundActions.ts",
+      "sha256": "3d73b33c414f48e712264eeaa8611cc523575b653a374ebdfa52e437c7bae075"
+    },
+    {
+      "path": "app/src/backend/paymentState.ts",
+      "sha256": "3ee07ddf8c71902d39e73882e63c14007a379e0c3d8c924c0d1245783d6afbb7"
+    },
+    {
+      "path": "app/src/backend/paypal.ts",
+      "sha256": "42089f33726d4e5309740bfcf2137e4a3e4bfb12043ae6ce7a226e197db30464"
+    },
+    {
+      "path": "app/src/backend/requestInbox.ts",
+      "sha256": "c3514779fe5cf4e0c7a8675365a626cf59709e5015a311dbb3c05d2c990e47b2"
+    },
+    {
+      "path": "app/src/backend/requestItems.ts",
+      "sha256": "5f8ea279984f2981547c22c3d446b9a414535a7e66496a8a1439a7a74f7fe122"
+    },
+    {
+      "path": "app/src/backend/requestLinks.ts",
+      "sha256": "3ca286e249cf4f6e06fc28946b11487e30be5999b0d35ef3a23443b19a1348e0"
+    },
+    {
+      "path": "app/src/backend/requestSources.ts",
+      "sha256": "2b27c228d260083da5428bcae605af5535f8184ff7b239f4f969aea60dd56e7c"
+    },
+    {
+      "path": "app/src/backend/reviewedActions.ts",
+      "sha256": "339c839ddd33666f6e4786d1167861cc154d95c865fb241d4925568d8d8a82be"
+    },
+    {
+      "path": "app/src/backend/runtimeOwner.ts",
+      "sha256": "ab8e83ebe66e3e8aca30afcaf9c311e2cf9c5e48947ad99a48bf479c71af37e9"
+    },
+    {
+      "path": "app/src/backend/scopeAccess.ts",
+      "sha256": "d372fba58fe61a5f04b322a8b1ba0d08fdbe0a8fa821e50ee865c6f3aeffbb2f"
+    },
+    {
+      "path": "app/src/backend/scopeLedger.ts",
+      "sha256": "fefa939aeea538f6b705e97003634c85aeacb2c240bb5dce60e3ca6884d65c54"
+    },
+    {
+      "path": "app/src/backend/scopePersistence.ts",
+      "sha256": "99171b36f1e79fa5244a2852cb8b374dde11efdea4ff50582260f9f1fbaddfb3"
+    },
+    {
+      "path": "app/src/backend/server.ts",
+      "sha256": "aa293a4eb4c7fb89f93dea9e5b0001a92afbc0bdb5477ad18d36fa897b4f71a0"
+    },
+    {
+      "path": "app/src/backend/sessions.ts",
+      "sha256": "f5d7631e426a38802c9396e331fd3c42bfa44f80715d23e7c07dd4a6aeef2dd4"
+    },
+    {
+      "path": "app/src/backend/statusCards.ts",
+      "sha256": "7e5c162ee4dd7fb3dabee35ebae0e8c98404f339d228388a76e1e060fa04a0f5"
+    },
+    {
+      "path": "app/src/backend/webhooks.ts",
+      "sha256": "d28b6664306ed998e05936c3eb52a0cd67af349b92ac8bc156d054bc3c94ed97"
+    },
+    {
+      "path": "app/src/shared/statusCardText.ts",
+      "sha256": "c11111d7fb2304a8eb377d8bf341ef7abec38fe0cd207b9aedb8492e1c256b90"
+    },
+    {
+      "path": "app/src/shared/types.ts",
+      "sha256": "1916552ff6c28bdb4b6d1a45487c9cb53a7e3f9e875a809e0c05c604ff234130"
+    }
+  ],
+  "inference": {
+    "manual": {
+      "provider": "baseten",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast",
+      "reasoning": "max",
+      "promptVersion": "scope-assessment-items-v4",
+      "promptImplementation": "da9f7d7c12953964d21aab75572499730d8c79ce18928ef851bd4ea15611151c",
+      "schema": "03b6a78edb70c7a8692c6b1291370f3d0b2b760767ecd7496574e921bb7f4c4f",
+      "temperature": 0.1,
+      "maxOutputTokens": 16384,
+      "contextTokens": 1048576,
+      "baseUrl": "https://inference.baseten.co/v1",
+      "mode": "manual",
+      "itemized": true
+    },
+    "automatic": {
+      "provider": "baseten",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast",
+      "reasoning": "max",
+      "promptVersion": "scope-assessment-items-v4",
+      "promptImplementation": "da9f7d7c12953964d21aab75572499730d8c79ce18928ef851bd4ea15611151c",
+      "schema": "46aaafcb57d0024f496d16b5e0de27f2f54103f69ff4074cae4c2d015a66031a",
+      "temperature": 0.1,
+      "maxOutputTokens": 16384,
+      "contextTokens": 1048576,
+      "baseUrl": "https://inference.baseten.co/v1",
+      "mode": "automatic",
+      "itemized": true
+    }
+  }
+}

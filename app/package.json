@@ -27,9 +27,15 @@
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.114.0",
+    "@modelcontextprotocol/client": "2.4.0",
     "@types/node": "^24.0.0",
     "esbuild": "^0.25.0",
     "fflate": "0.8.3",
     "typescript": "^5.8.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.1.2",
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "4.6.7"
   }
 }

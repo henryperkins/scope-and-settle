@@ -5,6 +5,7 @@ import { activeAccess, activeGrant, accessByCredential, grantByCredential, creat
 import { createSession, type Session } from "./sessions.js";
 import { resetDemoRun } from "./orders.js";
 import type { ChangeOrderView } from "../shared/types.js";
+import {persistedGrant} from './scopeAccess.js';
 
 export function createJudgeAccess({ expiresAt = "2026-12-16T16:00:00Z" } = {}) {
   if (!Number.isFinite(Date.parse(expiresAt)) || Date.parse(expiresAt) <= Date.now()) throw new Error("Invalid judging access expiry");
@@ -16,8 +17,9 @@ export function createJudgeAccess({ expiresAt = "2026-12-16T16:00:00Z" } = {}) {
 }
 
 function sessionForGrant(grant: any, renewalCredential: string) {
+  const resource=persistedGrant(grant);
   const session = createSession({ projectId: "demo", runId: grant.run_id, role: grant.role, grantId: grant.id,
-    changeOrderId: grant.change_order_id, changeOrderRevision: grant.change_order_revision });
+    changeOrderId: grant.change_order_id, changeOrderRevision: grant.change_order_revision,grantKind:resource.kind,resourceId:resource.resourceId,resourceRevision:resource.revision??undefined,scopeParentId:grant.scope_parent_id??undefined });
   return { ...session, renewalCredential, accessExpiresAt: grant.expires_at };
 }
 
@@ -42,7 +44,7 @@ export function renewJudgeSession(credential: string) {
 export function createClientAccess(session: Session, order: ChangeOrderView) {
   const parent = session.grantId ? activeGrant(session.grantId) : null;
   if (!parent || parent.role !== "designer" || parent.run_id !== order.runId ||
-      !["awaiting_client_approval", "approved", "creating_invoice", "payment_due", "paid"].includes(order.status)) throw new Error("Requires a submitted proposal and active designer access");
+      (order.approvalStatus!=="approved" && order.approvalStatus!=="awaiting_client_approval")) throw new Error("Requires a submitted proposal and active designer access");
   const grant = createGrant(parent.judge_access_id, parent.run_id, "client", order.id, order.revision);
   return { approvalUrl: `${config.publicUrl}/review#resume=${grant.credential}`, approvalExpiresAt: grant.expiresAt };
 }

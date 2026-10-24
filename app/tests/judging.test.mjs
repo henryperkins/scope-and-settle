@@ -1,12 +1,13 @@
 import { test, after } from 'node:test';
 import { once } from 'node:events';
 import assert from 'node:assert/strict';
-import { isolatedApp, providerFixture, draftInput } from './helpers.mjs';
+import { isolatedApp, providerFixture, draftInput, canonicalDraftFactory } from './helpers.mjs';
 
 const app=await isolatedApp();
 const {db,getProject,updateScopeBaseline,currentRunId}=await app.load('db');
 const judging=await app.load('judging');
 const sessions=await app.load('sessions');
+const canonicalInput=await canonicalDraftFactory(app),contexts=await app.load('context');
 const orders=await app.load('orders');
 const provider=providerFixture(), originalFetch=globalThis.fetch;
 globalThis.fetch=(url,init)=>new URL(url).hostname==='127.0.0.1'?originalFetch(url,init):provider.fetch(url,init);
@@ -17,7 +18,7 @@ after(async()=>{await new Promise(r=>server.close(r));globalThis.fetch=originalF
 const expiry=()=>new Date(Date.now()+86400000).toISOString();
 async function request(path,session,method='GET',body){return fetch(base+path,{method,headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.token}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});}
 async function start(key){const r=await request('/api/judge/start',null,'POST',{credential:key.credential});assert.equal(r.status,201);return r.json();}
-async function proposal(session){let r=await request('/api/change-orders',session,'POST',draftInput());assert.equal(r.status,201);const o=await r.json();r=await request('/api/change-orders/'+o.id+'/submit',session,'POST');assert.equal(r.status,200);return r.json();}
+async function proposal(session){let r=await request('/api/change-orders',session,'POST',canonicalInput(contexts.contextFromSessionToken(session.token)));assert.equal(r.status,201);const o=await r.json();r=await request('/api/change-orders/'+o.id+'/submit',session,'POST');assert.equal(r.status,200);return r.json();}
 async function clientFor(submitted){const secret=new URL(submitted.approvalUrl).hash.slice('#resume='.length);const r=await request('/api/session/renew',null,'POST',{credential:secret,role:'designer',runId:'someone-else'});assert.equal(r.status,200);return r.json();}
 
 test('judge entry creates independent runs and never stores raw access secrets',async()=>{

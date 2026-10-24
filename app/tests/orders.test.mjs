@@ -65,7 +65,7 @@ test('a provider PAID result with a mismatched approved amount cannot mark the o
   const order = await orders.ensureInvoice(approved().id);
   const invoice = provider.invoices.get(order.paypalInvoiceId);
   invoice.status = 'PAID'; invoice.due_amount.value = '0.00'; invoice.amount.value = '1.00';
-  await assert.rejects(orders.refreshPaymentStatus(order.id), /match|amount/i);
+  assert.equal((await orders.refreshPaymentStatus(order.id)).financialState.paymentState, 'review_required');
   assert.notEqual(orders.getChangeOrder(order.id).status, 'paid');
 });
 

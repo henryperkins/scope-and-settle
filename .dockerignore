@@ -2,6 +2,8 @@
 **
 !Dockerfile
 !JUDGING.md
+# Public configuration template (empty secrets) read by the build-stage tests; never .env.local.
+!.env.example
 !deploy/
 deploy/**
 !deploy/gcp/
@@ -37,6 +39,11 @@ app/scripts/**
 !app/tests/
 app/tests/**
 !app/tests/*.mjs
+# Synthetic test inputs: a child-process helper and a schema-only SQL fixture.
+!app/tests/fixtures/
+app/tests/fixtures/**
+!app/tests/fixtures/*.mjs
+!app/tests/fixtures/*.sql
 !fixtures/
 fixtures/**
 !fixtures/scope-judgment-cases.json

@@ -11,3 +11,9 @@ export function proposalDefaults(order, assessment, project) {
     preservedItems: (order?.lineItems ?? assessment?.result.lineItems ?? []).slice(1),
   };
 }
+
+// A mixed request never inherits prices from unselected items.
+export function selectedProposal(assessment, ids) {
+  const items=(assessment?.result.items??[]).filter(i=>ids.includes(i.id));
+  return {itemIds:items.map(i=>i.id),deliverables:items.map(i=>i.requestedDeliverable),lineItems:items.flatMap(i=>i.lineItems),totalMinor:items.reduce((sum,i)=>sum+i.proposedTotalMinor,0)};
+}

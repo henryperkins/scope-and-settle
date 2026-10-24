@@ -20,3 +20,9 @@ test('reviewing an existing custom proposal preserves its price and additional i
   assert.equal(draft.quantity, 2);
   assert.deepEqual(draft.preservedItems,[extra]);
 });
+
+import {selectedProposal} from '../web/proposal.js';
+test('partial proposal selection prices only selected items and preserves the other items',()=>{
+ const assessment={result:{items:[{id:'included',requestedDeliverable:'Fix typo',lineItems:[],proposedTotalMinor:0},{id:'a',requestedDeliverable:'Mobile A',lineItems:[{quantity:1,unitAmountMinor:25000}],proposedTotalMinor:25000},{id:'b',requestedDeliverable:'Mobile B',lineItems:[{quantity:1,unitAmountMinor:25000}],proposedTotalMinor:25000}]}};
+ assert.deepEqual(selectedProposal(assessment,['b']),{itemIds:['b'],deliverables:['Mobile B'],lineItems:[{quantity:1,unitAmountMinor:25000}],totalMinor:25000});assert.equal(assessment.result.items.length,3);
+});

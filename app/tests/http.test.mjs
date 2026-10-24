@@ -1,12 +1,15 @@
 import { test, after } from 'node:test';
 import { once } from 'node:events';
+import { request as httpRequest } from 'node:http';
 import assert from 'node:assert/strict';
-import { isolatedApp, providerFixture, draftInput } from './helpers.mjs';
+import { isolatedApp, providerFixture, draftInput, canonicalDraftFactory } from './helpers.mjs';
 
 const app = await isolatedApp();
 const { db } = await app.load('db');
 const orders = await app.load('orders');
 const sessions = await app.load('sessions');
+const canonicalInput=await canonicalDraftFactory(app),contexts=await app.load('context');
+const validInput=session=>canonicalInput(contexts.contextFromSessionToken(session.token));
 const originalFetch = globalThis.fetch;
 const provider = providerFixture();
 globalThis.fetch = (url, init) => new URL(url).hostname === '127.0.0.1' ? originalFetch(url, init) : provider.fetch(url, init);
@@ -18,6 +21,52 @@ after(async () => { await new Promise(r => server.close(r)); globalThis.fetch = 
 async function request(path, method = 'GET', token, body) {
   return fetch(base + path, { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
 }
+
+test('revocation while reading HTTP mutation bodies rejects every adapter before its mutation', async () => {
+  for (const [path, method, body] of [
+    ['/api/change-orders','POST',draftInput()],
+    ['/api/project/scope','POST',{clauses:[{id:'x',text:'revoked write'}]}],
+    ['/api/sessions/revoke','POST',{token:'other'}],
+    ['/api/sessions','POST',{role:'client',changeOrderId:'missing'}],
+    ['/api/agent/policy','POST',{}],
+    ['/api/agent/requests/missing/publish','POST',{}],
+    ['/api/inbox/settings','POST',{expectedVersion:0,intake:true,autoAssess:false,clientIds:['client'],consent:true}],
+    ['/api/inbox/refresh','POST',{commentId:'comment-test'}],
+    ['/api/inbox/jobs/missing/retry','POST',{}],
+  ]) {
+    const designer=sessions.createSession({projectId:'demo',role:'designer'});
+    const before=db.prepare('SELECT count(*) n FROM change_orders').get().n;
+    const received=once(server,'request');
+    const result=new Promise((resolve,reject)=>{
+      const req=httpRequest(base+path,{method,headers:{Authorization:'Bearer '+designer.token,'Content-Type':'application/json'}},res=>{
+        res.resume();res.on('end',()=>resolve(res.statusCode));
+      });
+      req.on('error',reject);req.write('{');
+      received.then(()=>{sessions.revokeSession(designer.token);req.end(JSON.stringify(body).slice(1));});
+    });
+    assert.equal(await result,401,path);
+    assert.equal(db.prepare('SELECT count(*) n FROM change_orders').get().n,before);
+  }
+});
+
+test('revocation during Figma read prevents comments disclosure and assessment AI reservation',async()=>{
+  for(const route of ['/api/comments','/api/assessments','/api/inbox/refresh']) {
+    const designer=sessions.createSession({projectId:'demo',role:'designer'});
+    let arrived,release;const gate=new Promise(r=>release=r), reached=new Promise(r=>arrived=r);
+    const before=db.prepare('SELECT count(*) n FROM ai_calls').get().n;
+    globalThis.fetch=async(url,init)=>{
+      if(new URL(url).hostname==='127.0.0.1')return originalFetch(url,init);
+      assert.equal(new URL(url).hostname,'api.figma.com');arrived();await gate;
+      return new Response(JSON.stringify({comments:[{id:'comment-test',message:'Mobile request',user:{handle:'Client'},created_at:'now'}]}));
+    };
+    try {
+      const pending=request(route,route==='/api/comments'?'GET':'POST',designer.token,route==='/api/comments'?undefined:{commentId:'comment-test'});
+      await reached;sessions.revokeSession(designer.token);release();
+      assert.equal((await pending).status,401);
+      assert.equal(db.prepare('SELECT count(*) n FROM ai_calls').get().n,before);
+    }finally{release();globalThis.fetch=(url,init)=>new URL(url).hostname==='127.0.0.1'?originalFetch(url,init):provider.fetch(url,init);}
+  }
+});
 
 test('the browser designer can load its Figma bridge module without a session', async () => {
   const response = await request('/assets/figma-bridge.js');
@@ -48,7 +97,7 @@ test('a client can read and approve only the linked revision and cannot mint des
 
 test('a designer can prepare a proposal but cannot impersonate client approval', async () => {
   const designer = sessions.createSession({ projectId: 'demo', role: 'designer' });
-  const created = await request('/api/change-orders', 'POST', designer.token, draftInput());
+  const created = await request('/api/change-orders', 'POST', designer.token, validInput(designer));
   assert.equal(created.status, 201);
   const order = await created.json();
   assert.equal((await request('/api/change-orders/' + order.id + '/submit', 'POST', designer.token)).status, 200);
@@ -92,7 +141,7 @@ test('reset revokes old-run access and preserves provider invoice references', a
 test('separate demo runs cannot list or mutate one another’s orders', async () => {
   const first = sessions.createSession({ projectId:'demo', role:'designer', runId:'first-run' });
   const second = sessions.createSession({ projectId:'demo', role:'designer', runId:'second-run' });
-  const created = await (await request('/api/change-orders','POST',first.token,draftInput())).json();
+  const created = await (await request('/api/change-orders','POST',first.token,validInput(first))).json();
   assert.equal(created.runId,'first-run');
   await request('/api/change-orders/'+created.id+'/submit','POST',first.token);
   const client = await (await request('/api/sessions','POST',first.token,{role:'client',changeOrderId:created.id})).json();

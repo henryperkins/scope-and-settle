@@ -1,0 +1,123 @@
+# PayPal Business — Revenue
+
+Invoicing, reports, disputes, subscriptions, payouts, and agentic commerce
+
+- [Revenue](/revenue): Level-up revenue through PayPal's advanced commerce tools.
+- [Agentic Commerce Protocol integration](/agent-ready/agentic-commerce-protocol)
+- [Agent Ready overview](/agent-ready/overview)
+- [Universal Commerce Protocol integration with Braintree](/agent-ready/universal-commerce-protocol-with-braintree)
+- [Universal Commerce Protocol integration with PayPal](/agent-ready/universal-commerce-protocol-with-paypal): Process Google Pay credentials from Google AI Mode checkout sessions with the Orders v2 API.
+- [Agentic commerce services overview](/agentic-commerce-services/about): Overview of PayPal's agentic commerce services, which enable merchants to create AI-powered shopping experiences for customers.
+- [Choose integration option](/disputes/choose-integration): Compare the Resolution Center and Disputes API to choose how to manage PayPal disputes for your business.
+- [Disputes lifecycle stages reference](/disputes/disputes-lifecycle): Understand the dispute lifecycle stages, including inquiry, claim, and settlement. Learn about the dispute management flow and available actions at each stage.
+- [Overview](/disputes/overview): Understand and manage PayPal disputes and chargebacks.
+- [Dispute reasons and evidence](/disputes/reasons-evidence): Understand PayPal dispute reasons and what evidence to provide for each when responding with the Disputes API.
+- [Use resolution center](/disputes/resolution-center): Use the PayPal Resolution Center in your business account to view, respond to, and resolve disputes.
+- [Set up accounts and environment](/disputes/set-up): Set up your PayPal sandbox and live accounts to manage disputes in the Resolution Center or with the Disputes API.
+- [Supported file types and sizes](/disputes/supported-file-sizes-types): Check which file types and sizes you can upload as evidence when using the PayPal Disputes API.
+- [Test and go live](/disputes/test-go-live): Test your PayPal Disputes API integration end to end in sandbox and prepare it to go live.
+- [Best practices](/log-in/best-practice): Learn best practices for integrating Log in with PayPal. Manage sessions, prevent duplicates, and speed up checkout while adhering to anti-spam policies.
+- [Build button](/log-in/build-button): Learn how to manually build the "Log in with PayPal" button with step-by-step instructions for integration into your website or application.
+- [Integrate Log in with PayPal](/log-in/build): Allow customers to use their PayPal account to sign in to your website or app. Reduce sign-up friction and streamline account access.
+- [Button placement](/log-in/button-placement)
+- [Button design guide](/log-in/designer-guide): Customize the Log in with PayPal button to match your site or app design. Use the Identity API for consistent design or create your own custom button.
+- [Generate button](/log-in/generate-button)
+- [Integrate Log in with PayPal with Identity API](/log-in/how-it-works): Enable users to log in with PayPal using the Identity API, managing permissions securely and pre-filling user info on your site.
+- [Log in with PayPal reference](/log-in/references): Explore how user attributes map to OpenID Connect protocols in the Log in with PayPal integration, including scope attributes for authentication.
+- [Upgrade options](/log-in/upgrade)
+- [Overview](/invoicing/about): A secure method of requesting money for your business needs.
+- [Choose between Invoicing solutions](/invoicing/choose-solution): Compare PayPal invoicing in the Dashboard and the Invoicing API to choose the right option for your business.
+- [Core concepts](/invoicing/core-concepts): Learn the core resources, invoice lifecycle, and authentication model for the PayPal Invoicing API.
+- [Quick start using dashboard](/invoicing/dashboard): Create and send your first invoice from the PayPal Business Dashboard using essential fields only—no code required.
+- [Errors](/invoicing/errors): Understand Invoicing API error codes, retry behavior, and client handling patterns for your integration.
+- [Invoicing lifecycle](/invoicing/lifecycle): This page explains the conceptual model, lifecycle, and system behavior of PayPal Invoicing.
+- [Invoice object](/invoicing/object): Explore the full structure of the PayPal invoice object, including all fields, nested objects, and schema definitions.
+- [Reference](/invoicing/reference): Explore all PayPal Invoicing API endpoints, request parameters, response objects, and error codes.
+- [Templates](/invoicing/templates): Create and manage reusable invoice templates using the PayPal Invoicing API.
+- [Test and go live](/invoicing/test-go-live): Simulate error responses and verify your PayPal Invoicing API integration before going live.
+- [Troubleshooting](/invoicing/troubleshooting): Troubleshooting guide for common PayPal Invoicing API integration issues.
+- [Use cases](/invoicing/use-cases): Explore use cases for the PayPal Invoicing API.
+- [Send, track, and manage payouts to multiple recipients](/payouts/overview): Send money to thousands of recipients at once for vendors and disbursements in various currencies.
+- [Access SFTP reports](/reports/access): Learn how to set up an SFTP user account and download PayPal reports from the secure FTP server using the command line or an SFTP client.
+- [Automated Case Management](/reports/acm)
+- [Activity Download report](/reports/activity-download)
+- [Attempts and Declines report](/reports/attempts-declines)
+- [Balance Reconciliation report](/reports/balance)
+- [Case Report specification](/reports/case-report-specification)
+- [Disbursement Reconciliation report](/reports/disbursement-reconciliation)
+- [Dispute Detail Custom report](/reports/dispute-detail-custom)
+- [Fees report](/reports/fees-reports)
+- [Monthly and custom statements](/reports/monthly-custom-statements)
+- [Order report](/reports/order)
+- [Overview](/reports/overview): Use PayPal reports to monitor and reconcile business activity across one or more merchant accounts.
+- [Preapproved Payments Agreements report](/reports/preapproved-payments-agreement): Report specification for the Preapproved Payments Agreements SFTP report, including file naming, structure, and field definitions
+- [Recurring Payments Profile report](/reports/recurring-payments-profile): Report specification for the Recurring Payments Profile SFTP report, including file naming, structure, and field definitions
+- [Settlement report](/reports/settlement): Report specification for the Settlement SFTP report, including file naming, structure, field definitions, and reference ID types.
+- [Transaction detail report](/reports/transaction-detail): Report specification for the Transaction Detail SFTP report, including file naming, structure, and field definitions.
+- [User Audit report specification](/reports/user-audit): Use the user audit report to track user actions on PayPal accounts. Filter by date, activity type, and more. Access the report through the PayPal reporting portal.
+- [Subscriptions](/subscriptions/about): Create customizable PayPal subscription plans for regular billing, offering trials, upgrades, and automated payment recovery for flexible customer management.
+- [Billing cycles](/subscriptions/billing-cycle): Set flexible billing cycles for PayPal subscriptions. Choose from daily, weekly, monthly, yearly, or custom options for recurring payments.
+- [Update plan pricing](/subscriptions/change-price): Update subscription pricing for all subscribers at once. Modify prices at the plan level, such as changing a video streaming service fee for future billing cycles.
+- [Change subscription quantity](/subscriptions/change-quantity)
+- [Choose between subscription solutions](/subscriptions/choose-solution): Compare PayPal Subscriptions in the dashboard and the Subscriptions API to choose the right option for your business.
+- [Start a subscription for a future date](/subscriptions/delayed-start): Allow customers to start subscriptions on a future date. Charge setup fees immediately and start regular payments on the selected date.
+- [Integrate Subscriptions](/subscriptions/integrate): Integrate PayPal subscriptions using the Catalog Products API, the Subscriptions API, and the JavaScript SDK.
+- [Multiple subscription buttons](/subscriptions/multiple-buttons)
+- [Charge a setup fee](/subscriptions/one-time-fee): Charge a one-time setup fee before a subscription starts, typically for non-recurring items, by configuring the fee when creating the subscription plan.
+- [Pause or resume a subscription](/subscriptions/pause-or-resume): Pause or resume subscriptions to reduce churn, stop payments, and reactivate subscriptions without a hard cancellation.
+- [Payment failures and recovering balances](/subscriptions/payment-failure-retry): Set payment failure thresholds for subscriptions. PayPal retries payments up to twice per billing cycle and adds failed payments to the next billing cycle balance.
+- [Pricing plans](/subscriptions/pricing-plan): Choose from four subscription pricing models: Fixed, Quantity, Volume-based, and Tiered-based to customize your plan setup and payment structure.
+- [Sell on social media](/subscriptions/sell-on-social)
+- [Test and go live with subscriptions](/subscriptions/test-go-live): Test and go live with PayPal subscriptions by running negative tests and using Postman to explore and test PayPal APIs. Get an access token before starting.
+- [Upgrade or downgrade a subscription](/subscriptions/tiers): Upgrade or downgrade subscriptions for different plans, such as basic or premium, allowing subscribers to change their plan.
+- [Offer a trial period](/subscriptions/trial-period): Allow subscribers to try your product with a free or discounted trial before regular billing begins. Customize up to 2 trial periods per subscription plan.
+- [Subscriptions webhooks](/subscriptions/webhooks)
+- [Add Tracking API Carriers](/track-orders/carriers): Choose the appropriate global or country-specific carrier when adding or updating tracking info with PayPal's Add Tracking API.
+- [Add package tracking to orders](/track-orders): Add package tracking to orders using the Orders v2 API or the Add Shipping Tracking API based on your checkout integration.
+- [Add Tracking API shipping statuses](/track-orders/shipping-status)
+- [Quick start using Invoicing API](/api/invoicing): PayPal Invoicing API lets you create, update, send, and manage invoices programmatically from your backend systems.
+- [Webhooks](/api/invoicing/webhooks): Learn how to register, validate, and handle PayPal Invoicing API webhook events in your application.
+- [Customize Payouts API integration](/api/payouts/customize): Customize your Payouts API integration to pay recipients in local currency, get specific payout details, prevent duplicate requests, and implement idempotency.
+- [Use Payouts API](/api/payouts): Send payouts programmatically using the Payouts API, including creating a payout batch, tracking status, handling errors, and testing your integration.
+- [Test and go live](/api/payouts/test-go-live): Simulate positive and negative Payouts API responses using test values, then move your integration to production.
+- [Manage your domain](/invoicing/use-your-email-domain/manage-domain): Manage your verified custom email domain and sender settings.
+- [Overview](/invoicing/use-your-email-domain/overview): Use your own email domain for PayPal invoice emails.
+- [Set up your domain](/invoicing/use-your-email-domain/set-up-domain): Set up and verify your email domain to send PayPal invoice emails from your own address.
+- [Troubleshooting](/invoicing/use-your-email-domain/troubleshooting): Resolve common issues with your custom email domain.
+- [Currency conversion](/payouts/currency-conversion): View a list of countries with currency conversion restrictions that may affect your PayPal payouts. Understand exclusions and limitations by region.
+- [Payouts frequently asked questions](/payouts/faqs): Find answers to common questions about PayPal Payouts, including fees, sending limits, recipient countries, currencies, payment confirmation, and issue resolution.
+- [Fees and transaction limits](/payouts/fees): See PayPal Payouts fees, paid by the sender. Fees vary by country and transaction type, with caps for domestic and international payments.
+- [Payouts payment processing](/payouts/payment-processing): Process payouts to PayPal and Venmo accounts. Recipients get payments instantly, and unclaimed payouts are returned after 30 days. Get payout transaction logs.
+- [Countries and supported features](/payouts/supported-features)
+- [Payouts troubleshooting](/payouts/troubleshooting)
+- [Payouts webhook event names](/payouts/webhooks)
+- [PayPal Payouts overview](/payouts/use-payouts/overview): Send money to multiple recipients in 96 countries using Standard Payouts. Recipients can claim payments through PayPal or Venmo with just an email or phone number.
+- [Plan your integration](/payouts/use-payouts/plan-your-integration): Compare PayPal Payouts integration patterns and payout methods to choose the right approach for your business.
+- [Set up accounts and environment for payouts](/payouts/use-payouts/set-up): Set up your PayPal account and environment to send payouts through Web UI file upload, SFTP batch transfer, or the Payouts API.
+- [Use Payouts to Venmo](/payouts/use-payouts/venmo): Send payments to Venmo recipients using a mobile number or email. If they don't have an account, they can easily create one. Available in the US only.
+- [Payouts SDK](/sdk/payouts)
+- [PayPal balance report](/reports/financial-reports/balance-report)
+- [Fees report](/reports/financial-reports/fees-report)
+- [Monthly and custom statement reports](/reports/financial-reports/msr)
+- [Changed download fields](/reports/reference/changed-fields)
+- [PayPal-supported cryptocurrencies](/reports/reference/cryptocurrencies)
+- [Reports reference](/reports/reference/overview)
+- [PayPal-supported currencies](/reports/reference/supported-currencies)
+- [Transaction event code (T-code) reference](/reports/reference/t-codes)
+- [Terminology](/reports/reference/terminology)
+- [Customize subscriptions](/subscriptions/customize)
+- [Add subscriptions to your website](/subscriptions/dashboard/add-subscriptions): Add your customized PayPal Subscriptions button to your website and test the checkout flow.
+- [Customize subscription button using your dashboard](/subscriptions/dashboard/customize-subscription-button): Customize your subscription checkout button, including layout, shape, color, and button text.
+- [Create subscriptions using dashboard](/subscriptions/dashboard/use-dashboard): Create a subscription plan in the PayPal Business dashboard.
+- [Add Tracking API overview](/api/tracking/track-orders/integrate): Use PayPal's Add Tracking API to send shipment tracking numbers for faster access to funds, seller protection, and quicker resolution of payment holds.
+- [Add Tracking API integration guide](/api/tracking/track-orders/use): Integrate PayPal's Add Tracking API to manage tracking numbers, update or cancel tracking details, and display tracking information for your transactions.
+- [Track packages with the Orders API](/api/orders-v2/track-orders/integrate)
+- [Integrate package tracking](/api/orders-v2/track-orders/use)
+- [Cancel or reverse payouts](/payouts/use-payouts/cancel-reverse-payouts): Cancel unclaimed payout items using the dashboard or API, and understand how payout reversals work.
+- [Handle unclaimed payouts](/payouts/use-payouts/handle-unclaimed-payouts): Track, resolve, and prevent unclaimed payouts to improve payment success rates.
+- [Track payout item status](/payouts/use-payouts/track-payout-item-status): Check the status of individual payout items and understand what each transaction status means.
+- [View reports and transaction logs](/payouts/use-payouts/view-transactions): Use the transaction activities page to view and download payouts transaction logs. Filter by date range and view details of all processed payouts for your PayPal account.
+- [Use large-batch file transfer](/payouts/use-payouts/send-money/use-large-batch-file-transfer): Prepare, upload, and validate large-batch payout files using PayPal's SFTP file transfer.
+- [Use Web UI](/payouts/use-payouts/send-money/use-web-ui): Learn how to send up to 5,000 payments for a file using Payouts Web. Use .csv files to manage bulk payouts efficiently and integrate with PayPal's payment system.
+- [Customize Web UI payouts](/payouts/use-payouts/customize/customize-web-ui): Pay recipients in their local currency and set up a payout approval flow using the Web UI.
+- [Collect recipient information with AAC](/payouts/use-payouts/customize/integrate-aac): Integrate Assisted Account Creation to collect recipient payer IDs and email addresses for accurate, secure payouts.

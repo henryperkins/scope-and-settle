@@ -3,6 +3,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import {realpathSync} from 'node:fs';
 import { zipSync, strToU8 } from 'fflate';
 
 export async function packagePlugin({appRoot, sourceCommit, publicUrl}) {
@@ -33,8 +34,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const appRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..');
   let sourceCommit=process.env.SOURCE_COMMIT;
   if (!sourceCommit) {
-    execFileSync('git',['diff','--exit-code','HEAD','--','app','deploy','Dockerfile','JUDGING.md'],{cwd:resolve(appRoot,'..'),stdio:'pipe'});
-    if (execFileSync('git',['ls-files','--others','--exclude-standard','--','app','deploy','JUDGING.md'],{cwd:resolve(appRoot,'..'),encoding:'utf8'}).trim()) throw new Error('Commit the reviewed release inputs before packaging');
+    const expectedRoot = realpathSync(resolve(appRoot, '..'));
+    const discoveredRoot = realpathSync(execFileSync('git', ['rev-parse','--show-toplevel'], {cwd: expectedRoot, encoding: 'utf8'}).trim());
+    const normalize = value => process.platform === 'win32' ? value.toLowerCase() : value;
+    if (normalize(discoveredRoot) !== normalize(expectedRoot)) throw new Error('Git checkout root does not match the packaged app root; an ancestor HEAD cannot identify copied source');
+    execFileSync('git',['diff','--exit-code','HEAD','--','app','deploy','Dockerfile','.dockerignore','render.yaml','JUDGING.md'],{cwd:expectedRoot,stdio:'pipe'});
+    if (execFileSync('git',['ls-files','--others','--exclude-standard','--','app','deploy','Dockerfile','.dockerignore','render.yaml','JUDGING.md'],{cwd:expectedRoot,encoding:'utf8'}).trim()) throw new Error('Commit the reviewed release inputs before packaging');
     sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:appRoot,encoding:'utf8'}).trim();
   }
   console.log(JSON.stringify(await packagePlugin({appRoot,sourceCommit,publicUrl:process.env.PUBLIC_BASE_URL || 'http://localhost:8787'})));

@@ -6,6 +6,24 @@ import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {unzipSync,strFromU8} from 'fflate';
 import {packagePlugin} from '../scripts/package-plugin.mjs';
+import {cp, symlink} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {execFileSync, spawnSync} from 'node:child_process';
+
+test('T13 packaging CLI rejects a copied app nested under an ignored ancestor checkout instead of stamping its HEAD', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'scope-package-root-'));
+  await writeFile(join(root, '.gitignore'), 'output/\n');
+  execFileSync('git', ['init','-q'], {cwd: root});
+  execFileSync('git', ['add','--','.gitignore'], {cwd: root});
+  execFileSync('git', ['-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','Synthetic fixture'], {cwd: root});
+  const appRoot = join(root, 'output/copied/app'); await mkdir(join(appRoot, 'plugin/dist'), {recursive: true}); await mkdir(join(appRoot, 'scripts'));
+  await cp(new URL('../scripts/package-plugin.mjs', import.meta.url), join(appRoot, 'scripts/package-plugin.mjs'));
+  await symlink(fileURLToPath(new URL('../node_modules', import.meta.url)), join(appRoot, 'node_modules'), 'junction');
+  for (const [name, content] of Object.entries({'package.json': '{"type":"module","version":"0.3.0"}', 'JUDGING.md': 'Synthetic copied app', 'plugin/dist/manifest.json': '{"main":"code.js","ui":"ui.html","networkAccess":{"allowedDomains":["https://fixture.example"]}}', 'plugin/dist/code.js': '// uncommitted copy', 'plugin/dist/ui.html': '<p>Uncommitted copy</p>'})) await writeFile(join(appRoot, name), content);
+  const executed = spawnSync(process.execPath, [join(appRoot, 'scripts/package-plugin.mjs')], {cwd: appRoot, encoding: 'utf8', env: {...process.env, SOURCE_COMMIT: '', PUBLIC_BASE_URL: 'https://fixture.example', GIT_OPTIONAL_LOCKS: '0'}});
+  assert.notEqual(executed.status, 0, 'Nested uncommitted bytes must not inherit the ancestor HEAD');
+  assert.match(executed.stderr, /root|ancestor|checkout/i);
+});
 test('the plugin kit contains only reviewed public files, source identity and matching checksums',async()=>{
   const root=await mkdtemp(join(tmpdir(),'scope-kit-'));await mkdir(join(root,'plugin/dist'),{recursive:true});
   const manifest={main:'code.js',ui:'ui.html',networkAccess:{allowedDomains:['https://fixture.example']}};
@@ -18,5 +36,7 @@ test('the plugin kit contains only reviewed public files, source identity and ma
   assert.ok(!Buffer.from(zip).includes(Buffer.from('SECRET SENTINEL')));
   assert.equal(JSON.parse(strFromU8(files['SOURCE.json'])).sourceCommit,sourceCommit);
   assert.equal(JSON.parse(strFromU8(files['manifest.json'])).main,'code.js');
+  const repeated=await packagePlugin({appRoot:root,sourceCommit,publicUrl:'https://fixture.example'});
+  assert.equal(repeated.sha256,meta.sha256,'Explicit trusted source identity preserves deterministic packaging');
   await assert.rejects(packagePlugin({appRoot:root,sourceCommit,publicUrl:'https://wrong.example'}),/origin/);
 });

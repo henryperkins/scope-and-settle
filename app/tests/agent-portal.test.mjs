@@ -1,5 +1,7 @@
 import {test,after} from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
 import {isolatedApp,providerFixture,draftInput} from './helpers.mjs';
 const app=await isolatedApp(), {db}=await app.load('db');
 const {createJudgeAccess,startJudgeRun,resetJudgeRun,revokeJudgeAccess}=await app.load('judging');
@@ -62,4 +64,44 @@ test('replacement portal access revokes the previous credential without changing
  const a=setup(),{order}=publish(a.client),replacement=portal.createPortalAccess(a.owner);
  assert.equal(portal.getPortalSession(a.issued.credential),null);
  const next=portal.getPortalSession(replacement.credential);assert.equal(portal.portalView(next).requests[0].order.id,order.id);
+});
+
+test('real portal response renders current financial actions and approval through payable, paid, cancelled and refunded outcomes',async()=>{
+ const a=setup(),{r,order}=publish(a.client);
+ await portal.approvePortalQuote(a.client,r.id,order.revision,true);
+ const invoice=provider.invoices.get(orders.getChangeOrder(order.id).paypalInvoiceId);
+ invoice.detail.metadata={recipient_view_url:'https://www.sandbox.paypal.com/invoice/p/#portal-opaque'};
+ const elements=new Map(),element=id=>elements.get(id)||elements.set(id,{hidden:false,innerHTML:'',textContent:'',value:''}).get(id);
+ const ctx=vm.createContext({window:{},location:{origin:'https://fixture.test',hash:''},history:{},crypto:globalThis.crypto,URL,
+   document:{getElementById:element,querySelector:()=>null,querySelectorAll:()=>[]},sessionStorage:{getItem:()=>null,setItem(){},removeItem(){}},setInterval(){},
+   fetch:async()=>Response.json(portal.portalView(a.client))});
+ vm.runInContext((await readFile(new URL('../web/common.js',import.meta.url),'utf8')).replace(/\bexport /g,''),ctx);
+ vm.runInContext((await readFile(new URL('../web/client.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,''),ctx);
+ for(const [status,label,pay,receipt] of [['UNPAID','Payment due',true,false],['PAID','Paid',false,true],['CANCELLED','Invoice cancelled',false,false],['REFUNDED','Refunded',false,false]]){
+  invoice.status=status;
+  invoice.due_amount.value=status==='UNPAID'||status==='CANCELLED'?'250.00':'0.00';
+  if(status==='PAID'||status==='REFUNDED')invoice.payments={paid_amount:{currency_code:'USD',value:'250.00'},transactions:[{type:'PAYPAL',payment_id:'PORTAL-PAYMENT',amount:{currency_code:'USD',value:'250.00'}}]};else delete invoice.payments;
+  if(status==='REFUNDED')invoice.refunds={refund_amount:{currency_code:'USD',value:'250.00'},transactions:[{type:'PAYPAL',refund_id:'PORTAL-REFUND',amount:{currency_code:'USD',value:'250.00'}}]};else delete invoice.refunds;
+  await orders.refreshPaymentStatus(order.id);
+  await vm.runInContext('credential="fixture-portal"; load()',ctx);
+  const markup=element('client-requests').innerHTML;
+  assert.equal(markup.includes('Pay with PayPal sandbox'),pay,`${status}: payment action`);
+  assert.equal(markup.includes('View PayPal receipt'),receipt,`${status}: receipt action`);
+  assert.match(markup,/Refresh payment/,`${status}: refresh remains available`);
+  assert.match(markup,new RegExp(`class="badge">${label}</span>`),`${status}: explicit current status`);
+  assert.match(markup,/Approval for revision 1 is saved/,`${status}: approval retained`);
+  if(pay||receipt)assert.match(markup,/href="https:\/\/www\.sandbox\.paypal\.com\/invoice\/p\/#portal-opaque"/);
+ }
+});
+
+// The new assertions intentionally run against the real provider-await paths.
+for(const action of ['approval','refresh'])for(const invalidation of ['revoke','reset'])test(`portal ${action} revalidates ${invalidation} during held provider work`,async()=>{
+ const a=setup(),{r,order}=publish(a.client);
+ if(action==='refresh')await portal.approvePortalQuote(a.client,r.id,order.revision,true);
+ let release,enteredResolve;const entered=new Promise(resolve=>enteredResolve=resolve),gate=new Promise(resolve=>release=resolve);let held=false;
+ globalThis.fetch=async(url,init)=>{if(!held&&new URL(url).pathname.includes('/v2/invoicing/invoices')){held=true;enteredResolve();await gate;}return provider.fetch(url,init);};
+ const operation=action==='approval'?portal.approvePortalQuote(a.client,r.id,order.revision,true):portal.refreshPortalPayment(a.client,r.id);
+ const assertion=assert.rejects(operation,/expired|revoked|not found|access|reset/i);
+ await entered;if(invalidation==='revoke')portal.createPortalAccess(a.owner);else if(action==='approval'){assert.throws(()=>resetJudgeRun(a.owner),/Wait for invoice operations/);revokeJudgeAccess(a.access.id);}else resetJudgeRun(a.owner);release();await assertion;globalThis.fetch=provider.fetch;
+ if(invalidation==='revoke')assert.equal(orders.getChangeOrder(order.id).approvalStatus,'approved');
 });

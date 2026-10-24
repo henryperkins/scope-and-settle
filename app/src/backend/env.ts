@@ -1,4 +1,5 @@
 import { readFileSync, existsSync } from "node:fs";
+import { isIP } from "node:net";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { basetenModel } from "./baseten.js";
@@ -27,6 +28,13 @@ const fileEnv = loadEnvFile(resolve(PROJECT_ROOT, ".env.local"));
 function get(key: string): string {
   return process.env[key] ?? fileEnv[key] ?? "";
 }
+/** Comma-separated list; every entry must pass `valid` exactly or startup fails closed. */
+function list(key: string, valid: (value: string) => boolean, message: string): string[] {
+  const values = get(key).split(",").map(value => value.trim()).filter(Boolean);
+  if (values.some(value => !valid(value))) throw new Error(message);
+  return [...new Set(values)];
+}
+const exactOrigin = (value: string) => { try { return /^https?:$/.test(new URL(value).protocol) && new URL(value).origin === value; } catch { return false; } };
 
 export const config = {
   port: Number(get("PORT") || 8787),
@@ -44,7 +52,21 @@ export const config = {
   paypalMerchantEmail: get("PAYPAL_SANDBOX_MERCHANT_EMAIL"),
   paypalBuyerEmail: get("PAYPAL_SANDBOX_BUYER_EMAIL"),
   figmaToken: get("FIGMA_PERSONAL_ACCESS_TOKEN"),
+  figmaCommentPostingEnabled:get('FIGMA_COMMENT_POSTING_ENABLED')==='true',
   figmaFileKey: get("FIGMA_FILE_KEY"),
+  figmaWebhookEnabled: get('FIGMA_WEBHOOK_ENABLED')==='true',
+  figmaWebhookAccessVerified: get('FIGMA_WEBHOOK_ACCESS_VERIFIED')==='true',
+  figmaWebhookId:get('FIGMA_WEBHOOK_ID'),
+  figmaWebhookPasscode:get('FIGMA_WEBHOOK_PASSCODE'),
+  figmaWebhookContextType:get('FIGMA_WEBHOOK_CONTEXT_TYPE')||'file',
+  figmaWebhookContextId:get('FIGMA_WEBHOOK_CONTEXT_ID'),
+  // Custom Figma agent connector. Disabled unless explicitly enabled: issuance refuses and credentials fail closed.
+  mcpConnectorEnabled:get('MCP_CONNECTOR_ENABLED')==='true',
+  // Exact browser origins (scheme://host[:port]) allowed to call /mcp. Empty by default: a supplied Origin is refused,
+  // an absent Origin is accepted for an authenticated non-browser caller.
+  mcpAllowedOrigins:list('MCP_ALLOWED_ORIGINS',exactOrigin,'MCP_ALLOWED_ORIGINS must list exact origins such as https://www.figma.com'),
+  // Peer IP addresses whose X-Forwarded-Host/Proto are trusted for /mcp. Empty by default: forwarded headers are ignored.
+  mcpTrustedProxies:list('MCP_TRUSTED_PROXIES',value=>isIP(value)!==0,'MCP_TRUSTED_PROXIES must list IP addresses'),
 };
 
 if (config.paypalEnv !== "sandbox") throw new Error("This hackathon build supports PayPal sandbox only");

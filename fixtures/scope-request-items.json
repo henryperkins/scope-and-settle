@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Public T07 tuning fixture only; no heldout-design cases or labels are used.",
+  "cases": [
+    {"id":"mixed-desktop-mobile","request":"Correct the desktop typo and add mobile cart layouts.","items":[{"quote":"Correct the desktop typo","classification":"included","priced":false},{"quote":"add mobile cart layouts","classification":"new_work","rateCardId":"mobile_checkout"}]},
+    {"id":"mixed-unclear","request":"Add mobile receipt layouts and improve the other thing.","items":[{"quote":"Add mobile receipt layouts","classification":"new_work","rateCardId":"mobile_checkout"},{"quote":"improve the other thing","classification":"needs_clarification","priced":false}]},
+    {"id":"paraphrased-commitment","approvedAddition":"Mobile confirmation screens","request":"Can we do the small-screen confirmation design?","duplicateDisposition":"suggestion_requires_designer_decision"},
+    {"id":"financial-cancellation","request":"Reopen the mobile confirmation addition after invoice cancellation.","expected":"Existing work remains committed; financial cancellation grants no new pricing eligibility."},
+    {"id":"partial-proposals","request":"Add mobile cart and mobile receipt layouts.","selectedSeparately":["mobile cart","mobile receipt"],"expectedActiveReservations":2,"expectedPublishedOrders":2}
+  ]
+}

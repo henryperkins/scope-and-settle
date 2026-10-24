@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "split": "baseline",
+  "description": "Public synthetic pipeline cases written before opening the held-out design. No live accuracy evidence.",
+  "cases": [
+    {
+      "id": "baseline-new",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Add mobile checkout",
+        "replies": [],
+        "commitments": [],
+        "channel": "figma",
+        "sourceState": "available",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "assessed",
+        "items": [
+          {
+            "requestQuote": "Add mobile checkout",
+            "classification": "new_work",
+            "billable": true,
+            "clearlyNew": true,
+            "rateIds": [
+              "mobile_checkout"
+            ],
+            "totalMinor": 25000
+          }
+        ]
+      }
+    },
+    {
+      "id": "baseline-included",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Finish the desktop checkout",
+        "replies": [],
+        "commitments": [],
+        "channel": "figma",
+        "sourceState": "available",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "assessed",
+        "items": [
+          {
+            "requestQuote": "Finish the desktop checkout",
+            "classification": "included",
+            "billable": false,
+            "clearlyNew": false,
+            "rateIds": [],
+            "totalMinor": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "baseline-unclear",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Make checkout better",
+        "replies": [],
+        "commitments": [],
+        "channel": "figma",
+        "sourceState": "available",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "assessed",
+        "items": [
+          {
+            "requestQuote": "Make checkout better",
+            "classification": "needs_clarification",
+            "billable": false,
+            "clearlyNew": false,
+            "rateIds": [],
+            "totalMinor": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "baseline-mixed",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Finish the desktop checkout; add mobile checkout",
+        "replies": [],
+        "commitments": [],
+        "channel": "figma",
+        "sourceState": "available",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "assessed",
+        "items": [
+          {
+            "requestQuote": "Finish the desktop checkout",
+            "classification": "included",
+            "billable": false,
+            "clearlyNew": false,
+            "rateIds": [],
+            "totalMinor": 0
+          },
+          {
+            "requestQuote": "add mobile checkout",
+            "classification": "new_work",
+            "billable": true,
+            "clearlyNew": true,
+            "rateIds": [
+              "mobile_checkout"
+            ],
+            "totalMinor": 25000
+          }
+        ]
+      }
+    },
+    {
+      "id": "baseline-committed",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Mobile checkout",
+        "replies": [],
+        "commitments": [
+          {
+            "title": "Mobile checkout",
+            "deliverables": [
+              "Mobile checkout"
+            ]
+          }
+        ],
+        "channel": "figma",
+        "sourceState": "available",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "assessed",
+        "items": [
+          {
+            "requestQuote": "Mobile checkout",
+            "classification": "new_work",
+            "billable": false,
+            "clearlyNew": false,
+            "rateIds": [],
+            "totalMinor": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "baseline-unavailable",
+      "input": {
+        "clauses": [
+          {
+            "id": "desktop",
+            "text": "Desktop checkout is included. Mobile layouts are excluded."
+          }
+        ],
+        "rates": [
+          {
+            "id": "mobile_checkout",
+            "description": "Add mobile layouts for the existing checkout flow",
+            "unitAmountMinor": 25000
+          }
+        ],
+        "comment": "Add mobile checkout from the missing thread",
+        "replies": [],
+        "commitments": [],
+        "channel": "figma",
+        "sourceState": "unavailable",
+        "mode": "manual"
+      },
+      "expected": {
+        "outcome": "blocked",
+        "items": []
+      }
+    }
+  ]
+}

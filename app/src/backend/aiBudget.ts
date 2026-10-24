@@ -2,11 +2,6 @@ import { randomUUID } from "node:crypto";
 import { db, transaction } from "./db.js";
 import { config } from "./env.js";
 
-db.exec(`CREATE TABLE IF NOT EXISTS ai_calls (
-  id TEXT PRIMARY KEY, reserved_micro_usd INTEGER NOT NULL, actual_micro_usd INTEGER,
-  model TEXT, input_tokens INTEGER, output_tokens INTEGER, created_at TEXT NOT NULL, settled_at TEXT
-)`);
-
 export interface BudgetReservation {
   id: string;
   reservedMicroUsd: number;

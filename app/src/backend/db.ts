@@ -1,116 +1,17 @@
+import { migrate } from "./migrations.js";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { DATA_DIR, config } from "./env.js";
 import type { ProjectView, ScopeClause, RateCardItem } from "../shared/types.js";
+import {ensureScopeHead} from './scopeLedger.js';
+import {validateInvoiceItemDescription} from './paymentState.js';
 
 mkdirSync(DATA_DIR, { recursive: true });
 const db = new DatabaseSync(resolve(DATA_DIR, "scope-and-settle.db"));
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS projects (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  figma_file_key TEXT NOT NULL,
-  currency TEXT NOT NULL DEFAULT 'USD',
-  scope_revision_id TEXT NOT NULL,
-  scope_clauses_json TEXT NOT NULL,
-  rate_card_json TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS change_orders (
-  id TEXT PRIMARY KEY,
-  project_id TEXT NOT NULL,
-  title TEXT NOT NULL,
-  comment_id TEXT,
-  deliverables_json TEXT NOT NULL,
-  line_items_json TEXT NOT NULL,
-  total_minor INTEGER NOT NULL,
-  currency TEXT NOT NULL,
-  status TEXT NOT NULL,
-  paypal_invoice_id TEXT,
-  invoice_url TEXT,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS invoice_operations (
-  operation_key TEXT PRIMARY KEY,
-  change_order_id TEXT NOT NULL,
-  state TEXT NOT NULL,
-  paypal_invoice_id TEXT,
-  error TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS payment_observations (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  change_order_id TEXT NOT NULL,
-  paypal_invoice_id TEXT NOT NULL,
-  raw_status TEXT NOT NULL,
-  display_status TEXT NOT NULL,
-  amount_due_minor INTEGER,
-  checked_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS sessions (
-  token TEXT PRIMARY KEY,
-  project_id TEXT NOT NULL,
-  role TEXT NOT NULL,
-  change_order_id TEXT,
-  change_order_revision INTEGER,
-  expires_at TEXT NOT NULL,
-  revoked INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS approvals (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  change_order_id TEXT NOT NULL,
-  change_order_revision INTEGER NOT NULL,
-  scope_revision_id TEXT NOT NULL,
-  actor_role TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS invoice_tombstones (
-  paypal_invoice_id TEXT PRIMARY KEY,
-  change_order_id TEXT NOT NULL,
-  run_id TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS demo_state (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS invitations (
-  token TEXT PRIMARY KEY, project_id TEXT NOT NULL, run_id TEXT NOT NULL, role TEXT NOT NULL,
-  change_order_id TEXT, change_order_revision INTEGER, expires_at TEXT NOT NULL,
-  redeemed_at TEXT, revoked INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS proposal_revisions (
-  change_order_id TEXT NOT NULL, revision INTEGER NOT NULL, snapshot_json TEXT NOT NULL,
-  created_at TEXT NOT NULL, PRIMARY KEY(change_order_id, revision)
-);
-CREATE TABLE IF NOT EXISTS judge_access (
-  id TEXT PRIMARY KEY, credential_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL,
-  revoked INTEGER NOT NULL DEFAULT 0, project_json TEXT NOT NULL, created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS judge_runs (
-  run_id TEXT PRIMARY KEY, judge_access_id TEXT NOT NULL, project_json TEXT NOT NULL,
-  closed_at TEXT, created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS renewal_grants (
-  id TEXT PRIMARY KEY, credential_hash TEXT NOT NULL UNIQUE, judge_access_id TEXT NOT NULL,
-  run_id TEXT NOT NULL, role TEXT NOT NULL, change_order_id TEXT, change_order_revision INTEGER,
-  expires_at TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
-);
-`);
-
-// Additive migrations for databases created by the first scaffold.
-for (const col of ["revision INTEGER NOT NULL DEFAULT 1", "scope_revision_id TEXT", "run_id TEXT NOT NULL DEFAULT 'run-1'"]) {
-  try { db.exec(`ALTER TABLE change_orders ADD COLUMN ${col}`); } catch { /* already present */ }
-}
-for (const [table, column] of [["sessions", "run_id TEXT NOT NULL DEFAULT 'run-1'"], ["sessions", "grant_id TEXT"], ["change_orders", "scope_snapshot_json TEXT"], ["change_orders", "assessment_id TEXT"]]) {
-  const name = column.split(" ")[0];
-  if (!(db.prepare(`PRAGMA table_info(${table})`).all() as any[]).some(x => x.name === name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column}`);
-}
+migrate(db);
 
 let transactionDepth = 0;
 export function transaction<T>(work: () => T): T {
@@ -178,15 +79,42 @@ export function getProjectForRun(runId: string): ProjectView {
 }
 
 /** Q08: saving a new scope baseline creates a new revision; pending proposals go stale server-side. */
-export function updateScopeBaseline(clauses: ScopeClause[]): ProjectView {
+function invalidatePendingTemplateProposals(){
+ db.prepare(`UPDATE change_orders SET status='needs_re_review' WHERE project_id='demo' AND status='awaiting_client_approval'
+ AND run_id NOT IN (SELECT run_id FROM judge_runs)
+ AND NOT EXISTS(SELECT 1 FROM approvals a WHERE a.change_order_id=change_orders.id AND a.change_order_revision=change_orders.revision AND a.actor_role='client')`).run();
+ // Keep historical consent intact while recording that the current delegation
+ // requires fresh consent, even if a later edit restores the original amounts.
+ for(const row of db.prepare('SELECT run_id,policy_json FROM agent_policies WHERE run_id NOT IN (SELECT run_id FROM judge_runs)').all() as {run_id:string;policy_json:string}[]){
+  const policy=JSON.parse(row.policy_json);db.prepare('UPDATE agent_policies SET policy_json=?,updated_at=? WHERE run_id=?').run(JSON.stringify({...policy,termsInvalidatedAt:new Date().toISOString()}),new Date().toISOString(),row.run_id);
+ }
+}
+export function updateScopeBaseline(clauses: ScopeClause[],creator:string|null=null): ProjectView {
+  return transaction(()=>{
   if (!Array.isArray(clauses) || !clauses.length || clauses.length > 50 ||
-      clauses.some(x => typeof x.id !== "string" || !x.id.trim() || typeof x.text !== "string" || !x.text.trim() || x.text.length > 4000) ||
+      clauses.some(x => typeof x.id !== "string" || !x.id.trim() || x.id.length>100 || typeof x.text !== "string" || !x.text.trim() || x.text.length > 4000) ||
       new Set(clauses.map(x => x.id)).size !== clauses.length) throw new Error("Invalid scope clauses");
+  clauses=clauses.map(({id,text})=>({id,text}));
   const current = getProject();
+  ensureScopeHead(currentRunId());
+  if(JSON.stringify(current.scopeClauses)===JSON.stringify(clauses))return current;
   const nextNum = (parseInt(current.scopeRevisionId.replace(/\D/g, ""), 10) || 1) + 1;
   db.prepare("UPDATE projects SET scope_clauses_json = ?, scope_revision_id = ? WHERE id = 'demo'")
     .run(JSON.stringify(clauses), `scope-rev-${nextNum}`);
+  invalidatePendingTemplateProposals();
+  ensureScopeHead(currentRunId(),creator);
   return getProject();
+  });
+}
+
+export function updateRateCard(entries:RateCardItem[],creator:string|null=null):ProjectView {
+ return transaction(()=>{
+  if(!Array.isArray(entries)||!entries.length||entries.length>20||new Set(entries.map(r=>r.id)).size!==entries.length)throw new Error('Invalid rate card');
+  for(const r of entries){if(typeof r.id!=='string'||!r.id.trim()||r.id.length>100||!Number.isSafeInteger(r.unitAmountMinor)||r.unitAmountMinor<1||r.unitAmountMinor>10_000_000)throw new Error('Invalid rate-card entry');validateInvoiceItemDescription(r.description);}
+  ensureScopeHead(currentRunId());const normalized=entries.map(({id,description,unitAmountMinor})=>({id,description,unitAmountMinor}));
+  if(JSON.stringify(getProject().rateCard)===JSON.stringify(normalized))return getProject();
+  db.prepare("UPDATE projects SET rate_card_json=? WHERE id='demo'").run(JSON.stringify(normalized));invalidatePendingTemplateProposals();ensureScopeHead(currentRunId(),creator);return getProject();
+ });
 }
 
 export { db };

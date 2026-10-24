@@ -1,3 +1,4 @@
+import {linkedOrders,recordPublishedOrder} from "./requestLinks.js";
 import { randomUUID } from "node:crypto";
 import { db, getProjectForRun, transaction } from "./db.js";
 import { config } from "./env.js";
@@ -6,6 +7,8 @@ import { getSession, type Session } from "./sessions.js";
 import { getAgentPolicy, policyAuthority, activeAgentPolicy } from "./agentPolicy.js";
 import { createRequest, requestById, listRequests, messagesFor, appendMessage, exceptionFor, attentionFor, now, type AgentRequest } from "./agentStore.js";
 import { getChangeOrder, approveChangeOrder, ensureInvoice, refreshPaymentStatus } from "./orders.js";
+import {scopeContextForRun,createScopeParent,scopeAccessLink} from './scopeLedger.js';
+import {activeGrant} from './judgeAccess.js';
 
 export interface PortalSession { id:string; runId:string; expiresAt:string }
 function portalById(id:string):PortalSession|null {
@@ -45,19 +48,35 @@ function requestFor(session:PortalSession,id:string) {
   if (!request) throw new Error("Request not found");
   return request;
 }
-export function publishedOrder(request:AgentRequest) {
-  const order=request.order_id ? getChangeOrder(request.order_id) : null;
-  if (!order || order.runId!==request.run_id || order.revision!==request.quote_revision || order.stale || !["awaiting_client_approval","approved","creating_invoice","payment_due","paid"].includes(order.status)) return null;
+type PublishedOrder = Pick<import("../shared/types.js").ChangeOrderView,
+  "id" | "revision" | "title" | "deliverables" | "lineItems" | "totalMinor" | "currency" | "status" |
+  "invoiceUrl" | "paymentStatus" | "scopeRevisionId" | "amountDueMinor" | "lastCheckedAt" |
+  "approvalStatus" | "financialState" | "paypalInvoiceId" | "scopeContext" | "milestoneSchedule" | "installmentSummary" | "installments">;
+
+export function publishedOrder(request:AgentRequest,orderId?:string,revision?:number): PublishedOrder | null {
+  const refs=linkedOrders(request);
+  const selected=orderId?refs.find(r=>r.order_id===orderId&&r.revision===revision):refs.length===1?refs[0]:null;
+  const order=selected?getChangeOrder(selected.order_id):null;
+  if (!order || order.runId!==request.run_id || order.revision!==selected?.revision || order.stale || (order.approvalStatus!=="approved" && order.approvalStatus!=="awaiting_client_approval")) return null;
   // Internal assessment input and delegating credentials never enter the client view.
   return {id:order.id,revision:order.revision,title:order.title,deliverables:order.deliverables,lineItems:order.lineItems,
     totalMinor:order.totalMinor,currency:order.currency,status:order.status,invoiceUrl:order.invoiceUrl,paymentStatus:order.paymentStatus,
-    scopeRevisionId:order.scopeRevisionId,amountDueMinor:order.amountDueMinor,lastCheckedAt:order.lastCheckedAt};
+    scopeRevisionId:order.scopeRevisionId,amountDueMinor:order.amountDueMinor,lastCheckedAt:order.lastCheckedAt,
+    milestoneSchedule:order.milestoneSchedule,installmentSummary:order.installmentSummary,installments:order.installments,approvalStatus:order.approvalStatus,financialState:order.financialState,paypalInvoiceId:order.paypalInvoiceId,scopeContext:order.scopeContext?{...order.scopeContext,commitments:[]}:null};
 }
 export function portalView(session:PortalSession) {
   const valid=requirePortal(session),project=getProjectForRun(session.runId);
+  const scope=scopeContextForRun(session.runId);
   return {projectName:project.name,expiresAt:valid.expiresAt,acceptingRequests:!!activeAgentPolicy(session.runId),
+    scope:{scopeSnapshot:scope.scopeSnapshot,rateSnapshot:scope.rateSnapshot,acknowledgement:scope.acknowledgement},
     requests:listRequests(session.runId).map(r=>({id:r.id,text:r.text,state:r.state,createdAt:r.created_at,
-      messages:messagesFor(r.id,r.run_id),order:publishedOrder(r)}))};
+      messages:messagesFor(r.id,r.run_id).map(({source_id,...m})=>m),order:publishedOrder(r),orders:linkedOrders(r).map(ref=>publishedOrder(r,ref.order_id,ref.revision)).filter(Boolean)}))};
+}
+export function issuePortalScopeAccess(session:PortalSession){
+ const valid=requirePortal(session),scope=scopeContextForRun(valid.runId),policy=getAgentPolicy(valid.runId)!;
+ const parent=createScopeParent(scope.scopeSnapshot.projectId,valid.runId,'portal',valid.id,valid.expiresAt);
+ const grant=policy.ownerGrantId?activeGrant(policy.ownerGrantId):null;
+ return scopeAccessLink(valid.runId,scope.scopeSnapshot,parent,grant?.judge_access_id??null,valid.expiresAt);
 }
 function validateKey(key:unknown):asserts key is string {
   if (typeof key!=="string" || !/^[a-zA-Z0-9_-]{8,100}$/.test(key)) throw new Error("Invalid request key");
@@ -84,19 +103,25 @@ export function replyToRequest(session:PortalSession,id:string,text:string,key:s
   });
   return requestById(id,session.runId)!;
 }
-export async function approvePortalQuote(session:PortalSession,id:string,revision:number,consent:boolean) {
-  const request=requestFor(session,id),published=publishedOrder(request);
-  if (consent!==true) throw new Error("Explicit client consent is required");
-  if (!published || !Number.isSafeInteger(revision) || published.revision!==revision) throw new Error("This quote is not the published current revision");
-  if ((request.state==="exception" || request.state==="dismissed") && published.status==="awaiting_client_approval") throw new Error("This quote needs designer review before approval");
-  const approved=approveChangeOrder(published.id,{changeOrderId:published.id,changeOrderRevision:revision});
-  try { return {order:await ensureInvoice(approved.id)}; }
-  catch { return {order:getChangeOrder(approved.id),invoiceError:"Approval saved. Invoice delivery needs recovery; retry payment setup to reuse the same invoice."}; }
+function portalSelection(session:PortalSession,id:string,orderId?:string,revision?:number){
+ const request=requestFor(session,id),published=publishedOrder(request,orderId,revision);
+ if(!published)throw new Error('Select an exact published current proposal and revision');
+ return {request,published};
 }
-export async function refreshPortalPayment(session:PortalSession,id:string) {
-  const request=requestFor(session,id),order=publishedOrder(request);
-  if (!order) throw new Error("Published quote not found");
-  return refreshPaymentStatus(order.id);
+export async function approvePortalQuote(session:PortalSession,id:string,revision:number,consent:boolean,orderId?:string) {
+ const {request,published}=portalSelection(session,id,orderId,revision);
+ if(consent!==true)throw new Error('Explicit client consent is required');
+ if(!Number.isSafeInteger(revision)||published.revision!==revision)throw new Error('This quote is not the published current revision');
+ if((request.state==='exception'||request.state==='dismissed')&&published.status==='awaiting_client_approval')throw new Error('This quote needs designer review before approval');
+ const revalidate=()=>{const live=portalSelection(session,id,published.id,revision);if(live.request.state==='dismissed')throw new Error('Request dismissed during provider operation');};
+ const approved=approveChangeOrder(published.id,{changeOrderId:published.id,changeOrderRevision:revision});
+ try {await ensureInvoice(approved.id,revalidate);revalidate();return {order:publishedOrder(request,published.id,revision)};}
+ catch {revalidate();return {order:publishedOrder(request,published.id,revision),invoiceError:'Approval saved. Invoice delivery needs recovery; retry payment setup to reuse the same invoice.'};}
+}
+export async function refreshPortalPayment(session:PortalSession,id:string,orderId?:string,revision?:number) {
+ const {request,published}=portalSelection(session,id,orderId,revision);
+ const revalidate=()=>{portalSelection(session,id,published.id,published.revision);};
+ await refreshPaymentStatus(published.id,revalidate);revalidate();return publishedOrder(request,published.id,published.revision);
 }
 export function handleAgentRequest(session:Session,id:string,action:"retry"|"dismiss"|"acknowledge") {
   requireDesigner(session);
@@ -104,10 +129,10 @@ export function handleAgentRequest(session:Session,id:string,action:"retry"|"dis
   if (!request) throw new Error("Request not found");
   if(action==="acknowledge") {
     attentionFor(request,null);
-    db.prepare("UPDATE agent_outbox SET state = 'handled' WHERE request_id = ? AND state IN ('review','uncertain')").run(id);
+    db.prepare("UPDATE agent_outbox SET state = 'handled' WHERE request_id = ? AND state='review' AND NOT EXISTS(SELECT 1 FROM outbound_operations o WHERE o.outbox_id=agent_outbox.id AND o.dispatch_started=1)").run(id);
   } else if (action==="dismiss") {
     db.prepare("UPDATE agent_requests SET state = 'dismissed', version = version + 1, exception = NULL, updated_at = ? WHERE id = ?").run(now(),id);
-    db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state != 'sent'").run(id);
+    db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state='pending' AND attempts=0 AND NOT EXISTS(SELECT 1 FROM outbound_operations o WHERE o.outbox_id=agent_outbox.id)").run(id);
     appendMessage(request,"designer","Your designer is handling this request directly.");
   } else {
     if (!activeAgentPolicy(session.runId)) throw new Error("Enable an approved policy before retrying");
@@ -121,16 +146,16 @@ export function publishReviewedQuote(session:Session,id:string,orderId:string,re
   requireDesigner(session);
   const request=requestById(id,session.runId),order=getChangeOrder(orderId);
   if(!request || !order || order.runId!==session.runId)throw new Error("Request or quote not found");
-  if(request.order_id && request.order_id!==orderId)throw new Error("An existing quote cannot be replaced by another order. New work requires a separate request.");
+  if(linkedOrders(request).some(r=>r.order_id!==orderId)){
+    const binding=db.prepare(`SELECT r.id FROM proposal_item_reservations r JOIN request_item_results i ON i.item_id=r.item_id AND i.assessment_id=r.assessment_id JOIN request_sources s ON s.id=i.source_id WHERE r.order_id=? AND s.run_id=? AND s.source=? AND s.root_id=? AND r.state='reserved'`).get(orderId,request.run_id,request.source,request.source_id);
+    if(!binding)throw new Error('An existing quote requires reserved partial items from this exact request; otherwise use a separate request');
+  }
   if(consent!==true || order.revision!==revision || order.status!=="awaiting_client_approval" || order.stale)throw new Error("Explicit designer consent to the submitted current revision is required");
   if(db.prepare("SELECT id FROM agent_requests WHERE order_id = ? AND id != ?").get(orderId,id))throw new Error("This quote already belongs to another request");
   return transaction(()=>{
-    const previous=db.prepare("SELECT snapshot_json FROM proposal_revisions WHERE change_order_id = ? AND revision = ?").get(request.order_id,request.quote_revision) as any;
-    const previousAmount=previous ? Number(JSON.parse(previous.snapshot_json).totalMinor) : 0;
-    const allowance=request.quoted_minor+(request.order_id===orderId ? Math.max(0,order.totalMinor-previousAmount) : order.totalMinor);
-    db.prepare("UPDATE agent_requests SET state = 'quoted', order_id = ?, quote_revision = ?, quoted_minor = ?, exception = NULL, version = version + 1, updated_at = ? WHERE id = ?")
-      .run(orderId,revision,allowance,now(),id);
-    db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state != 'sent'").run(id);
+    recordPublishedOrder(request,orderId,revision);
+    db.prepare("UPDATE agent_requests SET state='quoted',exception=NULL,version=version+1,updated_at=? WHERE id=?").run(now(),id);
+    db.prepare("UPDATE agent_outbox SET state = 'cancelled' WHERE request_id = ? AND state='pending' AND attempts=0 AND NOT EXISTS(SELECT 1 FROM outbound_operations o WHERE o.outbox_id=agent_outbox.id)").run(id);
     appendMessage(request,"designer",`Your designer reviewed this exception and published quote revision ${revision} for USD $${(order.totalMinor/100).toFixed(2)}. Review the exact terms below; approval is required before invoicing.`);
     return requestById(id,session.runId)!;
   });

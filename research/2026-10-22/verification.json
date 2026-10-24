@@ -1,0 +1,18 @@
+{
+  "research_date": "2026-10-22",
+  "status": "passed",
+  "operations": 222,
+  "specifications": 16,
+  "snapshot_hashes_checked": 34,
+  "sandbox_only_controls": 2,
+  "merchant_callback_contracts": 1,
+  "markdown_tables_checked": 20,
+  "unique_external_links": 129,
+  "local_links_checked": 3,
+  "original_draft_preserved": true,
+  "scope": "Offline schema/hash/count/annotation and document structure checks. Not a live HTTP link crawl or authenticated API test.",
+  "files": {
+    "PAYPAL-API-CAPABILITIES.md": "45148e39e68c3dda22db8984a48909b5db27cf69566b6049449266ffa02de0b2",
+    "PAYPAL-REST-ENDPOINTS.csv": "aa7f594bdddf1b3c303c0b75f19a834a2d1bfaf875814c8b4f5c5cd8bc5f0225"
+  }
+}

@@ -13,7 +13,8 @@ const policy={enabled:true,consent:true,allowedRateIds:['mobile_checkout'],maxQu
 const requestText='Can you add the mobile checkout?';
 function setup(extra={}){const key=createJudgeAccess({expiresAt:new Date(Date.now()+86400000).toISOString()}),owner=startJudgeRun(key.credential);saveAgentPolicy(owner,{...policy,...extra});const link=portal.createPortalAccess(owner);return {owner,client:portal.getPortalSession(link.credential)};}
 function result(project){return {classification:'new_work',explanation:'Excluded',evidence:[{clauseId:project.scopeClauses[0].id,quote:project.scopeClauses[0].text}],deliverables:[project.rateCard[0].description],rates:[{rateCardId:'mobile_checkout',quantity:1}],questions:[],designObservations:[],lineItems:[],proposedTotalMinor:25000,automation:{allRequestsCovered:true,unpricedComponents:[],coverage:[{requestQuote:requestText,deliverableIndex:0,rateCardId:'mobile_checkout',quantity:1}]}};}
-const dependencies={fetchComments:async()=>[],assess:async(input,run)=>({id:'a-'+crypto.randomUUID(),result:result(getProjectForRun(run))}),postComment:async()=>({id:'message-fixture'})};
+const ledger=await app.load('scopeLedger');
+const dependencies={fetchComments:async()=>[],assess:async(input,run)=>{const ref=ledger.captureScopeContext(run),id='a-'+crypto.randomUUID();const saved={id,result:result(getProjectForRun(run))};db.prepare('INSERT INTO assessments VALUES(?,?,?,?,?,?,?)').run(id,'demo',run,input.project.scopeRevisionId,JSON.stringify(input),JSON.stringify(saved),new Date().toISOString());ledger.linkScopeContext('assessment',id,1,ref.id);return saved;},postComment:async()=>({id:'message-fixture'})};
 function stop(owner){saveAgentPolicy(owner,{enabled:false});}
 test('slow invoice publication is not an agent exception and client recovery remains usable',async()=>{
  const {owner,client}=setup(),r=portal.addPortalRequest(client,requestText,'request-001');await runAgentCycle(dependencies);
@@ -37,11 +38,11 @@ test('a rejected Figma reply preserves portal approval and subsequent Paid track
 test('a saved assessment from another brief is never reused after policy reapproval',async()=>{
  const owner=createSession({projectId:'demo',role:'designer'});saveAgentPolicy(owner,{...policy,maxQuoteMinor:20000});
  const r=createRequest(owner.runId,'portal','request-scope',requestText);let calls=0;
- const d={...dependencies,assess:async(input,run)=>{calls++;const record={id:'scope-assessment-'+calls,scopeRevisionId:input.project.scopeRevisionId,result:result(input.project)};
- db.prepare('INSERT INTO assessments (id,project_id,run_id,scope_revision_id,input_json,result_json,created_at) VALUES (?,?,?,?,?,?,?)').run(record.id,'demo',run,record.scopeRevisionId,JSON.stringify(input),JSON.stringify(record),new Date().toISOString());return record;}};
+ const d={...dependencies,assess:async(input,run)=>{calls++;const ref=ledger.captureScopeContext(run);const record={id:'scope-assessment-'+calls,scopeRevisionId:input.project.scopeRevisionId,result:result(input.project)};
+ db.prepare('INSERT INTO assessments (id,project_id,run_id,scope_revision_id,input_json,result_json,created_at) VALUES (?,?,?,?,?,?,?)').run(record.id,'demo',run,record.scopeRevisionId,JSON.stringify(input),JSON.stringify(record),new Date().toISOString());ledger.linkScopeContext('assessment',record.id,1,ref.id);return record;}};
  await runAgentCycle(d);assert.equal(requestById(r.id,owner.runId).state,'exception');
  updateScopeBaseline([{id:'mobile-included',text:'Mobile checkout is included in the agreement.'}]);saveAgentPolicy(owner,policy);portal.handleAgentRequest(owner,r.id,'retry');
- await runAgentCycle({...d,assess:async()=>{calls++;return {id:'new-scope-result',result:{...result(getProject()),classification:'included',rates:[],deliverables:[]}};}});
+ await runAgentCycle({...d,assess:async(input)=>{calls++;const ref=ledger.captureScopeContext(owner.runId),saved={id:'new-scope-result',result:{...result(getProject()),classification:'included',rates:[],deliverables:[]}};db.prepare('INSERT INTO assessments VALUES(?,?,?,?,?,?,?)').run(saved.id,'demo',owner.runId,input.project.scopeRevisionId,JSON.stringify(input),JSON.stringify(saved),new Date().toISOString());ledger.linkScopeContext('assessment',saved.id,1,ref.id);return saved;}});
  assert.equal(calls,2);assert.equal(requestById(r.id,owner.runId).state,'included');stop(owner);
 });
 test('a pause while PayPal OAuth is in flight prevents a reminder POST',async()=>{

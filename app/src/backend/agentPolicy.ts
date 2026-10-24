@@ -7,20 +7,26 @@ import type { Session } from "./sessions.js";
 import type { ProjectView, LineItem } from "../shared/types.js";
 import type { AssessmentResult } from "./assessment.js";
 import { now } from "./agentStore.js";
+import {ensureScopeHead} from './scopeLedger.js';
+import {activeInboxSettings} from './inboxAuthority.js';
 
 export interface AgentPolicy {
+  scopeSnapshotId?:string;rateSnapshotId?:string;
+  termsInvalidatedAt?:string;
   runId: string; version: number; enabled: boolean; allowedRateIds: string[];
   maxQuoteMinor: number; maxTotalMinor: number; maxQuantity: number;
   figmaClientIds: string[]; figmaReplies: boolean; paypalReminders: boolean;
   scopeRevisionId: string; projectHash: string; ownerGrantId: string | null; ownerSessionHash: string | null;
   expiresAt: string; startedAt: string; approvedAt: string;
 }
-export const projectHash = (project: ProjectView) => createHash("sha256").update(JSON.stringify(project)).digest("hex");
+// Preserve the exact v1 property order; ledger metadata never grants or revokes policy authority.
+export const projectHash = (p: ProjectView) => createHash("sha256").update(JSON.stringify({id:p.id,name:p.name,figmaFileKey:p.figmaFileKey,currency:p.currency,scopeRevisionId:p.scopeRevisionId,scopeClauses:p.scopeClauses,rateCard:p.rateCard})).digest("hex");
 export function getAgentPolicy(runId: string): AgentPolicy | null {
   const row=db.prepare("SELECT policy_json FROM agent_policies WHERE run_id = ?").get(runId) as any;
   return row ? JSON.parse(row.policy_json) : null;
 }
 export function policyAuthority(policy: AgentPolicy): boolean {
+  if(policy.termsInvalidatedAt||getAgentPolicy(policy.runId)?.termsInvalidatedAt)return false;
   if (!Number.isFinite(Date.parse(policy.expiresAt)) || Date.parse(policy.expiresAt) <= Date.now()) return false;
   if (policy.ownerGrantId) {
     const grant=activeGrant(policy.ownerGrantId);
@@ -31,7 +37,7 @@ export function policyAuthority(policy: AgentPolicy): boolean {
     const owners=db.prepare("SELECT token FROM sessions WHERE run_id = ? AND role = 'designer' AND revoked = 0").all(policy.runId) as {token:string}[];
     if (!owners.some(owner=>credentialHash(owner.token)===policy.ownerSessionHash)) return false;
   }
-  try { return projectHash(getProjectForRun(policy.runId)) === policy.projectHash; } catch { return false; }
+  try { const h=ensureScopeHead(policy.runId);return (!policy.scopeSnapshotId||(policy.scopeSnapshotId===h.scope_snapshot_id&&policy.rateSnapshotId===h.rate_snapshot_id))&&projectHash(getProjectForRun(policy.runId)) === policy.projectHash; } catch { return false; }
 }
 export function activeAgentPolicy(runId: string): AgentPolicy | null {
   const p=getAgentPolicy(runId);
@@ -60,6 +66,7 @@ function savePolicy(session: Session, input: any): AgentPolicy {
   const clientIds=input.figmaClientIds ?? [];
   if (!Array.isArray(clientIds) || clientIds.length>20 || clientIds.some(id=>typeof id!=="string" || !/^[\w-]{1,100}$/.test(id))) throw new Error("Invalid Figma client IDs");
   // The configured file has one routing owner per client, across judging runs.
+  if(activeInboxSettings().some(s=>s.runId!==session.runId&&clientIds.some((id:string)=>s.clientIds.includes(id))))throw new Error('This Figma client already belongs to another active inbox run');
   for (const row of db.prepare("SELECT policy_json FROM agent_policies WHERE run_id != ?").all(session.runId) as {policy_json:string}[]) {
     const other=JSON.parse(row.policy_json) as AgentPolicy;
     if (other.enabled && policyAuthority(other) && clientIds.some(id=>other.figmaClientIds.includes(id))) throw new Error("This Figma client already belongs to another active agent run");
@@ -67,7 +74,9 @@ function savePolicy(session: Session, input: any): AgentPolicy {
   const grant=session.grantId ? activeGrant(session.grantId) : null;
   if (session.grantId && (!grant || grant.role!=="designer" || grant.run_id!==session.runId)) throw new Error("Designer access expired or revoked");
   const at=now();
+  const head=ensureScopeHead(session.runId);
   const policy: AgentPolicy={runId:session.runId,version:(previous?.version??0)+1,enabled:true,
+    scopeSnapshotId:head.scope_snapshot_id,rateSnapshotId:head.rate_snapshot_id,
     allowedRateIds:[...ids],maxQuoteMinor:input.maxQuoteMinor,maxTotalMinor:input.maxTotalMinor,maxQuantity:input.maxQuantity,
     figmaClientIds:[...new Set(clientIds)] as string[],figmaReplies:input.figmaReplies===true,paypalReminders:input.paypalReminders===true,
     scopeRevisionId:project.scopeRevisionId,projectHash:projectHash(project),ownerGrantId:session.grantId,ownerSessionHash:session.grantId ? null : credentialHash(session.token),

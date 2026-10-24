@@ -5,12 +5,22 @@ COPY app/package.json app/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY app/ ./
 COPY JUDGING.md ../JUDGING.md
+# Build stage only: the public configuration template that a test reads. Not copied to the runtime image.
+COPY .env.example ../.env.example
 COPY deploy/gcp/webhook-lookup.mjs ../deploy/gcp/webhook-lookup.mjs
 ARG PUBLIC_BASE_URL=https://scope-and-settle.hperkins.com
 ARG SOURCE_COMMIT
 ENV PUBLIC_BASE_URL=$PUBLIC_BASE_URL SOURCE_COMMIT=$SOURCE_COMMIT
 RUN pnpm test
 RUN pnpm package:plugin
+
+# Production dependencies only: the frozen lockfile's runtime closure (the MCP SDK), no dev packages and no
+# install scripts beyond pnpm.onlyBuiltDependencies.
+FROM node:24.15.0-bookworm-slim AS deps
+WORKDIR /opt/scope-and-settle/app
+RUN npm install --global pnpm@10.34.5
+COPY app/package.json app/pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node:24.15.0-bookworm-slim AS runtime
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787 SCOPE_SETTLE_DATA_DIR=/var/data
@@ -20,6 +30,7 @@ COPY --from=build /opt/scope-and-settle/app/dist ./dist
 COPY --from=build /opt/scope-and-settle/app/web ./web
 COPY --from=build /opt/scope-and-settle/app/scripts ./scripts
 COPY --from=build /opt/scope-and-settle/app/package.json ./package.json
+COPY --from=deps /opt/scope-and-settle/app/node_modules ./node_modules
 COPY --from=build /opt/scope-and-settle/app/downloads ./downloads
 COPY --from=build /opt/scope-and-settle/app/JUDGING.md ./JUDGING.md
 COPY fixtures/ ../fixtures/
