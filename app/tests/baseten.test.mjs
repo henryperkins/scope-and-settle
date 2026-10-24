@@ -99,3 +99,24 @@ test('invalid agreement evidence cannot become a proposal even in a successful p
   });
   assert.equal(db.prepare('SELECT count(*) AS n FROM assessments').get().n, rowsBefore);
 });
+
+test('automatic output constrains agreement IDs and requires a priced deliverable or clarification', async t => {
+  t.mock.method(globalThis, 'fetch', async (url, init) => {
+    const body = JSON.parse(init.body);
+    const branches = body.response_format.json_schema.schema.anyOf;
+    for (const branch of branches) {
+      assert.deepEqual(branch.properties.evidence.items.properties.clauseId.enum, project.scopeClauses.map(c => c.id));
+    }
+    const priced = branches.find(x => x.properties.classification.enum[0] === 'new_work');
+    assert.equal(priced.properties.deliverables.minItems, 1);
+    assert.deepEqual(priced.properties.deliverables.items.enum, project.rateCard.map(r => r.description));
+    assert.equal(priced.properties.rates.minItems, 1);
+    assert.deepEqual(priced.properties.rates.items.properties.rateCardId.enum, project.rateCard.map(r => r.id));
+    assert.equal(priced.properties.questions.maxItems, 0);
+    const output = {...result, deliverables:[project.rateCard[0].description], automation:{allRequestsCovered:true,unpricedComponents:[],coverage:[{requestQuote:input.comment.message,deliverableIndex:0,rateCardId:'mobile_checkout',quantity:1}]}};
+    const response = responseBody();response.choices[0].message.content=JSON.stringify(output);return Response.json(response);
+  });
+  const record=await assess({...input,imageDataUrl:undefined,automation:true},'provider-test');
+  assert.equal(record.result.deliverables.length,1);
+  assert.equal(record.result.proposedTotalMinor,25000);
+});
