@@ -48,7 +48,7 @@ The AI recommends, code enforces, people consent and PayPal confirms. AI classif
 ## Evidence on Hand
 
 - `docs/media/`: four reviewed product screenshots (live assessment, native frame, client paid, native paid), demo captions and transcript; the public 2:49 demonstration on YouTube.
-- Dated verification records in `docs/` (October 22–23, 2026); release 0.3.0 passed 79 automated tests.
+- Dated verification records in `docs/` (October 22–25, 2026); release 0.3.1 passed 81 automated tests on Windows and clean-source Linux, with exact-ZIP native Figma acceptance recorded in `docs/GOOD-TERMS-RELEASE-2026-10-25.md`.
 - `fixtures/`: the synthetic brief, the editable checkout SVG and six scope-judgment cases.
 - **Absent, never to be fabricated:** testimonials, designer walkthrough findings, adoption numbers, time savings, real customers and claims of broad model reliability.
 
