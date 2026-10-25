@@ -11,6 +11,8 @@
   --page:#f5f7f7;--surface:#fff;--sunken:#eef3f3;--selection:#b4d9d1;
   /* Brand teal and its family */
   --teal:#006b65;--teal-strong:#00544f;--teal-deep:#0b3f3b;--teal-tint:#dff0ec;--teal-wash:#eef7f5;--teal-line:#b4d9d1;--on-teal:#fff;
+  /* The reached-stop check, stroked in --on-teal; an SVG cannot read custom properties, so each theme carries its own */
+  --on-teal-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.6 7.2l2.2 2.2 4.5-4.8' fill='none' stroke='white' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   /* Status tones: teal is the viewer's move; the rest carry meaning only */
   --working-ink:#3a565e;--working:#7b9096;--working-tint:#e9eff0;
   --attention-ink:#6f4c0c;--attention:#a86f0a;--attention-tint:#fbefd2;--attention-line:#e5c787;
@@ -34,6 +36,7 @@ html.figma-dark,.theme-dark{
   --control:#62777e;--control-hover:#8399a0;--line:#34444a;--line-soft:#2b393e;
   --page:#182024;--surface:#1f292d;--sunken:#182024;--selection:#2c5b56;
   --teal:#4cbfb2;--teal-strong:#6ccfc2;--teal-deep:#4cbfb2;--teal-tint:#173c39;--teal-wash:#1a3133;--teal-line:#2c5b56;--on-teal:#062321;
+  --on-teal-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.6 7.2l2.2 2.2 4.5-4.8' fill='none' stroke='%23062321' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --working-ink:#c3d3d6;--working:#8399a0;--working-tint:#2a373c;
   --attention-ink:#f2cf86;--attention:#e0a93f;--attention-tint:#3a2f16;--attention-line:#6b5420;
   --danger-ink:#ffb3a5;--danger:#f08a78;--danger-tint:#43211b;--danger-line:#7a3a2f;
@@ -163,7 +166,7 @@ legend{font-size:var(--text-title);font-weight:650;padding:0;margin-bottom:var(-
 .track li::after{content:"";position:absolute;top:6px;left:14px;right:0;height:2px;background:var(--line)}
 .track li:last-child::after{display:none}
 .track li.done{color:var(--ink-2)}
-.track li.done::before{border-color:var(--teal);background:var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.6 7.2l2.2 2.2 4.5-4.8' fill='none' stroke='white' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+.track li.done::before{border-color:var(--teal);background:var(--teal) var(--on-teal-check) center/12px no-repeat}
 .track li.done::after{background:var(--teal)}
 .track li.current{color:var(--ink);font-weight:680}
 .track li.current::before{border-color:var(--teal);background:var(--teal);box-shadow:inset 0 0 0 3px var(--surface)}

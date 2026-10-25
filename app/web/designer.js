@@ -18,7 +18,7 @@ function saveSession(value) {
 const request = sessionApi(() => session, saveSession, () => {
   agentUI?.destroy();
   saveSession(null); $('workspace').hidden = true; $('connect').hidden = false;
-  $('orders').innerHTML = ''; boardMarkup = ''; $('assessment').innerHTML = ''; $('share').hidden = true;
+  $('orders').innerHTML = ''; boardMarkup = ''; agentView = null; $('assessment').innerHTML = ''; $('share').hidden = true;
 });
 async function connect(invitation) {
   const token = invitation.includes('#') ? invitation.split('#').pop() : invitation;

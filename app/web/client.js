@@ -7,6 +7,8 @@ const stateLabel=value=>({queued:'Request received',processing:'Assessing your r
 function readSeen(){try{return JSON.parse(localStorage.getItem('scope-client-seen')||'null');}catch{return null;}}
 function saveSeen(){try{localStorage.setItem('scope-client-seen',JSON.stringify({...(seen||{}),...shown}));}catch{}}
 const signature=r=>[r.state,r.order?.status,r.order?.paymentStatus,r.order?.revision,r.messages.length].join('|');
+// Consent belongs to one revision's exact terms, so a revised quote starts unchecked.
+const consentKey=(id,revision)=>id+'@'+revision;
 function useAccess(raw){const fragment=raw.includes('#')?raw.split('#').pop():raw;credential=fragment.startsWith('access=')?fragment.slice(7):fragment;sessionStorage.setItem('scope-client-portal',credential);lastMarkup='';autoOpened=false;for(const s of [open,consented,updated])s.clear();shown={};}
 const request=(path,method,body)=>api(path,credential,method,body);
 function stage(r){
@@ -44,7 +46,7 @@ function summary(requests){
 function quote(r,extra=''){
  const o=r.order,url=safeInvoice(o.invoiceUrl),needsApproval=o.status==='awaiting_client_approval'&&r.state!=='exception'&&r.state!=='dismissed';
  let act='';
- if(needsApproval)act+=`<form data-approve="${esc(r.id)}" data-revision="${o.revision}" class="stack tight"><label class="check consent"><input type="checkbox" required name="consent"${consented.has(r.id)?' checked':''}><span>I approve the exact deliverables and ${money(o.totalMinor)} total in revision ${o.revision}, and agree that work begins after payment.</span></label><button type="submit" class="full">Approve revision ${o.revision} &amp; prepare PayPal invoice</button></form>`;
+ if(needsApproval)act+=`<form data-approve="${esc(r.id)}" data-revision="${o.revision}" class="stack tight"><label class="check consent"><input type="checkbox" required name="consent"${consented.has(consentKey(r.id,o.revision))?' checked':''}><span>I approve the exact deliverables and ${money(o.totalMinor)} total in revision ${o.revision}, and agree that work begins after payment.</span></label><button type="submit" class="full">Approve revision ${o.revision} &amp; prepare PayPal invoice</button></form>`;
  if(['approved','creating_invoice'].includes(o.status))act+=`<p class="notice attention">${icon('alert')}<span>Your approval is saved. Invoice setup needs recovery.</span></p><button data-recover="${esc(r.id)}" data-revision="${o.revision}" class="full">Retry payment setup</button>`;
  if(url)act+=`<div class="stack tight"><a class="button full" href="${esc(url)}" target="_blank" rel="noreferrer">${o.status==='paid'?'View PayPal receipt':'Pay with PayPal sandbox'}${icon('external')}<span class="visually-hidden">(opens in a new tab)</span></a><button class="secondary full" data-payment="${esc(r.id)}">Refresh payment</button></div>`;
  if(o.status==='paid')act+=`<p class="notice">${icon('check')}<span>PayPal confirms payment for this approved revision.</span></p>`;
@@ -70,19 +72,21 @@ function entry(r){
 }
 function render(force=false){
  const requests=[...view.requests].sort((a,b)=>rank(a)-rank(b)||String(b.createdAt).localeCompare(String(a.createdAt)));
- arrived=new Set();
- for(const r of requests){const sig=signature(r);if(!acted.has(r.id)&&(shown[r.id]?shown[r.id]!==sig:seen?.[r.id]&&seen[r.id]!==sig)){arrived.add(r.id);updated.add(r.id);}shown[r.id]=sig;}
- acted.clear();
+ const sigs={};arrived=new Set();
+ for(const r of requests){const sig=sigs[r.id]=signature(r);if(!acted.has(r.id)&&(shown[r.id]?shown[r.id]!==sig:seen?.[r.id]&&seen[r.id]!==sig)){arrived.add(r.id);updated.add(r.id);}}
  if(!autoOpened){autoOpened=true;const first=requests.find(r=>rank(r)<=1);if(first)open.add(first.id);}
  $('client-summary').innerHTML=summary(requests);
  const markup=requests.map(entry).join('')||'<div class="empty"><strong>No requests yet</strong><span>Your requests and quotes will appear here.</span></div>';
  // Do not erase a client's text or checked consent during background polling.
- if(markup===lastMarkup||(!force&&document.querySelector('#client-requests :focus')))return;
+ if(markup!==lastMarkup&&!force&&document.querySelector('#client-requests :focus'))return;
+ // A change counts as seen only once its row is on screen.
+ Object.assign(shown,sigs);acted.clear();
+ if(markup===lastMarkup)return;
  const focused=document.activeElement?.dataset?.toggle,drafts=new Map(Array.from(document.querySelectorAll('[data-reply]'),form=>[form.dataset.reply,form.querySelector('textarea').value]));
  $('client-requests').innerHTML=markup;lastMarkup=markup;
  document.querySelectorAll('[data-reply]').forEach(form=>{form.querySelector('textarea').value=drafts.get(form.dataset.reply)||'';let key=crypto.randomUUID();form.onsubmit=e=>{e.preventDefault();void busy(form.querySelector('button'),async()=>{await request('/api/portal/requests/'+form.dataset.reply+'/reply','POST',{text:form.querySelector('textarea').value,key});key=crypto.randomUUID();form.reset();acted.add(form.dataset.reply);document.activeElement?.blur();await loadAfterAction();notice('Reply received.');});};});
  document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const id=b.dataset.toggle;if(open.has(id))open.delete(id);else{open.add(id);updated.delete(id);}render(true);});
- document.querySelectorAll('[data-approve]').forEach(form=>{const box=form.querySelector('[name="consent"]');box.onchange=()=>box.checked?consented.add(form.dataset.approve):consented.delete(form.dataset.approve);form.onsubmit=e=>{e.preventDefault();void busy(form.querySelector('button'),()=>approve(form.dataset.approve,Number(form.dataset.revision),box.checked));};});
+ document.querySelectorAll('[data-approve]').forEach(form=>{const box=form.querySelector('[name="consent"]'),terms=consentKey(form.dataset.approve,form.dataset.revision);box.onchange=()=>box.checked?consented.add(terms):consented.delete(terms);form.onsubmit=e=>{e.preventDefault();void busy(form.querySelector('button'),()=>approve(form.dataset.approve,Number(form.dataset.revision),box.checked));};});
  document.querySelectorAll('[data-recover]').forEach(b=>b.onclick=()=>busy(b,()=>approve(b.dataset.recover,Number(b.dataset.revision),true)));
  document.querySelectorAll('[data-payment]').forEach(b=>b.onclick=()=>busy(b,async()=>{await request('/api/portal/requests/'+b.dataset.payment+'/payment-status','POST',{});acted.add(b.dataset.payment);document.activeElement?.blur();await loadAfterAction();notice('Payment checked with PayPal.');}));
  if(focused)document.querySelector(`[data-toggle="${CSS.escape(focused)}"]`)?.focus();
@@ -97,7 +101,7 @@ async function load(){
  }catch(error){if(credential!==forCredential)return;if(error.status===401){$('client-workspace').hidden=true;$('client-connect').hidden=false;}throw error;}finally{loading=false;}
 }
 async function loadAfterAction(){lastMarkup='';await load();}
-async function approve(id,revision,consent){const result=await request('/api/portal/requests/'+id+'/approve','POST',{revision,consent});acted.add(id);consented.delete(id);document.activeElement?.blur();await loadAfterAction();notice(result.invoiceError||'Approval saved. Open PayPal to complete the sandbox payment.',!!result.invoiceError);}
+async function approve(id,revision,consent){const result=await request('/api/portal/requests/'+id+'/approve','POST',{revision,consent});acted.add(id);consented.delete(consentKey(id,revision));document.activeElement?.blur();await loadAfterAction();notice(result.invoiceError||'Approval saved. Open PayPal to complete the sandbox payment.',!!result.invoiceError);}
 $('client-connect-form').onsubmit=e=>{e.preventDefault();void busy(e.submitter,async()=>{useAccess($('client-access').value.trim());$('client-connect-form').reset();await load();});};
 $('client-request-form').onsubmit=e=>{e.preventDefault();void busy(e.submitter,async()=>{await request('/api/portal/requests','POST',{text:$('client-request').value,key:pendingKey});pendingKey=crypto.randomUUID();$('client-request-form').reset();await load();notice('Request received. You can leave this page; your quote or clarification will be here when you return.');});};
 $('client-refresh').onclick=e=>busy(e.currentTarget,load);
