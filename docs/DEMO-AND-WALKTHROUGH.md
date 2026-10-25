@@ -6,6 +6,8 @@ This is a recording outline and observation guide. It is not evidence that the r
 
 ## Agent demonstration to record for 0.3.0
 
+**October 25 update:** use the [current browser-first Good Terms recording script](DEMO-RECORDING-SCRIPT-2026-10-25.md) for the next capture. Live inference is blocked by provider billing; [the readiness record](SUBMISSION-READINESS-2026-10-25.md) preserves that failure. The outline below remains historical planning material.
+
 The existing public video shows 0.2.1 manual review. A new recording must show the actual automatic-quoting workflow before the submission presents it as demonstrated. Target 2:45–2:55:
 
 | Time | Show | Explain |
@@ -49,3 +51,16 @@ Recruit participants separately; no outreach has been sent by this project. Ask 
 | P03 | | | | | | |
 
 Keep observed task time separate from estimates. Report the small sample and task context. Do not infer market size, willingness to pay or general productivity improvement from these walkthroughs.
+
+## Judge-entry acceptance questions
+
+Use the browser-first entry and avoid coaching on the first attempt. Record a pass only when the participant can explain the answer or complete the action themselves:
+
+- Identify which tab is the designer and which is the client; find the next action at each stage.
+- Explain that catalogue selection and policy approval authorize quoting, while the client separately approves the exact revision.
+- Distinguish a pending assessment, a quote needing consent, an unpaid invoice and a verified Paid result.
+- Explain why a $250 request under a $200 policy becomes an exception and how to recover without resetting the run.
+- Reopen the same run and locate its revision/payment state; distinguish Resume from deliberately starting another demo.
+- Recognize that browser judging does not require Figma and that native frame export needs actual editor access.
+
+These sessions are an internal usability gate, not a stated PayPal AI Hackathon submission rule. If the entrant defers them, retain the explicit disclosure that no outside-designer validation or measured time-saving result is claimed. Preparation of this guide does not count as a completed session, and no recruitment message has been sent.

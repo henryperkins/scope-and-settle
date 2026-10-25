@@ -5,6 +5,8 @@
 > Local submission draft refreshed October 25, 2026 for deployed release **0.3.1 / Good Terms**. The hosted runtime, public plugin ZIP and GitHub release were verified at source `ebbed27123f33d2ba6f30d7ea9a35c5d2df2d16c`. See the [release evidence](docs/GOOD-TERMS-RELEASE-2026-10-25.md). No live Devpost update was performed for this refresh.
 
 <!-- devpost-description:start -->
+**Hosted availability — October 25, 2026:** fresh live AI assessment is currently blocked by a Baseten payment-required response. The app stops safely without publishing a quote or creating an invoice. Provider access and the current automatic workflow through Paid must be reverified before this package is considered ready. The dated successful evidence below remains identified by release.
+
 ## Inspiration
 
 “Can you add the mobile checkout?” looks like a small comment. For a freelance designer or small studio, the answer depends on what the client agreed to buy. A desktop-only brief makes it a different conversation from an agreement that already includes responsive layouts.
@@ -117,12 +119,14 @@ Use the [0.3.0 agent recording outline](docs/DEMO-AND-WALKTHROUGH.md) with the v
 
 ### Remaining package work
 
+- [ ] Restore Baseten inference after the October 25 HTTP 402, then verify a fresh automatic quote through explicit approval, actual sandbox payment and reopened Paid / $0 due on that same revision. The entrant chose to leave live verification blocked while package preparation continues. See [the current readiness record](docs/SUBMISSION-READINESS-2026-10-25.md).
+- [ ] Review and release the browser-first judge-entry patch in [draft PR #2](https://github.com/henryperkins/scope-and-settle/pull/2). Implementation commit `ca4b74a` passed 83/83 on Windows and in a Linux Docker build from committed source, plus container/persistence and local candidate ZIP checks. It is not deployed; [candidate evidence](docs/SUBMISSION-READINESS-2026-10-25.md#resumed-candidate-qualification).
 - [x] Verify 0.3.1 deployment, source/tag, exact public and GitHub ZIP digests, Windows/Linux tests, native acceptance and database preservation; [release evidence](docs/GOOD-TERMS-RELEASE-2026-10-25.md).
-- [ ] Verify a judge's independent edit access to the currently configured paid-team Figma copy. Earlier anyone-can-edit acceptance on a different file is not proof for this copy.
+- [ ] Verify a judge's independent edit access to the currently configured paid-team Figma copy. **Anyone can edit** was saved with the entrant's approval on October 25, and independent visibility passed, but the test account remained view/comment-only. No paid seat or upgrade was added.
 - [ ] Record/review a new or supplementary demo covering automatic quoting and Good Terms; keep the existing video's version label accurate until then.
-- [ ] Conduct 2–3 outside-designer walkthroughs using [the observation guide](docs/DEMO-AND-WALKTHROUGH.md); record real outcomes and limitations.
+- [ ] Conduct 2–3 outside-designer walkthroughs using [the observation guide](docs/DEMO-AND-WALKTHROUGH.md), or explicitly defer this internal quality gate with the no-validation disclosure. Record real outcomes and limitations; do not present this as an official event rule.
 - [ ] Confirm whether testing-instructions field `28798` is private in the live event UI or through an organizer answer before putting credentials there. No organizer message has been sent by this refresh.
 - [ ] Obtain the entrant-only identity, prior-work, experience, feedback and eligibility answers listed in the technical-answer draft.
-- [ ] Refresh official form, rules, dates, registration and entry state through Devpost before the final submission action. Saving a public project is not hackathon submission.
+- [x] Refresh official form, rules, dates, registration and entry state through Devpost on October 25. The project is published, but its hackathon submission timestamp is empty; final submission is not verified. Recheck before the final submission action.
 
-The October 23 connector record listed November 12 at 2 p.m. America/Chicago as the close, with November 10 as the internal target, and December 15 at 10 a.m. America/Chicago as the end of judging. These dates were not freshly checked for this local draft. The recorded entry expiry of December 16 at 16:00 UTC is not a guarantee that runtime/providers will remain available; hosting and private access need an operating check through the judging period.
+The October 25 live event check confirmed November 12 at 2 p.m. America/Chicago as the close and December 15 at 10 a.m. America/Chicago as the end of judging. November 10 remains the internal target. The recorded entry expiry of December 16 at 16:00 UTC is not a guarantee that runtime/providers will remain available; hosting and private access need an operating check through the judging period. The [new browser-first recording script](docs/DEMO-RECORDING-SCRIPT-2026-10-25.md) is prepared but has not been recorded or published.
