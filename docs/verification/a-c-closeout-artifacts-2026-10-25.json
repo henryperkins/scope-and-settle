@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-25T12:59:59.679Z",
+  "implementationCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+  "artifactSourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+  "identityNote": "The later documentation commit records this reviewed source and its artifacts without a circular self-reference.",
+  "publicUrl": "https://scope-and-settle-qualification.hperkins.com",
+  "originStatus": "Proposed isolated qualification origin; not provisioned or verified",
+  "hostBuild": {
+    "platform": "win32",
+    "node": "v24.15.0",
+    "command": "npm.cmd run build; npm.cmd run package:plugin",
+    "status": "local_pass"
+  },
+  "sourceArchive": {
+    "kind": "git archive --format=tar",
+    "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+    "sha256": "ebe1051cecaee023b171ed150d8e8e80a6be8c29219b49b36657f2a2f3f8da14",
+    "storage": "private:task-9-evidence/candidate-source.tar"
+  },
+  "plugin": {
+    "version": "0.3.0",
+    "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+    "publicUrl": "https://scope-and-settle-qualification.hperkins.com",
+    "filename": "scope-and-settle-0.3.0-7cb3909e92c4.zip",
+    "sha256": "76144b96f3a7cf2e6d1d4c11db7295063cce7f1954503199ff022ae385e69d3e",
+    "checksums": {
+      "manifest.json": "b2210fcbdd13dc7e5075ddb1eaceca5646182ea3ddfa34165a5ce3b7f4af01cb",
+      "code.js": "4d9055ac770226b7b570e3874941a064d7b9e78bc7358d4b11f46793c1861ccb",
+      "ui.html": "779d225fbdf6fe674fe93703077b24944f778cb478650377ba1038bbde41663a",
+      "JUDGING.md": "c970cd7d2e1199c97c45ad2ab9f10abbbecd12faf656e480960c535bf421e4cd"
+    },
+    "bytes": 50097,
+    "entries": [
+      "JUDGING.md",
+      "SOURCE.json",
+      "code.js",
+      "manifest.json",
+      "ui.html"
+    ],
+    "zipAndEntryDigestsVerified": true,
+    "storage": "app/downloads/scope-and-settle-0.3.0-7cb3909e92c4.zip"
+  },
+  "crossPlatformLimit": "Host bytes verified only. Git text normalization and Linux builds may produce different artifact/source bytes; record those identities and repeat affected checks before qualification.",
+  "applicationSuite": {
+    "sourceCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+    "passed": 575,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "todo": 0,
+    "logSha256": "0966cf63fb092e07eaa188fe53c3bc6fe9bae441ca941a223cdf566551cd8cff",
+    "evidence": "private:task-8-evidence/full.log"
+  },
+  "evaluation": {
+    "contract": "docs/verification/scope-evaluation-contract-a-c-closeout-2026-10-25.json",
+    "contractSha256": "5a2fc6025eeed756ab2b0f85ac4ec5d72667bd55ba72d893b49b5ddf1a6177f4",
+    "sourceIdentity": "0c43d66b80d848c5c7b604cd3398a6c75209b2b32af4704ff18ecc0bf3d0b31b",
+    "files": 125,
+    "sourceBytesReverifiedAfterPackaging": true,
+    "scenariosValidated": 34,
+    "expectedItems": 43,
+    "providerCalls": 0,
+    "liveStatus": "pending_authorization"
+  },
+  "schemaVersionVerified": 19,
+  "disposableRestore": {
+    "status": "local_pass",
+    "backupSha256": "b8d5702dfd4e301be2c5fdf5a324b672a130de555eb385b0d21a9a4cdd0a6665",
+    "syntheticChargedMicroUsd": 100000,
+    "externalProviderCalls": 0,
+    "evidence": "private:task-8-evidence/backup-restore-result.json"
+  },
+  "c4Checkpoint": {
+    "name": "c4-local-reviewed-2026-10-25",
+    "files": 288,
+    "manifestSha256": "9b908429f732c89c75ed71bc9b78aaa48cff0945c8bf6e1f5d87b1c68aa5bd46"
+  },
+  "docker": {
+    "status": "pending_access",
+    "imageId": null,
+    "configurationDigest": null,
+    "blocker": "Docker server-version probe ETIMEDOUT after 20 seconds; current build/start not executed",
+    "evidence": "private:task-8-evidence/docker-preflight.log"
+  },
+  "gateRegister": "docs/verification/a-c-closeout-gates-2026-10-25.json",
+  "runbook": "docs/verification/a-c-closeout-runbook.md",
+  "deploymentStatus": "pending_authorization"
+}
