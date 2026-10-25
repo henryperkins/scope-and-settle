@@ -33,3 +33,10 @@ test('an expired session drops the previous run\'s requests from the board befor
  d.expire();await d.reconnect();
  assert.doesNotMatch(d.el('orders').innerHTML,/earlier run/);assert.match(d.el('orders').innerHTML,/An ordinary order/);
 });
+test('a successful designer reconnection clears the previous expired-session error',async()=>{
+ const d=await designer();d.expire();
+ d.el('notice').innerHTML='Access is expired, revoked, reset or superseded.';
+ await d.reconnect();
+ assert.equal(d.el('workspace').hidden,false);
+ assert.equal(d.el('notice').innerHTML,'');
+});

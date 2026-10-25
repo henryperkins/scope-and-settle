@@ -25,7 +25,7 @@ async function connect(invitation) {
   const value = token.startsWith('resume=') ? await api('/api/session/renew', null, 'POST', { credential: token.slice(7) }) :
     await api('/api/session/redeem', null, 'POST', { invitation: token });
   if (value.role !== 'designer') throw new Error('Open a designer invitation here. Client links belong on the review page.');
-  saveSession(value); $('invitation').value = ''; await load();
+  saveSession(value); $('invitation').value = ''; $('notice').innerHTML = ''; await load();
 }
 // Toolbar buttons open one tool panel at a time; the panels share one details name.
 const tools = [['tool-settings','agent-settings'],['tool-assess','manual-workflow'],['tool-brief','brief-details'],['tool-demo','demo-controls']];
