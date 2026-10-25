@@ -47,3 +47,11 @@ app/tests/fixtures/**
 !fixtures/
 fixtures/**
 !fixtures/scope-judgment-cases.json
+!fixtures/scope-held-out-cases.json
+!fixtures/scope-baseline-cases.json
+!docs/
+docs/**
+!docs/verification/
+docs/verification/**
+!docs/verification/scope-evaluation-contract.json
+!docs/verification/scope-evaluation-case-notes.json

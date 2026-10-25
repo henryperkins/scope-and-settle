@@ -71,6 +71,8 @@ Nothing here has been deployed. The MCP SDK makes these the application's first 
 
 - The `Dockerfile` has a `deps` stage that runs `pnpm install --prod --frozen-lockfile` (pnpm 10.34.5, `onlyBuiltDependencies` unchanged), and the runtime stage copies its `node_modules`: exactly the lockfile's production closure, with no dev packages such as `@modelcontextprotocol/client`, `typescript` or `esbuild`.
 - `app/scripts/check-container.mjs` (run from `app/` with an image tag) derives that closure from `pnpm-lock.yaml` and asserts that the container's `node_modules` holds exactly it and no devDependency. It also asserts that the app starts and that the disabled `/mcp` answers 404. It uses placeholder credentials and makes no provider calls.
+- The build stage installs Git and copies only the two public evaluation fixture files and two frozen-contract/case-note files required by its tests. The runtime receives only `scope-judgment-cases.json`; Git, tests and those four inputs must be absent. The smoke runner verifies this footprint.
+- Smoke setup runs the reviewed canonical draft fixture in a network-disabled disposable container before the server starts. Only the two test helper modules are injected into its unique disposable volume. The real draft route receives canonical item IDs and an operation ID; repeated creation reuses the order, and another run is refused. The session, order and a synthetic 100,000-micro-USD settled budget entry must survive container replacement. Tokens stay inside the runner and never enter its report. Cleanup is limited to that runner's uniquely named resources.
 - `deploy/gcp/prepare-runtime.mjs` writes no `MCP_*` keys, so a hosted runtime stays disabled until they are added deliberately.
 - The hosted app sits behind a Cloudflare tunnel. Set `PUBLIC_BASE_URL` to the public `https://` origin and `MCP_TRUSTED_PROXIES` to the peer address the container actually observes for the tunnel (with the current `docker run --publish 127.0.0.1:8787:8787`, a Docker bridge gateway address rather than `127.0.0.1`); verify it before enabling, or every request is refused with `host_not_allowed`.
 
@@ -83,6 +85,8 @@ Nothing here has been deployed. The MCP SDK makes these the application's first 
 - The native flow: discover the tools, then read the scope, run an explicit bounded assessment and create a reviewable draft, with no approval, publication or invoice action.
 
 ## Local verification
+
+The October 25 A–C closeout verifies the canonical smoke helper against the real isolated HTTP server and rehearses backup/restore at schema 19 with approvals, exact replacement acceptance, immutable PNG exports, budget history and reset tombstones. Docker engine access is currently blocked: a bounded `docker version --format '{{.Server.Version}}'` probe returned `ETIMEDOUT` after 20 seconds with empty stdout/stderr. Host checks and restored fixtures do not establish a successful current Docker build or container start. See the [current qualification record](verification/agent-integrations-a-c-closeout-2026-10-24.md) for candidate identities and gate status.
 
 `app/tests/mcp.test.mjs` drives the real `/mcp` route with the official SDK client (`@modelcontextprotocol/client` 2.4.0, dev only) in both eras and with raw HTTP for edge cases. It uses synthetic Figma, model and PayPal adapters only. `app/tests/mcp-auth.test.mjs` covers the credential, authority and domain entrances underneath.
 
