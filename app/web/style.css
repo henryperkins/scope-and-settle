@@ -332,6 +332,7 @@ details>summary:hover{color:var(--teal)}
 
 /* ---------- Judge entry: setup steps on the settlement line ---------- */
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:var(--s5)}
+.judge-extras{margin-top:var(--s8)}
 .steps>li{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:var(--s4);margin:0}
 .steps>li:not(:last-child)::after{content:"";position:absolute;left:15px;top:36px;bottom:calc(-1 * var(--s5) - 2px);width:2px;background:var(--line)}
 .step-mark{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:var(--text-meta);color:var(--teal);background:var(--surface);border:2px solid var(--teal);font-variant-numeric:tabular-nums}

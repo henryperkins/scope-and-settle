@@ -15,7 +15,7 @@ Mode: Operate. Primary target `app/web/designer.html` (`designer.js`, `agent.js`
 - **Job:** approve rates and limits once, share the client link, handle only exceptions, follow every change to Paid, and occasionally assess a request by hand with a selected frame.
 - **Content:** agent view (policy, state, requests, deliveries) and change orders from the existing APIs; the manual assessment, terms and demo tools stay as they are.
 - **Constraints:** element IDs and behaviors the scripts and tests rely on stay; order cards keep "Paid", "Revision N · scope-rev-N" and "$0.00 due"; the plugin follows Figma's light or dark theme, browser pages stay light.
-- **Judge entry:** a setup sequence (start, connect, install, follow through payment) on the same system; its steps run down the same settlement line.
+- **Judge entry:** a browser-first sequence (start/resume, designer authorization, client request/consent, PayPal payment/persistence) on the same settlement line. Each step labels the role and expected result. Native Figma installation and frame evidence are optional disclosures after the main journey; package provenance sits beneath them. No instruction step is marked complete from a link click.
 - **Memorable moment:** the board's settlement line with an amber exception sitting at the station it blocks.
 - **Unresolved:** none.
 
