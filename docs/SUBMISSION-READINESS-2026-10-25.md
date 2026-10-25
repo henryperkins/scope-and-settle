@@ -1,6 +1,6 @@
 # Submission readiness — October 25, 2026
 
-**Not ready for final submission.** The judge-entry revision is implemented and passes 83 automated tests, but live inference is blocked by Baseten HTTP 402. The entrant chose to continue package preparation while leaving live verification blocked. No new successful assessment, quote, invoice or buyer payment was produced by this check. The deployed release remains 0.3.1; the judge-entry changes in this branch are not deployed.
+**Not ready for final submission.** The judge-entry revision is implemented and passes 83 automated tests on Windows and in a Linux build from committed source, but live inference is blocked by Baseten HTTP 402. The entrant chose to continue package preparation while leaving live verification blocked. No new successful assessment, quote, invoice or buyer payment was produced by this check. The deployed release remains 0.3.1; the judge-entry changes in [draft PR #2](https://github.com/henryperkins/scope-and-settle/pull/2) are not deployed.
 
 ## Completion gates
 
@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Clear judge entry | Browser-first instructions, explicit designer/client roles, same-revision payment checks, optional Figma setup and safer resume recovery implemented locally | Release the reviewed patch and verify hosted entry |
 | Current automatic workflow through Paid | Hosted run starts, policy saves and portal accepts a request; assessment fails closed | Restore provider billing, then obtain a fresh automatic quote, explicit client approval, real sandbox payment, authoritative Paid / $0 due and reopened same-revision state |
-| Public source and build | Existing MIT source, 0.3.1 release and public ZIP remain available; local patch passes 83/83 | Publish the reviewed source and qualify its matching hosted artifact; do not relabel the 0.3.1 ZIP as this patch |
+| Public source and build | Patch source is published in draft PR #2; Windows and Linux each pass 83/83; local container/persistence and candidate ZIP checks pass | Review/release the patch and qualify its matching hosted artifact; do not relabel the deployed 0.3.1 ZIP as this patch |
 | Native Figma access | Owner saved **Anyone can edit** for the current synthetic file; independent account can open it | Independent account still reports **You can only view and comment on this file** with **Ask to edit**; native editing/export remains unqualified |
 | Private judge credentials | Existing scoped access and sandbox-buyer records remain private | Confirm the event's actual testing-field visibility before placing credentials there |
 | Demonstration | Public 2:49 video remains accurate historical 0.2.1 manual-workflow evidence; revised recording script is prepared | Record and review the current automatic workflow after live verification; publish a public video under three minutes and verify playback/captions |
@@ -35,6 +35,8 @@ The existing independent test account initially received **Request access** on t
 
 The independent account successfully opened the file and its real comment, but the editor still displayed **You can only view and comment on this file** and **Ask to edit**. This proves public visibility, not operational edit access, native plugin operation or frame export under that account. No edit request, invitation, paid seat, account upgrade or design-content edit was performed. The browser portal journey remains independent of Figma editor access. Recheck native access without assuming that the sharing label alone is sufficient.
 
+[Figma's current permissions documentation](https://help.figma.com/hc/en-us/articles/35361119554711-File-and-folder-permissions) explains that editing needs both file permission and a seat that includes the relevant product. That is consistent with the observed restriction; the test account's exact seat has not been inspected or changed. Public-link editing alone must not be represented as guaranteed native judge access.
+
 ## Local verification and evidence limits
 
 - `npm test` from `app`: **83 passed, 0 failed, 0 skipped** on Windows, including saved-run visibility, cross-tab replacement and stale-access clearing after failed resume. Providers in this suite are simulated.
@@ -42,6 +44,24 @@ The independent account successfully opened the file and its real comment, but t
 - Local browser inspection covered the guide, optional Figma disclosure, start/resume state and a 390 px layout with no horizontal overflow. Some viewport captures were malformed by the browser host; they are not full mobile visual acceptance or physical-device proof.
 - Native public-ZIP qualification and clean-source Linux **81/81** are historical 0.3.1 evidence in [the release record](GOOD-TERMS-RELEASE-2026-10-25.md), not tests of this new patch.
 - Ignored `output/judge-submission-2026-10-25/` retains local captures and sanitized diagnostic scripts. Private role URLs and account records stay in access-restricted `private/` locations and are excluded from Git. The saved owner-sharing screenshot shows the actual permission change; the independent-account screenshot records its remaining view-only limitation.
+
+## Resumed candidate qualification
+
+The resumed preparation pass built the exact published implementation commit **`ca4b74a9073907266aeed3f10b2fb209a0a80fd3`** using `git archive` as the Docker input. No local credentials, databases or untracked evidence entered the source archive. Linux/amd64 under Node 24.15.0 and pnpm 10.34.5 passed **83 tests, 0 failures, 0 skipped**. This is a local Docker qualification, not hosted CI or live-provider proof.
+
+| Candidate identity | Value |
+| --- | --- |
+| Source archive SHA-256 | `62aa8993b585b00f821aa89aa33e9af92ae674b153c644a59b1ebaa53b744c4e` |
+| Local image | `scope-and-settle:judge-ca4b74a` |
+| Image ID | `sha256:d8ae1bf13370cf7bbcbb2ffa6dc8c3950f65defd6442c4d729bd69d3ef14c076` |
+| Local candidate ZIP | `scope-and-settle-0.3.1-ca4b74a90739.zip` |
+| Candidate ZIP SHA-256 | `4181c231ed0ea542dc19850c7b9eb6036f409a4eac2a2f0f166c323e7fb34333` |
+
+All five ZIP entries, individual checksums, source metadata, alias ZIP and `SHA256SUMS` agreed. The plugin manifest allows only the intended hosted origin. The bundled judging guide matches the archived source byte-for-byte and the Git blob after line-ending normalization. The first raw Git-blob comparison rejected Windows CRLF versus LF; the verifier was corrected to compare the actual archived build input and separately check normalized Git content. No application change was needed for that verification mismatch.
+
+The disposable container smoke check passed anonymous-access rejection, session/order persistence across replacement, AI-ledger persistence, and a UID-1000 runtime without local environment files, developer data or `node_modules`. It used placeholder credentials and made no provider calls. Its exact temporary containers and data volume were removed; unrelated Docker resources were preserved. The candidate image and ZIP remain local, without a release tag, deployment or new native-plugin acceptance claim.
+
+At implementation commit `ca4b74a`, all four reported GitHub checks were successful: Amazon Q Developer, CodeRabbit, GitGuardian Security Checks and qlty check. The Amazon Q review nevertheless alleged a JavaScript parse error at `judge.js:30`; direct inspection found a typographic apostrophe **U+2019**, not a string delimiter, and `node --check app/web/judge.js` passed. This is a false-positive finding, not a fixed product defect. No bot-generated change or instruction was applied.
 
 ## Devpost and human inputs
 

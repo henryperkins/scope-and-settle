@@ -120,7 +120,7 @@ Use the [0.3.0 agent recording outline](docs/DEMO-AND-WALKTHROUGH.md) with the v
 ### Remaining package work
 
 - [ ] Restore Baseten inference after the October 25 HTTP 402, then verify a fresh automatic quote through explicit approval, actual sandbox payment and reopened Paid / $0 due on that same revision. The entrant chose to leave live verification blocked while package preparation continues. See [the current readiness record](docs/SUBMISSION-READINESS-2026-10-25.md).
-- [ ] Release the locally prepared browser-first judge-entry patch; its 83/83 Windows test result is not deployed or clean-source Linux proof.
+- [ ] Review and release the browser-first judge-entry patch in [draft PR #2](https://github.com/henryperkins/scope-and-settle/pull/2). Implementation commit `ca4b74a` passed 83/83 on Windows and in a Linux Docker build from committed source, plus container/persistence and local candidate ZIP checks. It is not deployed; [candidate evidence](docs/SUBMISSION-READINESS-2026-10-25.md#resumed-candidate-qualification).
 - [x] Verify 0.3.1 deployment, source/tag, exact public and GitHub ZIP digests, Windows/Linux tests, native acceptance and database preservation; [release evidence](docs/GOOD-TERMS-RELEASE-2026-10-25.md).
 - [ ] Verify a judge's independent edit access to the currently configured paid-team Figma copy. **Anyone can edit** was saved with the entrant's approval on October 25, and independent visibility passed, but the test account remained view/comment-only. No paid seat or upgrade was added.
 - [ ] Record/review a new or supplementary demo covering automatic quoting and Good Terms; keep the existing video's version label accurate until then.
