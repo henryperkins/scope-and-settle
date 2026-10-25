@@ -251,6 +251,7 @@ export function resetDemoRun(runId = currentRunId()): { runId: string; tombstone
     WHERE run_id=? OR (kind='paypal_reconcile' AND json_valid(payload_json) AND json_extract(payload_json,'$.invoiceId') IN (SELECT paypal_invoice_id FROM invoice_tombstones WHERE run_id=?))`).run(now,now,runId,runId);
   db.prepare("UPDATE inbox_settings SET settings_json=json_set(settings_json,'$.intake',json('false'),'$.autoAssess',json('false')) WHERE run_id=?").run(runId);
   db.prepare("UPDATE request_inbox SET availability='reset',updated_at=? WHERE run_id=?").run(now,runId);
+  db.prepare('UPDATE installment_reminder_heads SET disabled_at=? WHERE order_id IN (SELECT id FROM change_orders WHERE run_id=?)').run(now,runId);
   for (const table of ["agent_outbox","agent_messages","agent_requests","agent_policies","agent_policy_history"]) {
     if (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(table)) db.prepare(`DELETE FROM ${table} WHERE run_id = ?`).run(runId);
   }

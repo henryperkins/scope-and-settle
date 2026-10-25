@@ -23,7 +23,7 @@ export async function fixture({listen=true,observeAssessmentJoins=false}={}){
  for(const name of ['db','env','sessions','context','requestInbox','requestItems','requestSources','assessmentWork','orders','changeOrderService','agentPortal','agentPolicy','figmaWebhooks','jobs','agentStore','reviewedActions'])m[name]=await app.load(name);
  const {db}=m.db,provider=providerFixture();
  const session=m.sessions.createSession({projectId:'demo',role:'designer',runId:m.db.currentRunId()}),ctx=m.context.contextFromSessionToken(session.token);
- let comments=[],readHook=null,calls=0,writes=0,cancelApplies=true;
+ let comments=[],readHook=null,calls=0,writes=0,cancelApplies=true,notifications=[];
  globalThis.fetch=async(url,init={})=>{
   const u=new URL(url);
   if(u.hostname==='127.0.0.1')return nativeFetch(url,init);
@@ -43,6 +43,7 @@ export async function fixture({listen=true,observeAssessmentJoins=false}={}){
    return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({items,explanation:'Synthetic supported additions',designObservations:[],...(automatic?{automation}:{})})}}],usage:{prompt_tokens:100,completion_tokens:100}});
   }
   if(/\/(remind|cancel)$/.test(u.pathname)){
+   notifications.push({kind:u.pathname.split('/').at(-1),invoiceId:u.pathname.split('/').at(-2)});
    writes++;const invoice=provider.invoices.get(u.pathname.split('/').at(-2));
    if(u.pathname.endsWith('/cancel')&&cancelApplies)invoice.status='CANCELLED';
    return new Response(null,{status:204});
@@ -63,6 +64,7 @@ export async function fixture({listen=true,observeAssessmentJoins=false}={}){
   set readHook(v){readHook=v;},get readHook(){return readHook;},
   set cancelApplies(v){cancelApplies=v;},
   get calls(){return calls;},get writes(){return writes;},
+  get notifications(){return structuredClone(notifications);},
   root(id,message,user='client'){const c={id,message,user:{id:user},created_at:new Date().toISOString()};comments.push(c);return c;},
   reply(id,parent,message,user='client'){const c={id,parent_id:parent,message,user:{id:user},created_at:new Date().toISOString()};comments.push(c);return c;},
   comment(id){return comments.find(c=>c.id===id);},

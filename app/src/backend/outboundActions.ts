@@ -9,7 +9,25 @@ import { now } from "./agentStore.js";
 import { ScopedAccessError } from "./context.js";
 
 export function invoiceActionKey(invoiceId: string) {
-  return `${config.paypalEnv}:${config.paypalMerchantEmail.toLowerCase()}:${invoiceId}`;
+  return `${config.paypalEnv}:${config.paypalMerchantEmail.trim().toLowerCase()}:${invoiceId}`;
+}
+/** Historical keys were not trimmed. Read equivalent keys without rewriting their audit rows. */
+function invoiceActionKeys(invoiceId:string) {
+ const prefix=config.paypalEnv+':',suffix=':'+invoiceId,merchant=config.paypalMerchantEmail.trim().toLowerCase();
+ const rows=db.prepare('SELECT DISTINCT invoice_key FROM outbound_operations WHERE substr(invoice_key,1,?)=? AND substr(invoice_key,-?)=?').all(prefix.length,prefix,suffix.length,suffix) as {invoice_key:string}[];
+ return [...new Set([invoiceActionKey(invoiceId),...rows.map(row=>row.invoice_key).filter(key=>key.slice(prefix.length,-suffix.length).trim().toLowerCase()===merchant)])];
+}
+/** One retained history across manual, legacy policy and exact-installment policy sends. */
+export function reminderHistory(invoiceId:string) {
+ const keys=invoiceActionKeys(invoiceId),slots=keys.map(()=>'?').join(',');
+ const operations=db.prepare(`SELECT * FROM outbound_operations WHERE invoice_key IN (${slots}) AND kind='reminder' AND dispatch_started=1`).all(...keys) as any[];
+ const legacy=db.prepare("SELECT * FROM agent_outbox WHERE kind='reminder' AND json_valid(body) AND json_extract(body,'$.invoiceId')=? AND (attempts>0 OR state='sent')").all(invoiceId) as any[];
+ const indexed=new Set(operations.map(row=>row.outbox_id));
+ const retained=legacy.filter(row=>!indexed.has(row.id));
+ const last=Math.max(0,...operations.map(row=>Date.parse(row.attempted_at)||0),...retained.map(row=>Date.parse(row.updated_at)||0));
+ const automatic=operations.filter(row=>row.authority==='policy').length+retained.filter(row=>!db.prepare("SELECT outbox_id FROM outbound_operations WHERE outbox_id=? AND authority='human_review'").get(row.id)).length;
+ const blocked=!!db.prepare(`SELECT outbox_id FROM outbound_operations WHERE invoice_key IN (${slots}) AND (state IN ('claimed','dispatching','uncertain') OR retry_after_at>?)`).get(...keys,Date.now())||retained.some(row=>row.state!=='sent');
+ return {automaticAttempts:automatic,lastAttemptAt:last?new Date(last).toISOString():null,blocked};
 }
 /** Atomic durable invoice lock and cadence shared by policy and reviewed sends. */
 export function claimOutbound(input: {
@@ -33,11 +51,12 @@ export function claimOutbound(input: {
       );
     const key = input.invoiceId ? invoiceActionKey(input.invoiceId) : null;
     if (key) {
+      const keys=invoiceActionKeys(input.invoiceId!),slots=keys.map(()=>'?').join(',');
       const active = db
         .prepare(
-          "SELECT outbox_id FROM outbound_operations WHERE invoice_key=? AND (state IN ('claimed','dispatching','uncertain') OR retry_after_at>?)",
+          `SELECT outbox_id FROM outbound_operations WHERE invoice_key IN (${slots}) AND (state IN ('claimed','dispatching','uncertain') OR retry_after_at>?)`,
         )
-        .get(key, Date.now());
+        .get(...keys, Date.now());
       if (active)
         throw new ScopedAccessError(
           409,
@@ -51,9 +70,9 @@ export function claimOutbound(input: {
         .all(input.invoiceId!, input.id) as any[];
       const attempts = db
         .prepare(
-          "SELECT * FROM outbound_operations WHERE invoice_key=? AND kind='reminder' AND dispatch_started=1 ORDER BY attempted_at DESC",
+          `SELECT * FROM outbound_operations WHERE invoice_key IN (${slots}) AND kind='reminder' AND dispatch_started=1 ORDER BY attempted_at DESC`,
         )
-        .all(key) as any[];
+        .all(...keys) as any[];
       if (
         rows.some(
           (r) =>
@@ -91,14 +110,7 @@ export function claimOutbound(input: {
           );
         if (
           input.authority === "policy" &&
-          rows.filter(
-            (r) =>
-              !db
-                .prepare(
-                  "SELECT outbox_id FROM outbound_operations WHERE outbox_id=? AND authority='human_review'",
-                )
-                .get(r.id),
-          ).length >= 2
+          reminderHistory(input.invoiceId!).automaticAttempts >= 2
         )
           throw new ScopedAccessError(
             409,

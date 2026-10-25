@@ -6,13 +6,14 @@ import { PayPalRequestError } from "./paypal.js";
 import {refreshInvoiceRecord} from './milestones.js';
 import {invoiceRecord} from './milestoneStore.js';
 
-export type JobKind = "paypal_reconcile" | "figma_refresh" | "scope_assess";
+export type JobKind = "paypal_reconcile" | "figma_refresh" | "scope_assess" | "installment_reminder";
 export interface InternalJobHandler {
   validate(payload:unknown):void;
   resource(payload:any):string;
   execute(job:Job,payload:any,guard:()=>void):Promise<void>;
   retry(job:Job,payload:any):void;
   blocksFailure?(job:Job):boolean;
+  queue?(at:Date):number;
 }
 const handlers=new Map<JobKind,InternalJobHandler>();
 /** Internal registration only; payload JSON cannot install executable handlers. */
@@ -191,7 +192,7 @@ export function runDueJobs(now:Date):Promise<JobRunSummary>{
     const summary:JobRunSummary={completed:0,retried:0,failed:0};
     try{
       runtime('last_cycle',now.toISOString());
-      db.prepare("UPDATE jobs SET state='failed',error_category='unsupported_kind',lease_token=NULL,lease_until=NULL,updated_at=? WHERE kind NOT IN ('paypal_reconcile','figma_refresh','scope_assess') AND (state='pending' OR (state='running' AND lease_until<=?))").run(now.toISOString(),now.toISOString());
+      db.prepare("UPDATE jobs SET state='failed',error_category='unsupported_kind',lease_token=NULL,lease_until=NULL,updated_at=? WHERE kind NOT IN ('paypal_reconcile','figma_refresh','scope_assess','installment_reminder') AND (state='pending' OR (state='running' AND lease_until<=?))").run(now.toISOString(),now.toISOString());
       recoverAndSeed(now);
       const cycleStart=Date.now(),visited:string[]=[];
       for(let n=0;n<5 && !stopping;n++){const at=new Date(now.getTime()+Date.now()-cycleStart),job=claim(at,visited);if(!job)break;visited.push(job.id);const result=await execute(job,at);if(result)summary[result]++;}
@@ -217,7 +218,7 @@ export function retryFailedJob(id:string,projectId?:string,runId?:string){return
 export function startJobWorker(){
   stopping=false;
   let stopped=false;
-  const tick=()=>{if(!stopped){void runDueJobs(new Date()).catch(()=>{});for(const lane of ['figma_refresh','scope_assess'] as const)void runInboxJobs(new Date(),lane).catch(()=>{});}};
+  const tick=()=>{if(!stopped){void runDueJobs(new Date()).catch(()=>{});for(const lane of ['figma_refresh','scope_assess','installment_reminder'] as const){const at=new Date();try{handlers.get(lane)?.queue?.(at);}catch{}void runInboxJobs(at,lane).catch(()=>{});}}};
   const timer=setInterval(tick,5000);timer.unref();tick();
   return async()=>{stopped=true;stopping=true;clearInterval(timer);await Promise.allSettled([running,...laneRunning.values()].filter(Boolean) as Promise<unknown>[]);};
 }
@@ -247,13 +248,13 @@ async function executeInternal(job:Job,now:Date):Promise<keyof JobRunSummary|nul
   return transaction(()=>{guard();finish(job,'completed',null,clock());return 'completed';});
  }catch(error){return transaction(()=>{
   const at=clock();if(error instanceof LostLease||!owns(job,at))return null;
-  const e=error instanceof InternalJobFailure?error:new InternalJobFailure('inbox_review_required');
+  const e=error instanceof InternalJobFailure?error:new InternalJobFailure(job.kind==='installment_reminder'?'reminder_review_required':'inbox_review_required');
   if(!e.retryable||job.attempts>=MAX_ATTEMPTS||at.getTime()-Date.parse(job.recovery_at??job.created_at)>=DAY){finish(job,'failed',e.category,at);return 'failed';}
   const due=Math.max(at.getTime()+Math.min(15*60000,5000*2**(job.attempts-1)),e.retryAfterAt);
   db.prepare("UPDATE jobs SET state='pending',due_at=?,lease_token=NULL,lease_until=NULL,error_category=?,updated_at=? WHERE id=? AND lease_token=?").run(new Date(due).toISOString(),e.category,at.toISOString(),job.id,job.lease_token);return 'retried';
  });}finally{clearInterval(heartbeat);}
 }
-export function runInboxJobs(now:Date,kind:'figma_refresh'|'scope_assess'='figma_refresh'):Promise<JobRunSummary>{
+export function runInboxJobs(now:Date,kind:'figma_refresh'|'scope_assess'|'installment_reminder'='figma_refresh'):Promise<JobRunSummary>{
  const active=laneRunning.get(kind);if(active)return active;
  const work=(async()=>{const summary:JobRunSummary={completed:0,retried:0,failed:0},visited:string[]=[],start=Date.now();for(let n=0;n<(kind==='scope_assess'?1:5)&&!stopping;n++){const at=new Date(now.getTime()+Date.now()-start),job=claimInternal(kind,at,visited);if(!job)break;visited.push(job.id);const result=await executeInternal(job,at);if(result)summary[result]++;}return summary;})().finally(()=>laneRunning.delete(kind));laneRunning.set(kind,work);return work;
 }

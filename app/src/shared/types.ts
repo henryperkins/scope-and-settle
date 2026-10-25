@@ -198,3 +198,17 @@ export interface DesignEvidenceSnapshot {
   imageWidth: number | null; imageHeight: number | null; hash: string;
   freshness?: 'fresh' | 'stale';
 }
+
+export interface ReminderInstallment {
+ milestoneId:string;invoiceRecordId:string;invoiceId:string|null;title:string;amountMinor:number;currency:string;dueTrigger:string;
+ automaticAttempts:number;lastAttemptAt:string|null;earliestReminderAt:string|null;covered:boolean;actionBlocked:boolean;
+}
+export interface ReminderPolicyPreview {
+ id:string;orderId:string;revision:number;version:number;previewHash:string;reviewExpiresAt:string;expiresAt:string;
+ parentKind:'session'|'grant';recipients:{primary:string[];merchant:string};installments:ReminderInstallment[];
+ cadenceMs:number;maxAutomaticReminders:number;
+}
+export interface ReminderPolicyView extends Omit<ReminderPolicyPreview,'previewHash'|'reviewExpiresAt'> {
+ status:'active'|'paused'|'expired'|'inactive';
+ lastResult?:{policyId:string;policyVersion:number;invoiceRecordId:string;state:string;attemptedAt:string|null;message:string};
+}

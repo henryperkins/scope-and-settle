@@ -1,3 +1,4 @@
+import {prepareInstallmentReminderPolicy,confirmInstallmentReminderPolicy,pauseInstallmentReminderPolicy,getInstallmentReminderPolicy} from './installmentReminders.js';
 import {prepareReviewedAction,getReviewedAction,confirmReviewedAction} from './reviewedActions.js';
 import {prepareMilestoneAction,confirmMilestoneAction,getMilestoneAction} from './installmentActions.js';
 import {setMilestoneSchedule} from './milestones.js';
@@ -70,7 +71,7 @@ export const server = createServer(async (req, res) => {
   if (path === MCP_PATH) return handleMcpRequest(req, res);
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
-    const publicFiles: Record<string, string> = {"/assets/evidence-packets.js":"evidence-packets.js","/delivery":"delivery-review.html","/assets/delivery-review.js":"delivery-review.js","/assets/delivery.js":"delivery.js","/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
+    const publicFiles: Record<string, string> = {"/assets/installment-reminders.js":"installment-reminders.js","/assets/evidence-packets.js":"evidence-packets.js","/delivery":"delivery-review.html","/assets/delivery-review.js":"delivery-review.js","/assets/delivery.js":"delivery.js","/assets/milestones.js":"milestones.js","/assets/status-cards.js":"status-cards.js","/assets/reviewed-actions.js":"reviewed-actions.js","/assets/connectors.js":"connectors.js","/assets/inbox.js":"inbox.js", "/scope":"scope.html","/assets/scope.js":"scope.js", "/": "judge.html", "/judge": "judge.html", "/designer": "designer.html", "/review": "review.html", "/client":"client.html", "/assets/client.js":"client.js", "/assets/agent.js":"agent.js",
       "/assets/style.css": "style.css", "/assets/common.js": "common.js", "/assets/proposal.js": "proposal.js", "/assets/figma-bridge.js": "figma-bridge.js", "/assets/designer.js": "designer.js", "/assets/judge.js": "judge.js", "/assets/review.js": "review.js" };
     if (req.method === "GET" && publicFiles[path]) {
       const file = publicFiles[path];
@@ -217,6 +218,24 @@ export const server = createServer(async (req, res) => {
       try {connectorId=decodeURIComponent(connectorRoute[1]);}
       catch {throw new ScopedAccessError(400,'Malformed connector identity');}
       return json(res,200,revokeConnectorCredential(ctx,connectorId));
+    }
+    const reminderOrder=path.match(/^\/api\/change-orders\/([^/]+)\/installment-reminder-policy(\/prepare)?$/);
+    if(reminderOrder){
+      requireDesignerContext(ctx);
+      if(req.method==='GET'&&!reminderOrder[2])return json(res,200,getInstallmentReminderPolicy(ctx,reminderOrder[1]));
+      if(req.method==='POST'&&reminderOrder[2]){
+        if(req.headers.origin!==new URL(config.publicUrl).origin)throw new ScopedAccessError(403,'Review reminder consent in the authenticated application');
+        const body=await scopedBody();if(!body||typeof body!=='object'||Object.keys(body).some(k=>k!=='expectedRevision'))throw new ScopedAccessError(400,'Exact approved revision required');
+        return json(res,201,await prepareInstallmentReminderPolicy(ctx,reminderOrder[1],body.expectedRevision));
+      }
+    }
+    const reminderPolicy=path.match(/^\/api\/installment-reminder-policies\/([^/]+)\/(confirm|pause)$/);
+    if(reminderPolicy&&req.method==='POST'){
+      requireDesignerContext(ctx);if(req.headers.origin!==new URL(config.publicUrl).origin)throw new ScopedAccessError(403,'Manage reminder consent in the authenticated application');
+      const body=await scopedBody();
+      if(reminderPolicy[2]==='confirm')return json(res,200,confirmInstallmentReminderPolicy(ctx,reminderPolicy[1],body));
+      if(!body||typeof body!=='object'||Object.keys(body).some(k=>k!=='expectedVersion')||!Number.isSafeInteger(body.expectedVersion))throw new ScopedAccessError(400,'Exact reminder policy version required');
+      return json(res,200,pauseInstallmentReminderPolicy(ctx,reminderPolicy[1],body.expectedVersion));
     }
     const workRoute=path.match(/^\/api\/milestones\/([^/]+)\/(delivery-brief|start-work|submit-delivery)$/);
     if(workRoute&&req.method==='POST'&&workRoute[2]==='submit-delivery'){

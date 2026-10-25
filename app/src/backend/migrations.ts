@@ -330,6 +330,14 @@ export const migrations: readonly Migration[] = [
  WHERE logical_key IS NOT NULL AND outcome IN ('prepared','dispatched','rejected','uncertain');
  CREATE TABLE evaluation_work_bindings(case_key TEXT NOT NULL,run_id TEXT NOT NULL,fingerprint TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(case_key,run_id,fingerprint));
  `);}},
+ {id:18,name:'reviewed-installment-reminder-policies',up(db){db.exec(`
+ CREATE TABLE installment_reminder_previews(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,run_id TEXT NOT NULL,order_id TEXT NOT NULL,owner_id TEXT NOT NULL,preview_json TEXT NOT NULL,preview_hash TEXT NOT NULL,created_at TEXT NOT NULL,consumed_at TEXT);
+ CREATE TABLE installment_reminder_policies(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,run_id TEXT NOT NULL,order_id TEXT NOT NULL,revision INTEGER NOT NULL,version INTEGER NOT NULL,policy_json TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(order_id,version));
+ CREATE TABLE installment_reminder_heads(order_id TEXT PRIMARY KEY,policy_id TEXT NOT NULL,version INTEGER NOT NULL,disabled_at TEXT);
+ CREATE TRIGGER immutable_installment_reminder_preview BEFORE UPDATE OF project_id,run_id,order_id,owner_id,preview_json,preview_hash,created_at ON installment_reminder_previews BEGIN SELECT RAISE(ABORT,'Immutable reminder preview'); END;
+ CREATE TRIGGER immutable_installment_reminder_policy BEFORE UPDATE ON installment_reminder_policies BEGIN SELECT RAISE(ABORT,'Immutable reminder policy'); END;
+ CREATE TRIGGER retained_installment_reminder_policy BEFORE DELETE ON installment_reminder_policies BEGIN SELECT RAISE(ABORT,'Retained reminder policy'); END;
+ `);}},
 ];
 
 /** Each migration and its ledger entry commit together. Never swallow DDL failures. */
