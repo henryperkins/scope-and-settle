@@ -18,10 +18,14 @@ New-Item -ItemType Directory -Path $candidateExport | Out-Null
 $candidateTar = Join-Path $candidateExport 'source.tar'
 $candidateSource = Join-Path $candidateExport 'source'
 New-Item -ItemType Directory -Path $candidateSource | Out-Null
-git archive --format=tar --output=$candidateTar $candidateSha
+git -c core.autocrlf=false archive --format=tar --output=$candidateTar $candidateSha
 if ($LASTEXITCODE -ne 0) { throw 'Candidate source export failed' }
 tar -xf $candidateTar -C $candidateSource
 if ($LASTEXITCODE -ne 0) { throw 'Candidate source extraction failed' }
+$originalFreeze = Get-Content (Join-Path $candidateSource 'docs/verification/scope-evaluation-contract.json') -Raw | ConvertFrom-Json
+$generationEntry = $originalFreeze.source | Where-Object path -EQ 'app/src/backend/assessment.ts'
+$generationHash = (Get-FileHash (Join-Path $candidateSource $generationEntry.path) -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($generationHash -ne $generationEntry.sha256) { throw 'Archived generation source differs from its original freeze' }
 docker build --build-arg "SOURCE_COMMIT=$candidateSha" --build-arg "PUBLIC_BASE_URL=$candidateOrigin" --tag $candidateTag $candidateSource
 if ($LASTEXITCODE -ne 0) { throw 'Candidate Docker build failed' }
 $env:SOURCE_COMMIT = $candidateSha
@@ -31,7 +35,7 @@ try { node scripts/check-container.mjs $candidateTag }
 finally { Pop-Location }
 ```
 
-The recorded plugin was built on Windows. Git exports normalize tracked text to repository bytes; for example, the current Windows `JUDGING.md` has CRLF while Git stores LF. Compare the Docker-built ZIP and each `SOURCE.json` checksum with the recorded host artifact. Different bytes require a separately recorded artifact identity and affected checks before qualification; do not claim cross-platform byte reproducibility from the host package.
+The recorded host plugin was built on Windows. On this workstation, plain `git archive` applies `core.autocrlf` and exports CRLF text, including the generation source whose historical freeze requires LF. The command-local `-c core.autocrlf=false` above preserves those repository bytes without changing Git configuration or the source. Keep the original Windows archive/checksums as historical evidence. Compare the Docker-built ZIP and each `SOURCE.json` checksum with the host artifact. Different bytes require a separately recorded artifact identity and affected checks before qualification; do not claim cross-platform byte reproducibility from the host package.
 
 The Docker build must run the entire suite with Git and the four exact public evaluation inputs. Do not skip tests or broaden `.dockerignore` to private material. Smoke must prove health, anonymous 401, disabled MCP 404, non-root/production-only runtime, canonical operation reuse, cross-run 403 and session/order/100,000-micro-USD synthetic ledger persistence after container replacement. Git, test files and the four evaluation inputs must be absent from runtime. Record both the image ID and archive configuration digest, full source commit, origin, schema and plugin checksum. Preserve the task-specific image and logs; cleanup may remove only the runner's own uniquely named containers/volume.
 

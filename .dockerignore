@@ -31,6 +31,8 @@ app/web/**
 !app/plugin/
 app/plugin/**
 !app/plugin/code.ts
+!app/plugin/status-card.ts
+!app/plugin/delivery.ts
 !app/plugin/manifest.json
 !app/plugin/tsconfig.json
 !app/scripts/
