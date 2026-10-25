@@ -4,9 +4,9 @@ Use the [qualification record](agent-integrations-a-c-closeout-2026-10-24.md), [
 
 ## Candidate, packaging and Docker gate
 
-Run only from the isolated `codex/agent-integrations-through-t16` checkout. The runtime implementation was tested at `cf2069f13b3ce3b10dc0903c8e7c35e44190e751` (575/575). The artifact record pins the later documentation-aware package source, ZIP/checksums and proposed origin. Keep the primary and other worktrees intact.
+Run only from the isolated `codex/agent-integrations-through-t16` checkout. Windows application verification at `cf2069f` passed 575/575; the current `8aab074414878899d9b8ee130d1d86cc22d046fb` candidate also passed 575/575 in Linux Docker and all eight disposable runtime smoke checks. The artifact record pins its source, local image/archive, Linux ZIP/checksums and proposed origin. Keep the primary and other worktrees intact.
 
-Once the local Docker engine responds, export the exact recorded artifact-source commit into a new disposable directory and build that context. Read the record from the documentation checkout before exporting; the artifact-source commit intentionally precedes its own checksum record. These are prepared commands, not executed container proof:
+The local Docker gate passed on October 25 after the separately approved Desktop restart and narrow context fix. To reproduce it, export the exact recorded artifact-source commit into a new disposable directory and build that context. Read the record from the documentation checkout before exporting; the artifact-source commit intentionally precedes its own checksum record. Retain the existing verified image/archive before any rebuild changes the same tag:
 
 ```powershell
 $candidate = Get-Content docs/verification/a-c-closeout-artifacts-2026-10-25.json -Raw | ConvertFrom-Json

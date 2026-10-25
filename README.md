@@ -1,6 +1,6 @@
 # Scope & Settle
 
-The agent-integration branch's [A–C closeout record](docs/verification/agent-integrations-a-c-closeout-2026-10-24.md) separates its 575-test local qualification, reviewed image exports and disposable restore proof from pending Docker, hosted/provider/native/evaluation and human gates. Use its [runbook](docs/verification/a-c-closeout-runbook.md) and source-bound artifact record for candidate qualification; the newer primary checkout and currently deployed product remain separate.
+The agent-integration branch's [A–C closeout record](docs/verification/agent-integrations-a-c-closeout-2026-10-24.md) records 575 passing tests on both Windows and Linux Docker, successful disposable container/restore checks and reviewed image exports. Hosted/provider/native/evaluation and human gates remain pending. Use its [runbook](docs/verification/a-c-closeout-runbook.md) and source-bound artifact record for candidate qualification; the newer primary checkout and currently deployed product remain separate.
 
 Handle client change requests within designer-approved rates and limits, then settle them with PayPal.
 

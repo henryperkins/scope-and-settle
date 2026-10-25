@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-10-25T12:59:59.679Z",
-  "implementationCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
-  "artifactSourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+  "recordedAt": "2026-10-25T13:13:33.280Z",
+  "implementationCommit": "8aab074414878899d9b8ee130d1d86cc22d046fb",
+  "artifactSourceCommit": "8aab074414878899d9b8ee130d1d86cc22d046fb",
   "identityNote": "The later documentation commit records this reviewed source and its artifacts without a circular self-reference.",
   "publicUrl": "https://scope-and-settle-qualification.hperkins.com",
   "originStatus": "Proposed isolated qualification origin; not provisioned or verified",
@@ -10,27 +10,29 @@
     "platform": "win32",
     "node": "v24.15.0",
     "command": "npm.cmd run build; npm.cmd run package:plugin",
-    "status": "local_pass"
+    "status": "local_pass",
+    "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+    "note": "Historical Windows package; current candidate artifact was built in Docker."
   },
   "sourceArchive": {
-    "kind": "git archive --format=tar",
-    "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
-    "sha256": "ebe1051cecaee023b171ed150d8e8e80a6be8c29219b49b36657f2a2f3f8da14",
-    "storage": "private:task-9-evidence/candidate-source.tar"
+    "kind": "git -c core.autocrlf=false archive --format=tar",
+    "sourceCommit": "8aab074414878899d9b8ee130d1d86cc22d046fb",
+    "sha256": "933dbf4a3fb723e1f12e36b213f1e1ebfb082dd73da17eefd8929f466306d0bb",
+    "storage": "private:task-8-docker-resume-2026-10-25/candidate-source-lf.tar"
   },
   "plugin": {
     "version": "0.3.0",
-    "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+    "sourceCommit": "8aab074414878899d9b8ee130d1d86cc22d046fb",
     "publicUrl": "https://scope-and-settle-qualification.hperkins.com",
-    "filename": "scope-and-settle-0.3.0-7cb3909e92c4.zip",
-    "sha256": "76144b96f3a7cf2e6d1d4c11db7295063cce7f1954503199ff022ae385e69d3e",
+    "filename": "scope-and-settle-0.3.0-8aab07441487.zip",
+    "sha256": "5db94dadc602296b090d3446d8be9cc5a033d823a933b983d19b9174d566ff07",
     "checksums": {
       "manifest.json": "b2210fcbdd13dc7e5075ddb1eaceca5646182ea3ddfa34165a5ce3b7f4af01cb",
       "code.js": "4d9055ac770226b7b570e3874941a064d7b9e78bc7358d4b11f46793c1861ccb",
-      "ui.html": "779d225fbdf6fe674fe93703077b24944f778cb478650377ba1038bbde41663a",
-      "JUDGING.md": "c970cd7d2e1199c97c45ad2ab9f10abbbecd12faf656e480960c535bf421e4cd"
+      "ui.html": "943b73ccbdd4a434b8858f9a91c0edd6cad40f0fdff1f5b5f19ef7689b8bc359",
+      "JUDGING.md": "37bebfa93f32529f3afca419f3fcaeeae728d73ea2a04ea7ba9e595d7c6b6beb"
     },
-    "bytes": 50097,
+    "bytes": 50083,
     "entries": [
       "JUDGING.md",
       "SOURCE.json",
@@ -39,9 +41,10 @@
       "ui.html"
     ],
     "zipAndEntryDigestsVerified": true,
-    "storage": "app/downloads/scope-and-settle-0.3.0-7cb3909e92c4.zip"
+    "buildPlatform": "linux/amd64",
+    "storage": "app/downloads/scope-and-settle-0.3.0-8aab07441487.zip"
   },
-  "crossPlatformLimit": "Host bytes verified only. Git text normalization and Linux builds may produce different artifact/source bytes; record those identities and repeat affected checks before qualification.",
+  "crossPlatformLimit": "Linux plugin is a separately identified artifact. Its code and manifest match the historical host bytes exactly; UI and JUDGING text differ only in line endings. SOURCE.json identifies the new reviewed source commit. Native/external access remains pending.",
   "applicationSuite": {
     "sourceCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
     "passed": 575,
@@ -61,7 +64,8 @@
     "scenariosValidated": 34,
     "expectedItems": 43,
     "providerCalls": 0,
-    "liveStatus": "pending_authorization"
+    "liveStatus": "pending_authorization",
+    "targetRuntimeNote": "Windows contract remains exact and validated. A complete Linux evaluation workspace still requires its own target freeze/validation before an authorized existing-ledger live run; the lean runtime omits required source/fixture inputs."
   },
   "schemaVersionVerified": 19,
   "disposableRestore": {
@@ -77,13 +81,77 @@
     "manifestSha256": "9b908429f732c89c75ed71bc9b78aaa48cff0945c8bf6e1f5d87b1c68aa5bd46"
   },
   "docker": {
-    "status": "pending_access",
-    "imageId": null,
-    "configurationDigest": null,
-    "blocker": "Docker server-version probe ETIMEDOUT after 20 seconds; current build/start not executed",
-    "evidence": "private:task-8-evidence/docker-preflight.log"
+    "status": "local_pass",
+    "observedAt": "2026-10-25T13:13:33.280Z",
+    "sourceCommit": "8aab074414878899d9b8ee130d1d86cc22d046fb",
+    "imageTag": "scope-and-settle:ac-closeout-8aab07441487",
+    "imageId": "sha256:bb8de9203a561127e624548aebb1eade00e62c821f40dcf7a31a1285d4f66020",
+    "configurationDigest": "sha256:3f50c93a90c9c3f8ed792c334c5aa44b40b2c9269d6c6665ffc7c6059a161700",
+    "archiveSha256": "fa3d5eaddb232bec97f9dc32dee30be5f0dd7491ae40b1313c03c7ca3c652c01",
+    "archiveBytes": 83245056,
+    "archiveStorage": "private:task-8-docker-resume-2026-10-25/candidate-image.tar",
+    "linuxSuite": {
+      "passed": 575,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "todo": 0
+    },
+    "smokeChecks": 8,
+    "schemaVersion": 19,
+    "uid": 1000,
+    "productionPackageCount": 6,
+    "gitAndTestInputsAbsent": true,
+    "providerCalls": 0,
+    "blocker": null,
+    "evidence": [
+      "private:task-8-docker-resume-2026-10-25/docker-build-fixed.log",
+      "private:task-8-docker-resume-2026-10-25/container-verification.json",
+      "private:task-8-docker-resume-2026-10-25/artifact-verification.json"
+    ],
+    "publication": "Local Docker image/archive only; no external registry or deployment claim",
+    "historicalFailure": "private:task-8-docker-resume-2026-10-25/docker-build.log"
   },
   "gateRegister": "docs/verification/a-c-closeout-gates-2026-10-25.json",
   "runbook": "docs/verification/a-c-closeout-runbook.md",
-  "deploymentStatus": "pending_authorization"
+  "deploymentStatus": "pending_authorization",
+  "runtimeImplementationCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+  "priorHostArtifact": {
+    "artifactSourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+    "build": {
+      "platform": "win32",
+      "node": "v24.15.0",
+      "command": "npm.cmd run build; npm.cmd run package:plugin",
+      "status": "local_pass"
+    },
+    "sourceArchive": {
+      "kind": "git archive --format=tar",
+      "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+      "sha256": "ebe1051cecaee023b171ed150d8e8e80a6be8c29219b49b36657f2a2f3f8da14",
+      "storage": "private:task-9-evidence/candidate-source.tar"
+    },
+    "plugin": {
+      "version": "0.3.0",
+      "sourceCommit": "7cb3909e92c424b68f6f21dedddcd193e9d5a930",
+      "publicUrl": "https://scope-and-settle-qualification.hperkins.com",
+      "filename": "scope-and-settle-0.3.0-7cb3909e92c4.zip",
+      "sha256": "76144b96f3a7cf2e6d1d4c11db7295063cce7f1954503199ff022ae385e69d3e",
+      "checksums": {
+        "manifest.json": "b2210fcbdd13dc7e5075ddb1eaceca5646182ea3ddfa34165a5ce3b7f4af01cb",
+        "code.js": "4d9055ac770226b7b570e3874941a064d7b9e78bc7358d4b11f46793c1861ccb",
+        "ui.html": "779d225fbdf6fe674fe93703077b24944f778cb478650377ba1038bbde41663a",
+        "JUDGING.md": "c970cd7d2e1199c97c45ad2ab9f10abbbecd12faf656e480960c535bf421e4cd"
+      },
+      "bytes": 50097,
+      "entries": [
+        "JUDGING.md",
+        "SOURCE.json",
+        "code.js",
+        "manifest.json",
+        "ui.html"
+      ],
+      "zipAndEntryDigestsVerified": true,
+      "storage": "app/downloads/scope-and-settle-0.3.0-7cb3909e92c4.zip"
+    }
+  }
 }
