@@ -35,7 +35,7 @@ import {listRequestInbox,getInboxSettings,saveInboxSettings,refreshRequestThread
 import {issueConnectorCredential,listConnectorCredentials,revokeConnectorCredential} from './mcpAuth.js';
 import {MCP_PATH,handleMcpRequest,drainMcp} from './mcp.js';
 import {getStatusCard,getCardDisplaySettings,saveCardDisplaySettings} from './statusCards.js';
-import {buildEvidencePacket,getEvidencePacket,evidencePacketFile} from './evidencePackets.js';
+import {buildEvidencePacket,getEvidencePacket,evidencePacketFile,listEvidenceImageChoices} from './evidencePackets.js';
 
 function json(res: ServerResponse, status: number, body: unknown) {
   const text = JSON.stringify(body);
@@ -166,17 +166,20 @@ export const server = createServer(async (req, res) => {
       (req.method === "POST" && scopedOrder[2] === "approve")));
     if (session.role !== "designer" && !clientAction) return json(res, 403, { error: "Requires designer role" });
     if (path === "/api/session" && req.method === "GET") return json(res, 200, session);
+    const packetImages=path.match(/^\/api\/change-orders\/([^/]+)\/evidence-packets\/image-choices$/);
+    if(packetImages&&req.method==='GET')return json(res,200,listEvidenceImageChoices(ctx,packetImages[1]));
     const packetBuild=path.match(/^\/api\/change-orders\/([^/]+)\/evidence-packets$/);
     if(packetBuild&&req.method==='POST'){
-      const b=await scopedBody();if(!b||typeof b!=='object'||Array.isArray(b)||Object.keys(b).length)throw new ScopedAccessError(400,'Only the scoped order identity is accepted');
-      return json(res,201,buildEvidencePacket(ctx,packetBuild[1]));
+      const b=await scopedBody();if(!b||typeof b!=='object'||Array.isArray(b))throw new ScopedAccessError(400,'Only the scoped order identity or reviewed image options are accepted');
+      return json(res,201,Object.keys(b).length?buildEvidencePacket(ctx,packetBuild[1],b):buildEvidencePacket(ctx,packetBuild[1]));
     }
-    const packetRead=path.match(/^\/api\/evidence-packets\/([^/]+)(?:\/files\/(packet\.json|packet\.html|manifest\.json))?$/);
+    const packetRead=path.match(/^\/api\/evidence-packets\/([^/]+)(?:\/files\/(packet\.json|packet\.html|manifest\.json|image-[0-9a-f]{64}\.png))?$/);
     if(packetRead&&req.method==='GET'){
       if(!packetRead[2])return json(res,200,getEvidencePacket(ctx,packetRead[1]));
       const file=evidencePacketFile(ctx,packetRead[1],packetRead[2]);
-      res.writeHead(200,{'Content-Type':file.mediaType+'; charset=utf-8','Content-Disposition':`attachment; filename="${file.filename}"`,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'",'Access-Control-Allow-Origin':'*'});
-      return res.end(file.text);
+      const binary=file.body instanceof Uint8Array;
+      res.writeHead(200,{'Content-Type':binary?file.mediaType:file.mediaType+'; charset=utf-8','Content-Disposition':`attachment; filename="${file.filename}"`,'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'",'Access-Control-Allow-Origin':'*'});
+      return res.end(binary?Buffer.from(file.body):file.body);
     }
     if(deliveryReviewRoute){
       const id=deliveryReviewRoute[1],action=deliveryReviewRoute[2];

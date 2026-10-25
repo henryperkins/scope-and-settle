@@ -338,6 +338,11 @@ export const migrations: readonly Migration[] = [
  CREATE TRIGGER immutable_installment_reminder_policy BEFORE UPDATE ON installment_reminder_policies BEGIN SELECT RAISE(ABORT,'Immutable reminder policy'); END;
  CREATE TRIGGER retained_installment_reminder_policy BEFORE DELETE ON installment_reminder_policies BEGIN SELECT RAISE(ABORT,'Retained reminder policy'); END;
  `);}},
+ {id:19,name:'immutable-evidence-packet-files',up(db){db.exec(`
+ CREATE TABLE evidence_packet_files(packet_id TEXT NOT NULL,name TEXT NOT NULL CHECK(name='image-'||sha256||'.png'),media_type TEXT NOT NULL CHECK(media_type='image/png'),sha256 TEXT NOT NULL CHECK(length(sha256)=64 AND sha256 NOT GLOB '*[^0-9a-f]*'),bytes BLOB NOT NULL CHECK(length(bytes)>0 AND length(bytes)<=1500000),created_at TEXT NOT NULL,PRIMARY KEY(packet_id,name));
+ CREATE TRIGGER immutable_evidence_packet_file BEFORE UPDATE ON evidence_packet_files BEGIN SELECT RAISE(ABORT,'Immutable evidence packet file'); END;
+ CREATE TRIGGER retained_evidence_packet_file BEFORE DELETE ON evidence_packet_files BEGIN SELECT RAISE(ABORT,'Retained evidence packet file'); END;
+ `);}},
 ];
 
 /** Each migration and its ledger entry commit together. Never swallow DDL failures. */

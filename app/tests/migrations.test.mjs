@@ -7,6 +7,23 @@ import { isolatedApp } from './helpers.mjs';
 const app=await isolatedApp();
 const migration=await app.load('migrations').catch(e=>{if(e.code==='ERR_MODULE_NOT_FOUND')return {};throw e;});
 
+test('C4 migration nineteen retains all prior rows and creates immutable evidence packet attachment storage',()=>{
+ const db=new DatabaseSync(':memory:');try {
+  migrate(db,migration.migrations.slice(0,18));
+  db.prepare("INSERT INTO ai_calls(id,reserved_micro_usd,created_at) VALUES('old-budget',1200,'old')").run();
+  db.prepare("INSERT INTO evidence_packets VALUES('pkt-v1','demo','run','order-1',1,'{}','{}','<html></html>','old')").run();
+  const before=contents(db);migrate(db,migration.migrations.slice(0,19));const after=contents(db);
+  assert.deepEqual(after.evidence_packet_files,[]);delete after.evidence_packet_files;
+  assert.deepEqual(after,before);assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check,'ok');
+  const hash='a'.repeat(64);
+  db.prepare("INSERT INTO evidence_packet_files VALUES('pkt-v1',?,'image/png',?,X'89504E47','now')").run('image-'+hash+'.png',hash);
+  for(const invalidHash of ['a'+'Z'.repeat(63),'b'+'-'.repeat(63)])assert.throws(()=>db.prepare("INSERT INTO evidence_packet_files VALUES('pkt-v1',?,'image/png',?,X'89504E47','now')").run('image-'+invalidHash+'.png',invalidHash),/CHECK/i);
+  assert.throws(()=>db.prepare("INSERT INTO evidence_packet_files VALUES('pkt-v1',?,'image/png',?,X'89504E47','now')").run('image-'+'b'.repeat(64)+'.png',hash),/CHECK/i);
+  assert.throws(()=>db.prepare("UPDATE evidence_packet_files SET bytes=X'00' WHERE packet_id='pkt-v1'").run(),/Immutable/i);
+  assert.throws(()=>db.prepare("DELETE FROM evidence_packet_files WHERE packet_id='pkt-v1'").run(),/Retained/i);
+ }finally{db.close();}
+});
+
 test('C3 migration eighteen retains all prior rows and starts reminder consent empty',()=>{
  const db=new DatabaseSync(':memory:');try {
   migrate(db,migration.migrations.slice(0,17));
@@ -30,7 +47,7 @@ test('C1 migration seventeen preserves legacy work and accounting without fabric
   assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check,'ok');
  } finally {db.close();}
 });
-const expected=['projects','change_orders','invoice_operations','payment_observations','sessions','approvals','invoice_tombstones','demo_state','invitations','proposal_revisions','judge_access','judge_runs','renewal_grants','agent_policies','agent_policy_history','agent_requests','agent_messages','agent_portals','agent_outbox','agent_runtime','assessments','ai_calls','webhook_receipts','jobs','job_runtime','scope_snapshots','rate_card_snapshots','run_scope_heads','scope_acknowledgements','scope_contexts','scope_context_links','scope_access_parents','designer_item_prices','request_sources','request_source_versions','request_items','request_item_results','proposal_item_operations','proposal_item_reservations','duplicate_decisions','request_order_links','design_evidence_snapshots','design_evidence_bytes','assessment_evidence','assessment_attempts','inbox_settings','inbox_setting_history','request_inbox','figma_refresh_state','figma_event_receipts','reviewed_actions','outbound_operations','request_source_freshness','connector_credentials','connector_budget_reservations','status_card_settings','milestone_schedules','milestones','invoice_records','milestone_due_events','installment_actions','delivery_runs','delivery_snapshots','delivery_reviews','delivery_review_heads','delivery_events','delivery_acceptances','evidence_packets','evaluation_work_bindings','installment_reminder_previews','installment_reminder_policies','installment_reminder_heads'].sort();
+const expected=['projects','change_orders','invoice_operations','payment_observations','sessions','approvals','invoice_tombstones','demo_state','invitations','proposal_revisions','judge_access','judge_runs','renewal_grants','agent_policies','agent_policy_history','agent_requests','agent_messages','agent_portals','agent_outbox','agent_runtime','assessments','ai_calls','webhook_receipts','jobs','job_runtime','scope_snapshots','rate_card_snapshots','run_scope_heads','scope_acknowledgements','scope_contexts','scope_context_links','scope_access_parents','designer_item_prices','request_sources','request_source_versions','request_items','request_item_results','proposal_item_operations','proposal_item_reservations','duplicate_decisions','request_order_links','design_evidence_snapshots','design_evidence_bytes','assessment_evidence','assessment_attempts','inbox_settings','inbox_setting_history','request_inbox','figma_refresh_state','figma_event_receipts','reviewed_actions','outbound_operations','request_source_freshness','connector_credentials','connector_budget_reservations','status_card_settings','milestone_schedules','milestones','invoice_records','milestone_due_events','installment_actions','delivery_runs','delivery_snapshots','delivery_reviews','delivery_review_heads','delivery_events','delivery_acceptances','evidence_packets','evidence_packet_files','evaluation_work_bindings','installment_reminder_previews','installment_reminder_policies','installment_reminder_heads'].sort();
 function migrate(db,...args){assert.equal(typeof migration.migrate,'function','recorded migration runner is required');migration.migrate(db,...args);}
 
 test('T14 legacy adoption detects conflicting operation identities without dropping history or failing migration',()=>{
@@ -95,7 +112,7 @@ test('fresh migration is complete, recorded once and preserves unique indexes on
   try {
     migrate(db); assert.deepEqual(tables(db),expected);
     const before=schema(db);migrate(db);assert.deepEqual(schema(db),before);
-    assert.deepEqual(db.prepare('SELECT id FROM schema_migrations ORDER BY id').all().map(x=>x.id),[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
+    assert.deepEqual(db.prepare('SELECT id FROM schema_migrations ORDER BY id').all().map(x=>x.id),[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
     for(const [table,columns] of [['agent_requests',['run_id','source','source_id']],['proposal_revisions',['change_order_id','revision']],['renewal_grants',['credential_hash']]]) {
       const indexes=db.prepare(`PRAGMA index_list(${table})`).all();
       assert.ok(indexes.some(i=>i.unique&&JSON.stringify(db.prepare(`PRAGMA index_info("${i.name}")`).all().map(c=>c.name))===JSON.stringify(columns)),table);
@@ -159,7 +176,7 @@ test('adopting the synthetic 0.3.0 fixture preserves every row, snapshot, ledger
     assert.equal(db.prepare('SELECT order_id FROM request_order_links').get().order_id,before.agent_requests[0].order_id);
     const after=contents(db);for(const row of after.invoice_operations){delete row.representation;delete row.approved_terms_json;}for(const row of after.payment_observations){delete row.financial_json;delete row.invoice_record_id;}
     delete after.jobs;delete after.job_runtime;for(const row of after.webhook_receipts)for(const key of ['event_type','route_key','job_id','received_at','verified_at'])delete row[key];
-    for(const table of ['scope_snapshots','rate_card_snapshots','run_scope_heads','scope_acknowledgements','scope_contexts','scope_context_links','scope_access_parents','designer_item_prices','request_sources','request_source_versions','request_items','request_item_results','proposal_item_operations','proposal_item_reservations','duplicate_decisions','request_order_links','design_evidence_snapshots','design_evidence_bytes','assessment_evidence','assessment_attempts','inbox_settings','inbox_setting_history','request_inbox','figma_refresh_state','figma_event_receipts','reviewed_actions','outbound_operations','request_source_freshness','connector_credentials','connector_budget_reservations','status_card_settings','milestone_schedules','milestones','invoice_records','milestone_due_events','installment_actions','delivery_runs','delivery_snapshots','delivery_reviews','delivery_review_heads','delivery_events','delivery_acceptances','evidence_packets','evaluation_work_bindings','installment_reminder_previews','installment_reminder_policies','installment_reminder_heads'])delete after[table];
+    for(const table of ['scope_snapshots','rate_card_snapshots','run_scope_heads','scope_acknowledgements','scope_contexts','scope_context_links','scope_access_parents','designer_item_prices','request_sources','request_source_versions','request_items','request_item_results','proposal_item_operations','proposal_item_reservations','duplicate_decisions','request_order_links','design_evidence_snapshots','design_evidence_bytes','assessment_evidence','assessment_attempts','inbox_settings','inbox_setting_history','request_inbox','figma_refresh_state','figma_event_receipts','reviewed_actions','outbound_operations','request_source_freshness','connector_credentials','connector_budget_reservations','status_card_settings','milestone_schedules','milestones','invoice_records','milestone_due_events','installment_actions','delivery_runs','delivery_snapshots','delivery_reviews','delivery_review_heads','delivery_events','delivery_acceptances','evidence_packets','evidence_packet_files','evaluation_work_bindings','installment_reminder_previews','installment_reminder_policies','installment_reminder_heads'])delete after[table];
     for(const table of ['sessions','invitations','renewal_grants'])for(const row of after[table])for(const key of ['grant_kind','resource_id','resource_revision','scope_parent_id'])delete row[key];
     assert.deepEqual(after,before);
     assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check,'ok');
