@@ -1,0 +1,62 @@
+# A–C closeout qualification — October 24 plan, October 25 verification
+
+Local C1–C4 implementation is accepted. C5 source changes and disposable recovery are verified; the current Docker build/start gate is blocked by the local Docker engine. C6 live evaluation, provider/native evidence, independent review, designer trials and promotion remain pending. This is not a deployed-release qualification.
+
+The implementation candidate is `cf2069f13b3ce3b10dc0903c8e7c35e44190e751` on `codex/agent-integrations-through-t16`. Task 7 was published as `3c6eecbcca28e97d3d41fc700928042beb68c90d`. Documentation and origin-specific plugin packaging may have later source identities; the [artifact record](a-c-closeout-artifacts-2026-10-25.json) identifies the exact kit. The [gate register](a-c-closeout-gates-2026-10-25.json) is the canonical structured status record, with required evidence, candidate, observations, reviewer and blockers for every gate. The [runbook](a-c-closeout-runbook.md) defines the remaining actions and rollback.
+
+## Local evidence and its limits
+
+- Task 7 final `npm.cmd test`: **574 passed, 0 failed, 0 skipped, 0 cancelled, 0 todo**. Initial focused image/migration checks were 32/32; the expanded focused group passed 34/34, followed by the final full suite including restored snapshot identity checks.
+- Task 7 Playwright: metadata-only default; explicit preview before image selection; acknowledgement reset on preview/selection changes; stale replacement refusal and fresh selection; two distinct PNGs plus JSON, HTML and manifest downloaded through authenticated requests; independently computed byte counts/SHA-256; script and private-link redaction; sandboxed preview; inert standalone HTML; decoded images and no horizontal overflow at 390px. Zero page errors, model calls or additional fixture provider writes during export. Packet controls fit 390px. A longer synthetic run ID can overflow the surrounding preexisting designer session text; no whole-app mobile or physical-device pass is claimed.
+- Main-session review reproduced and fixed formatted manifest bytes missing from the 16 MiB cap, nonhex/mismatched SQL filenames, restored snapshot JSON IDs differing from selected rows, and long PNG download labels overflowing packet controls. Each has retained RED evidence before correction. Manifest-tamper control also passes. Metadata-only v1 exports and the original 4 MB limit remain intact.
+- Task 8 canonical smoke/migration/plugin group: **19/19**. The original smoke body reproduced HTTP 400 requiring canonical item IDs and an operation ID. The corrected helper exercises the real public route, creates one order across repeated operations and returns the existing 403 for cross-run order reads, with no model/provider calls.
+- Final application `npm.cmd test`: **575 passed, 0 failed, 0 skipped, 0 cancelled, 0 todo**, on Windows Node 24.15.0. Source was committed before packaging. This does not establish hosted CI or Linux/container success.
+- Disposable backup/restore: production `backup-data.mjs`, matching backup SHA-256 `b8d5702dfd4e301be2c5fdf5a324b672a130de555eb385b0d21a9a4cdd0a6665`, schema **19**, SQLite integrity `ok`. Exact rows remained for one approved revision, one approval, two snapshots/reviews, one replacement acceptance, five delivery events, one packet and PNG, one synthetic settled budget row and one reset tombstone. Authenticated restored downloads matched every original byte; anonymous, foreign-run and revoked-reset access were denied. Synthetic ledger charge was 100,000 micro-USD, never real spend capacity.
+- Docker build prerequisites now include Git and exactly four public evaluation test inputs in the build stage. The final runtime receives only the original runtime judgment fixture. Smoke checks enforce non-root operation, exact production dependency closure and absence of Git/tests/the four inputs. **These current Docker checks have not executed:** `docker version --format '{{.Server.Version}}'` returned `ETIMEDOUT` after 20 seconds, with empty stdout/stderr. No image ID or current container-start proof is supplied.
+
+All reviews in this execution were performed directly in the main session. No independent code or human product review is claimed. The earlier design review remains historical evidence. Private RED/GREEN/browser logs, downloaded fixture files, backup evidence, checkpoints and protection reports remain under `.superpowers/sdd/2026-10-24-a-c-closeout/`; they are intentionally not public artifacts. The historical primary baseline remains intact. Current main independently advanced to `495e1093f39761c19c912874d06da382723688a3`; its 27 changed baseline paths were observed read-only and preserved. No merge or primary-checkout edit was performed.
+
+## Carried findings
+
+| Finding | Disposition and evidence |
+| --- | --- |
+| B01 — older source loss overwrites recovery | Fixed in Task 1, `ead6969`: read-start ordering and delayed-loss/current-success regressions. |
+| B02 — changed-source automatic assessment | Retained explicit legacy policy delegation, with regression. Recovery creates no consent, budget or count reset. |
+| B03 — weak source recovery coverage | Fixed in Task 1: held reads, same-byte recovery, positive current-loss control and exact 409 on old approval. |
+| B04 — unavailable-source review link | Fixed in Task 1: recovery control replaces stale review navigation; affected browser evidence retained. |
+| B05 — duplicated freshness predicates | Touched paths use the shared assessed-source guard; typed domain boundaries are covered in Tasks 1/5. Whole-service rewrite intentionally excluded. |
+| B06 — cancellation recovery/authority | Fixed in Task 2, `8ec39ef`: retained acknowledgement, exact post-await authority denial, retryable-read versus changed-association guidance; 35/35 focused and browser controls. |
+| B07 — connector authority/waiter tests | Fixed in Task 4, `de6dc45`: exact refusal/zero-side-effect assertions, legitimate designer/client controls and actual join signals; 30/30 focused. |
+| B08 — unresolved work across upgrades | Fixed in Task 3, `f7764a0`: logical unresolved guard, strict v1/v2 queue compatibility and evaluator-only case bindings. Full C1 suite 543/543; success cache remains full-runtime exact. |
+| B09 — disabled status/malformed URI | Fixed in Task 4: inactive presentation, sanitized 400, no accidental revocation or broader authority. |
+| B10 — protocol deadlines/reflection/error mapping | Fixed in Task 5, `7ea772f`: bounded JSON/SSE responses for both pinned eras, sanitized errors and typed owned-domain codes. |
+| B11 — transport complexity/mutable limits | Fixed in Task 5: schema/error/transport split, frozen instance limits, disconnected work remains admitted until settlement; 42/42 focused and 549/549 full. |
+| B12 — browser timing races | New task-local runners wait on authoritative responses and DOM conditions. Original failing runners/logs are retained; no timing-only pass substituted. |
+| B13 — stale container proposal fixture | Corrected in Task 8, `cf2069f`, with canonical-route RED→GREEN and build-context closure. Actual Docker verification remains `pending_access`. |
+| L01 — automatic installment reminders | Implemented in Task 6, `96d80b6`: separate exact-invoice consent, 24-hour cadence, two automatic attempts, shared locks and uncertain-send refusal; 566/566 full. Real timed provider acknowledgement remains pending. |
+| L02 — native draft usefulness | Local standard Plugin API implementation retained. Native quality judgment and bounded correction if needed require the intended Figma account/file and actual designers. |
+| L03 — image-containing exports | Implemented in Task 7: reviewed immutable PNGs, exact identities/digests, caps, v1 compatibility and browser evidence above. Independent tracing remains pending. |
+| L04 — actual dispute/refund resources | Deliberately deferred to T21. No actual dispute, match, refund or provider submission is fabricated. |
+| L05 — customer identity/retention | Deliberately deferred to T18–T22. Demo role grants are not real identity; customer enablement/retention requires its own design and qualification. |
+
+Previously closed budget reservation/retry/source-binding, loading and caption/wording findings keep their original T11b/T12/T17 evidence; they were not silently reopened or relabeled as new work. Their relevant regression files are included in the 575-test suite. The narrow surviving designer-session text overflow is recorded above as deferred UI polish, outside the standalone-export gate.
+
+## Evaluation and budget
+
+The [current contract](scope-evaluation-contract-a-c-closeout-2026-10-25.json) freezes **125 files**, source identity `0c43d66b80d848c5c7b604cd3398a6c75209b2b32af4704ff18ecc0bf3d0b31b`, against reviewed runtime commit `cf2069f`. Its manual and automatic identities retain Baseten `deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast`, reasoning `max`. Original contract, fixtures, labels, unsupported-case notes and generation source/compiled bytes are unchanged.
+
+The actual validation CLI passed **34 held-out scenarios / 43 expected items**, zero provider calls. This validates data and source hashes; it supplies no accuracy, latency, semantic review or live-model result. The private per-case review worksheet remains `not_run`.
+
+The current manifest records exact Windows workspace bytes. A Git export or Linux build can change text/build bytes. Any evaluation on a different runtime first needs its complete reviewed source/build inputs, a matching validated contract and unchanged generation/held-out labels; the lean production image alone omits required evaluation inputs. Host plugin checksums likewise do not establish Docker ZIP byte equality.
+
+Read-only accounting at `2026-10-25T12:49:49.824Z` found **$0.837288** charged in the historical local ledger (3 calls), and **$0.135269** in the designated hosted ledger (32 calls), with no unsettled calls. The hosted cap remains **$24.16**, leaving **$24.024731**. Reserving $0.84 outside that hosted allocation keeps the combined ceiling at $25; local live spending remains stopped. No other ledger was present in the three known sibling/implementation worktrees.
+
+The current conservative reservation is **$0.668468 per call**; all 34 cases would reserve at most **$22.727912**, leaving **$1.296819** under the current hosted balance. This is a conservative affordability calculation, not a bill or spending authorization, and does not guarantee adequate later judging allowance. A private history-hash-bound allocation is prepared. Refresh the audit immediately before any authorized paid run. The existing hosted runtime does not establish this candidate's schema/runtime; adoption, backup, stop/drain and exclusive ownership require the applicable deployment authority. Never run a paid evaluator on a fresh or copied ledger to create additional capacity.
+
+## External gates and follow-on scope
+
+Prepared qualification origin: `https://scope-and-settle-qualification.hperkins.com`. This is a proposed isolated target, not a reachable/deployed claim. DNS/tunnel/account changes have not been made. No external sandbox checkout, signed-callback walkthrough, native Figma write, notification, paid evaluation, recruitment message or promotion was performed in this closeout.
+
+The official event source and authenticated dates connector were rechecked on October 25: judging ends **December 15, 2026 at 16:00 UTC (10:00 a.m. Chicago)**. The existing default entry expiry of December 16 at 16:00 UTC covers that window, but no credential or lifetime was changed. [Official rules](https://paypalaihackathon.devpost.com/rules).
+
+T18 real identity/tenant/merchant connections, T19 subscriptions/recurring allowances, T20 allowance reservations/overages, T21 eligible refund/dispute operations and T22 studio reporting/commercial readiness remain separate unimplemented extensions. Optional Orders v2 checkout, invoice partial-payment configuration, usage billing, FX/multi-currency, payouts/platform fees, agency connector publication, named-version/Dev Mode suggestions, Dev Resource writes, Code Layers/Specs/beta native generation and repository-connected output remain access- and design-gated investigations. The [main roadmap](../superpowers/plans/2026-10-23-agent-integrations-checklist.md) retains their original requirements.

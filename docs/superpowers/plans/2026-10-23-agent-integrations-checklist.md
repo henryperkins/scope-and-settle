@@ -16,6 +16,8 @@
 
 ## Global constraints
 
+**October 25 closeout status:** T01–T12 and T14–T17 have local implementation evidence; T13 has the original freeze plus a separately frozen current runtime and validation-only result. A–C closeout Tasks 1–8 add recovery/protocol fixes, separately consented installment reminders, reviewed image exports and canonical container/restore preparation. The current full host suite is 575/575. Current Docker build/start remains blocked by an unresponsive local engine; live evaluation, candidate staging, signed provider/native evidence, independent review, designer trials and promotion remain separate pending gates. The [current qualification record](../../verification/agent-integrations-a-c-closeout-2026-10-24.md) supersedes older current-status prose without changing historical results. T18–T22 and the optional investigations below remain unimplemented and retain their own prerequisites.
+
 - Preserve the current contract: the designer explicitly approves rates and limits for automatic canonical quotes, or individually reviews exceptions. The client explicitly approves that exact proposal revision before invoice creation. AI cannot approve or invoice anything. Backend policy and authenticated human actions authorize execution.
 - Preserve: “Approved/invoiced terms are immutable. A baseline change invalidates pending approval until designer re-review. Never silently rebase.”
 - Preserve: “An absent mobile frame never proves scope exclusion.”

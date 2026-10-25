@@ -1,5 +1,7 @@
 # Release C local qualification through T17 — October 24, 2026
 
+Current-status supersession, October 25: the [A–C closeout record](agent-integrations-a-c-closeout-2026-10-24.md) adds separately consented installment reminders, opt-in reviewed PNG exports, canonical smoke/restore preparation and current gates. Metadata-only/manual defaults remain; the historical pixel-omission/reminder limitations and 524-test result below describe the earlier T17 candidate.
+
 T14–T17 are locally implemented. The final `npm.cmd test` build and suite pass **524/524**, with zero failures, skips, cancellations or todo tests. This extends the [through-T16 qualification](agent-integrations-c-through-t16-2026-10-24.md), preserving its historical results and checkpoints. Release C deployment and pending external Release B gates remain unqualified.
 
 T17 adds immutable scoped JSON/HTML evidence packets with a SHA-256/byte-count manifest, designer preview and authenticated downloads. Approved terms, original scope/rates, exact request versions, linked history, model suggestions, recorded approvals, replacement deliveries, requested changes, exact acceptance and installment observations retain their sources and provenance. Missing evidence remains a gap; no current-scope substitution or historical-payment sum is used.

@@ -1,5 +1,7 @@
 # Release B local implementation record
 
+Current-status supersession, October 25: the [A–C closeout record](agent-integrations-a-c-closeout-2026-10-24.md) records the completed local review/fixes, current evaluation freeze/validation and exact remaining external gates. The dated results and stopping points below remain historical; they do not replace the current 575-test candidate record.
+
 Status, updated 2026-10-24: accepted locally through T12b at `controller-t12b-approved` (T01-T10, T11a/T11b/T11c, T12a/T12b). T13 and the whole-Release-B review/minors wave remain pending. The external Release B acceptance gate has not passed. The earlier stopping-point and T12a sections below are historical.
 
 This record covers local changes based on `68623c0c728faf657b885a319320a539cd9c83db`, following the [roadmap](../superpowers/plans/2026-10-23-agent-integrations-checklist.md) and [Release B execution decisions](../superpowers/plans/2026-10-23-release-b-execution.md). Changes remain uncommitted in an isolated worktree. The [accepted local Release A record](agent-integrations-a-2026-10-23.md) provides the 217-test starting point; its changed-candidate external gates remain separate.

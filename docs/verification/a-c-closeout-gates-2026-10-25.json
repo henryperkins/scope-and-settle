@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-25T12:59:06.585Z",
+  "implementationCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+  "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+  "qualification": "Local implementation and preparation only; required external gates remain open",
+  "gates": [
+    {
+      "gate": "C1_source_action_upgrade_recovery",
+      "requiredEvidence": "Held-read ordering, ended authority, logical unresolved-work/queue/evaluator regression evidence and full suite",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "app/tests/source-freshness.test.mjs",
+        "app/tests/reviewed-actions.test.mjs",
+        "app/tests/assessment-work-upgrade.test.mjs",
+        "app/tests/evaluator.test.mjs"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C2_connector_and_transport",
+      "requiredEvidence": "Both pinned protocol eras, exact authority refusals, bounded disconnect/deadline/error behavior",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "app/tests/mcp.test.mjs",
+        "app/tests/mcp-auth.test.mjs",
+        "app/tests/http.test.mjs"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C3_exact_installment_reminders",
+      "requiredEvidence": "Separate exact-invoice consent, shared cadence/locks, post-read guards and no uncertain replay",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "app/tests/installment-reminders.test.mjs",
+        "docs/INSTALLMENT-PAYMENTS.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C4_reviewed_immutable_images",
+      "requiredEvidence": "Preview/stale-selection browser checks; strict identities/caps; five authenticated downloads and exact byte/digest checks;390px standalone",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "app/tests/evidence-packets.test.mjs",
+        "app/tests/migrations.test.mjs",
+        "private:task-7-evidence/browser-result.json",
+        "private:task-7-evidence/full-accepted.log"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C5_host_source_suite",
+      "requiredEvidence": "Windows Node24.15.0 final application build and575/575 tests, no fail/skip/cancel/todo",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "private:task-8-evidence/full.log",
+        "private:task-8-evidence/publication.json"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C5_canonical_container_fixture",
+      "requiredEvidence": "Real public canonical route, one reused order, cross-run403, zero provider/model effects",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "app/tests/container-smoke.test.mjs",
+        "app/tests/container-smoke-fixture.mjs",
+        "private:task-8-evidence/focused-final.log"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C5_disposable_backup_restore",
+      "requiredEvidence": "Matching backup, schema19 integrity, approval/acceptance/PNG/ledger/tombstone preservation and scoped HTTP readback",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "private:task-8-evidence/backup-restore-result.json",
+        "app/scripts/backup-data.mjs"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C5_docker_build_and_start",
+      "requiredEvidence": "Exact-commit Linux Docker full build, image/configuration digests, canonical runtime smoke and replacement persistence",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_access",
+      "artifactRefs": [
+        "Dockerfile",
+        ".dockerignore",
+        "app/scripts/check-container.mjs",
+        "private:task-8-evidence/docker-preflight.log"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Local Docker server-version probe returned ETIMEDOUT after20s with empty stdout/stderr. Current image build/start and runtime footprint checks have not run."
+    },
+    {
+      "gate": "C6_current_contract_validation",
+      "requiredEvidence": "Verify all125 current source hashes and original generation/labels;34 held-out scenarios and43 items;zero provider calls",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "local_pass",
+      "artifactRefs": [
+        "docs/verification/scope-evaluation-contract-a-c-closeout-2026-10-25.json",
+        "private:task-10-evidence/freeze-result.json",
+        "private:task-10-evidence/validation-cli.log"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": null
+    },
+    {
+      "gate": "C6_existing_budget_audit",
+      "requiredEvidence": "Read-only designated hosted and historical local ledger accounting; all known allocations remain within original25USD",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "external_pass",
+      "artifactRefs": [
+        "private:task-10-evidence/budget-summary.json",
+        "private:task-10-evidence/allocation-reviewed.json"
+      ],
+      "observedAt": "2026-10-25T12:49:49.824Z",
+      "reviewer": "Codex main session; actual read-only local SQLite and hosted IAP/SQLite observations",
+      "blocker": null
+    },
+    {
+      "gate": "qualification_deployment",
+      "requiredEvidence": "Approved target/origin, reviewed Docker image/plugin, isolated synthetic data or explicitly approved existing target, callback routing, flags and rollback",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_authorization",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md",
+        "docs/verification/a-c-closeout-artifacts-2026-10-25.json"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Docker gate remains open. Proposed qualification origin is not provisioned/verified; deployment, DNS/tunnel/account/callback authority and exact target approval are absent. New isolated data has zero AI allowance."
+    },
+    {
+      "gate": "C6_live_model_and_semantic_review",
+      "requiredEvidence": "Authorized existing-ledger run under a matching target contract; full denominators/cost/latency; each quote reviewed; zero false billable/duplicate failures and at least 90% clearly-new recognition",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_authorization",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md",
+        "private:task-10-evidence/semantic-review-worksheet.json"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "No paid-run authority or results. Prepare the complete evaluation inputs and validate exact target bytes; the lean runtime omits required inputs and the Windows manifest is not automatically portable. Candidate schema/runtime must be authorized on the existing designated ledger; refresh history/allocation and stop/drain its server first."
+    },
+    {
+      "gate": "C6_candidate_sandbox_and_signed_events",
+      "requiredEvidence": "Real100/150USD installment checkout, verified signed callbacks, exact-invoice retrieval, replacement acceptance and durable restart/reopen",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_authorization",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Candidate deployment/callback identity and explicit sandbox account/action authority remain prerequisites. Historical payments do not qualify this candidate."
+    },
+    {
+      "gate": "C6_real_timed_reminder",
+      "requiredEvidence": "Fully unpaid exact candidate invoice, real eligibility >=24h, fresh bounded consent with live parent, provider acknowledgement and timestamps",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_authorization",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "No authorized candidate invoice or real eligibility timestamp exists. After issue, record actual earliest time and use pending_eligibility only while waiting; do not backdate or extend authority."
+    },
+    {
+      "gate": "C6_supported_native_client",
+      "requiredEvidence": "Actual Figma entitlement/file/connector, discovery/assessment/draft, plugin-closed inbox/replies, card and draft readback/reopen",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_access",
+      "artifactRefs": [
+        "docs/FIGMA-AGENT-CONNECTOR.md",
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Target account/file/connector access, external authority, deployed candidate and approved existing AI accounting are unconfirmed."
+    },
+    {
+      "gate": "C6_independent_packet_review",
+      "requiredEvidence": "A separate named human traces exact exported images and facts to authenticated originals and records verdict",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_access",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Reviewer and candidate-bound human review are absent; the implementing session cannot self-certify independence."
+    },
+    {
+      "gate": "C6_designer_trials",
+      "requiredEvidence": "Observe2–3 actual designers; task times, mistakes, recovery, native usefulness and feedback",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_access",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Participants/observations are absent. Recruitment messages have not been authorized or sent."
+    },
+    {
+      "gate": "official_judging_window",
+      "requiredEvidence": "Official dates/source recheck before any credential-lifetime change",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "external_pass",
+      "artifactRefs": [
+        "https://paypalaihackathon.devpost.com/rules",
+        "private:task-12-evidence/judging-window.json"
+      ],
+      "observedAt": "2026-10-25T12:47:18Z",
+      "reviewer": "Codex main session; authenticated Devpost dates connector and official rules",
+      "blocker": null,
+      "judgingEndsAt": "2026-12-15T16:00:00Z"
+    },
+    {
+      "gate": "production_promotion_and_fresh_judging",
+      "requiredEvidence": "Qualified exact artifact and matching backup; approved production target; identity/health/state/callback proof; fresh account and second isolated run",
+      "candidateCommit": "cf2069f13b3ce3b10dc0903c8e7c35e44190e751",
+      "status": "pending_authorization",
+      "artifactRefs": [
+        "docs/verification/a-c-closeout-runbook.md"
+      ],
+      "observedAt": "2026-10-25T12:59:06.585Z",
+      "reviewer": "Codex main session; self-review, no independence claim",
+      "blocker": "Required candidate gates are incomplete; production-promotion authority and fresh-user/independent acceptance are absent. No merge/deployment/lifetime changes are implied."
+    }
+  ]
+}

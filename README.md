@@ -1,5 +1,7 @@
 # Scope & Settle
 
+The agent-integration branch's [A–C closeout record](docs/verification/agent-integrations-a-c-closeout-2026-10-24.md) separates its 575-test local qualification, reviewed image exports and disposable restore proof from pending Docker, hosted/provider/native/evaluation and human gates. Use its [runbook](docs/verification/a-c-closeout-runbook.md) and source-bound artifact record for candidate qualification; the newer primary checkout and currently deployed product remain separate.
+
 Handle client change requests within designer-approved rates and limits, then settle them with PayPal.
 
 A freelance designer approves a rate selection, per-quote limit and cumulative allowance once. A hosted agent receives requests from a private client portal or watches designated client authors in Figma. AI compares each request with the brief and maps every priced deliverable to an approved rate. Code checks that coverage and the limits before delivering a quote automatically. Unclear or unsupported work becomes a clarification or designer exception. The client explicitly approves the exact revision; PayPal then provides the sandbox invoice and authoritative payment status. **Work begins after payment.**
